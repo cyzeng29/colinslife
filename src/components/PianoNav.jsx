@@ -4,12 +4,12 @@ import { NavLink } from 'react-router-dom'
 // Each entry is one playable white key. Position them among the decorative
 // black keys below by eye — the blackKeyPositions array is independent.
 const playableKeys = [
-  { to: '/', label: 'home' },
-  { to: '/work', label: 'work' },
-  { to: '/about', label: 'about' },
+  { to: '/', label: 'home', shortcut: 'C' },
+  { to: '/work', label: 'experience', shortcut: 'E', extraSpacer: true },
+  { to: '/about', label: 'about', shortcut: 'A' },
 ]
 
-const blackKeyPositions = [42, 154, 266, 322] // px offsets, purely decorative
+const blackKeyPositions = [62, 222, 302, 462, 542, 622] // px offsets, purely decorative
 
 export default function PianoNav() {
   const [pressed, setPressed] = useState(null)
@@ -29,6 +29,7 @@ export default function PianoNav() {
         <div className="keys">
           {/* spacer key before the first playable one, matches original sketch */}
           <div className="key" />
+          <div className="key" />
           {playableKeys.map((k) => (
             <Fragment key={k.to}>
               <NavLink
@@ -41,11 +42,14 @@ export default function PianoNav() {
                   (pressed === k.label ? ' pressed' : '')
                 }
               >
+                <span className="key-letter mono">{k.shortcut}</span>
                 <span className="label">{k.label}</span>
               </NavLink>
               <div className="key" />
+              {k.extraSpacer && <div className="key" />}
             </Fragment>
           ))}
+          <div className="key" />
           {blackKeyPositions.map((left) => (
             <div className="black-key" style={{ left }} key={left} />
           ))}
