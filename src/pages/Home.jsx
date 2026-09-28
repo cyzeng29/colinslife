@@ -2,15 +2,13 @@ export default function Home() {
   return (
     <section className="page-content">
       <h1 className="home-title">
-        Bioinformatics,
+        Colin Zeng,
         <br />
-        built by hand.
+        Designing New Things.
       </h1>
       <p className="home-role">
-        CS + Statistics at Duke. I build genomics tools, small web apps, and
-        the occasional model that has no business working as well as it
-        does. Currently mapping yeast pangenomes and building databases for
-        fungal genetics.
+        CS + Statistics at Duke. I build genomics tools, small web apps, and bringing life to
+        the things I imagine and work on.
       </p>
       <div className="home-links">
         <a href="mailto:colin.zeng@duke.edu">email</a>
