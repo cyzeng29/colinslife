@@ -1,12 +1,13 @@
 import { Fragment, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { playNote } from '../audio/notes.js'
 
 // Each entry is one playable white key. Position them among the decorative
 // black keys below by eye — the blackKeyPositions array is independent.
 const playableKeys = [
-  { to: '/', label: 'home', shortcut: 'C' },
-  { to: '/work', label: 'experience', shortcut: 'E', extraSpacer: true },
-  { to: '/about', label: 'about', shortcut: 'A' },
+  { to: '/', label: 'home', shortcut: 'C', freq: 261.63 },
+  { to: '/work', label: 'experience', shortcut: 'E', freq: 329.63, extraSpacer: true },
+  { to: '/about', label: 'about', shortcut: 'A', freq: 440.0 },
 ]
 
 const blackKeyPositions = [62, 222, 302, 462, 542, 622] // px offsets, purely decorative
@@ -36,6 +37,8 @@ export default function PianoNav() {
                 to={k.to}
                 end={k.to === '/'}
                 onClick={() => handleClick(k.label)}
+                onPointerEnter={(e) => e.pointerType === 'mouse' && playNote(k.freq)}
+                onPointerDown={(e) => e.pointerType !== 'mouse' && playNote(k.freq)}
                 className={({ isActive }) =>
                   'key playable' +
                   (isActive ? ' active' : '') +
