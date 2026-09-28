@@ -4,11 +4,11 @@ export default function Home() {
       <h1 className="home-title">
         Colin Zeng,
         <br />
-        Designing New Things.
+        Duke University.
       </h1>
       <p className="home-role">
-        CS + Statistics at Duke. I build genomics tools, small web apps, and bringing life to
-        the things I imagine and work on.
+        CS + Statistics at Duke. I build genomics tools, small web apps, and trying to bring life to
+        the things I imagine.
       </p>
       <div className="home-links">
         <a href="mailto:colin.zeng@duke.edu">email</a>

@@ -22,7 +22,7 @@ export default function App() {
             <Route path="/about" element={<About />} />
           </Routes>
         </div>
-        <footer>colin zeng — built by hand, not a template</footer>
+        <footer>colin zeng</footer>
       </div>
     </>
   )
