@@ -10,7 +10,9 @@ const playableKeys = [
   { to: '/about', label: 'about', shortcut: 'A', freq: 440.0 },
 ]
 
-const blackKeyPositions = [62, 222, 302, 462, 542, 622] // px offsets, purely decorative
+// Purely decorative. Each number is the white-key boundary a black key sits
+// on, so they follow the key width (--key-w) on small screens too.
+const blackKeyPositions = [1, 3, 4, 6, 7, 8]
 
 export default function PianoNav() {
   const [pressed, setPressed] = useState(null)
@@ -53,8 +55,8 @@ export default function PianoNav() {
             </Fragment>
           ))}
           <div className="key" />
-          {blackKeyPositions.map((left) => (
-            <div className="black-key" style={{ left }} key={left} />
+          {blackKeyPositions.map((n) => (
+            <div className="black-key" style={{ left: `calc(${n} * var(--key-w) - var(--black-w) / 2)` }} key={n} />
           ))}
         </div>
       </div>

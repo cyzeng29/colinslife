@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx'
 import Work from './pages/Work.jsx'
 import About from './pages/About.jsx'
 import IntroOverlay from './components/IntroOverlay.jsx'
+import { asset } from './components/Frame.jsx'
 
 export default function App() {
   const location = useLocation()
@@ -22,7 +23,10 @@ export default function App() {
             <Route path="/about" element={<About />} />
           </Routes>
         </div>
-        <footer>colin zeng</footer>
+        <footer>
+          <span>colin zeng</span>
+          <img src={asset('images/footer.png')} alt="Hand-drawn self-portrait of Colin Zeng" loading="lazy" />
+        </footer>
       </div>
     </>
   )

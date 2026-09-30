@@ -1,8 +1,22 @@
 // Edit the arrays below to add, remove, or update entries.
 // Every card on the Work page is generated from this file — no JSX editing needed.
+//
+// Images: drop files in public/images/ and set `src: 'images/your-file.jpg'`.
+// Any slot with an empty src shows a sketch-style placeholder instead.
+//
+// Per entry:
+//   id       — anchor used by the penguin timeline (keep it unique)
+//   short    — short label shown in the timeline
+//   links    — optional [{ label, href }], shown on the card and in the dialog
+//   context  — optional sentence shown in the dialog (hidden while empty)
+//   outcomes — optional list shown in the dialog (hidden while empty)
+//   thumb    — small image on the card
+//   media    — larger images in the detail dialog
 
 export const experience = [
   {
+    id: 'dietrich-lab',
+    short: 'Dietrich Lab',
     title: 'Undergraduate Research Intern',
     org: 'Dietrich Lab, Duke University',
     when: 'Jan 2026 — present',
@@ -12,8 +26,19 @@ export const experience = [
       'Used AlphaFold and BLAST for protein prediction and sequence alignment',
     ],
     tools: 'React · JavaScript · PostgreSQL · AlphaFold · BLAST',
+    links: [{ label: 'pondslime.ccn.duke.edu', href: 'https://pondslime.ccn.duke.edu' }],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
   {
+    id: 'quantworks',
+    short: 'Quantworks / SIZEO',
     title: 'Software Engineer Intern',
     org: 'Quantworks / SIZEO, Durham NC',
     when: 'Oct 2024 — Aug 2025',
@@ -23,8 +48,19 @@ export const experience = [
       'Designed dashboards in Figma and built an artifact gallery for LLM output analysis',
     ],
     tools: 'Python · Claude API · Streamlit · Plotly · Figma',
+    links: [],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
   {
+    id: 'ncssm',
+    short: 'NCSSM',
     title: 'Research Intern',
     org: 'NCSSM Summer Research Programs',
     when: 'Summer 2023 — Summer 2024',
@@ -32,11 +68,22 @@ export const experience = [
       'Presented research on agent-based neuron modeling, real gas behavior, and a modified cholera transmission model incorporating vaccination effects',
     ],
     tools: 'Mathematica · STELLA · Gaussian · NetLogo · Maple',
+    links: [],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
 ]
 
 export const projects = [
   {
+    id: 'speech-dysfluency',
+    short: 'Speech dysfluency',
     title: 'Speech Dysfluency Detection & Removal',
     bullets: [
       'End-to-end pipeline to detect, categorize, and remove speech dysfluencies',
@@ -44,8 +91,19 @@ export const projects = [
       'Benchmarked a custom random forest classifier against a premade model',
     ],
     tools: 'Python · Whisper · scikit-learn',
+    links: [],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
   {
+    id: 'insight',
+    short: 'Insight',
     title: 'Insight — Journal Reflection App',
     bullets: [
       'React app generating reflective prompts from journal entries via an open-weight LLM (gpt-oss-20b) over the Groq API',
@@ -53,8 +111,19 @@ export const projects = [
       'Client-side isolation using SHA-256 hashed API keys — no raw credentials stored',
     ],
     tools: 'React · Groq API · LLM integration',
+    links: [],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
   {
+    id: 'frisbee-classifier',
+    short: 'Frisbee classifier',
     title: 'Ultimate Frisbee Play Classifier',
     bullets: [
       'Fine-tuned YOLOv8 on labeled field-photo data — 85% precision, 87% recall',
@@ -62,13 +131,87 @@ export const projects = [
       'Benchmarked ResNet18 against a self-built CNN and EfficientNet-B0; ResNet18 hit 91.3% accuracy at 1/36th the size',
     ],
     tools: 'PyTorch · YOLOv8 · Computer vision',
+    links: [],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
   {
+    id: 'event-horizon',
+    short: 'Event Horizon',
     title: 'Event Horizon — Unreal Engine 5',
     bullets: [
       'Personal project to learn low-level systems programming and game dev workflows',
       'Built gameplay systems with C++ components and Blueprint scripting (kooling.itch.io)',
     ],
     tools: 'C++ · Unreal Engine 5 · Blueprints',
+    links: [{ label: 'kooling.itch.io', href: 'https://kooling.itch.io' }],
+    context: '',
+    outcomes: [],
+    thumb: { src: '', alt: '' },
+    media: {
+      hero: { src: '', alt: '', caption: '' },
+      diagram: { src: '', alt: '', caption: '' },
+      photo: { src: '', alt: '', caption: '' },
+    },
   },
 ]
+
+export const home = {
+  intro:
+    'I study computer science and statistics at Duke. I build genomics tools and small web apps, and I like taking the things I imagine and making them real.',
+  photo: { src: '', alt: '', caption: '' },
+}
+
+// The PDF lives at public/resume.pdf. __RESUME_AVAILABLE__ is set by
+// vite.config.js at build time; until the file exists the link shows "soon".
+export const resume = {
+  href: import.meta.env.BASE_URL + 'resume.pdf',
+  available: __RESUME_AVAILABLE__,
+}
+
+export const about = {
+  bio: [
+    'I study computer science and statistics at Duke, and I like trying new things and figuring out how they could connect back to technology. Right now that means building databases and web tools for yeast pangenomes in the lab, making apps that improve my daily life, and using music and art to shape the experiences around me.',
+    "Outside of work, you'll find me playing piano and guitar, messing around with production and content, and playing ultimate frisbee and pickleball competitively. More going here soon.",
+  ],
+  photo: { src: '', alt: '', caption: '' },
+  // Objects on the About desk. `id` must match a drawing in InterestDesk.jsx.
+  interests: [
+    {
+      id: 'drawing',
+      label: 'drawing',
+      caption: 'sketches & doodles',
+      image: { kind: 'drawing', ratio: '3/2', src: '', alt: '', placeholder: 'from the sketchbook' },
+    },
+    {
+      id: 'music',
+      label: 'guitar & piano',
+      caption: 'guitar, and piano too',
+      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
+    },
+    {
+      id: 'pickleball',
+      label: 'pickleball',
+      caption: 'played competitively',
+      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
+    },
+    {
+      id: 'frisbee',
+      label: 'ultimate frisbee',
+      caption: 'played competitively',
+      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
+    },
+    {
+      id: 'content',
+      label: 'content',
+      caption: 'production & making things',
+      image: { kind: 'screenshot', ratio: '16/10', src: '', alt: '', placeholder: 'clip or still' },
+    },
+  ],
+}
