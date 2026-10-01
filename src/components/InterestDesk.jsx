@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Frame, { asset } from './Frame.jsx'
 import InterestPath from './InterestPath.jsx'
+import Sketchbook from './Sketchbook.jsx'
 import { Penguin } from './Doodles.jsx'
 import usePianoHeight from '../hooks/usePianoHeight.js'
 
@@ -92,24 +93,34 @@ export default function InterestDesk({ table, interests }) {
             </span>
           )}
         </div>
+
+        {current.caption && (
+          <p className="desk-caption" key={`caption-${current.id}`}>
+            {current.caption}
+          </p>
+        )}
       </div>
 
       <div className="desk-panel" role="tabpanel" id="desk-panel" aria-labelledby={`desk-tab-${current.id}`}>
         <div className="desk-panel-inner" key={current.id}>
           <p className="desk-panel-label mono">{current.label}</p>
-          <div className="desk-gallery">
-            {current.images.map((img, i) => (
-              <Frame
-                key={i}
-                kind={img.kind}
-                ratio={img.ratio}
-                src={img.src}
-                alt={img.alt}
-                label={img.placeholder}
-                caption={img.caption}
-              />
-            ))}
-          </div>
+          {current.layout === 'sketchbook' ? (
+            <Sketchbook pages={current.images} />
+          ) : (
+            <div className="desk-gallery">
+              {current.images.map((img, i) => (
+                <Frame
+                  key={i}
+                  kind={img.kind}
+                  ratio={img.ratio}
+                  src={img.src}
+                  alt={img.alt}
+                  label={img.placeholder}
+                  caption={img.caption}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

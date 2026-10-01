@@ -1,4 +1,5 @@
 import Frame from '../components/Frame.jsx'
+import ClubList from '../components/ClubList.jsx'
 import InterestDesk from '../components/InterestDesk.jsx'
 import { about } from '../data/content.js'
 
@@ -29,6 +30,8 @@ export default function About() {
       </div>
 
       <InterestDesk table={about.desk.table} interests={about.interests} />
+
+      <ClubList clubs={about.clubs} />
     </section>
   )
 }

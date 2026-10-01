@@ -11,7 +11,8 @@
 //   context  — optional sentence shown in the dialog (hidden while empty)
 //   outcomes — optional list shown in the dialog (hidden while empty)
 //   thumb    — small image on the card
-//   media    — larger images in the detail dialog
+//   media    — up to two [{ kind, src, alt, caption }] shown side by side in
+//              the detail dialog; kind is 'photo', 'screenshot' or 'drawing'
 
 export const experience = [
   {
@@ -29,12 +30,16 @@ export const experience = [
     links: [{ label: 'pondslime.ccn.duke.edu', href: 'https://pondslime.ccn.duke.edu' }],
     context: '',
     outcomes: [],
-    thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    thumb: { src: 'images/agd_preview.png', alt: 'Gene overview page in the Ashbya gossypii Genome Database' },
+    media: [
+      {
+        kind: 'screenshot',
+        src: 'images/agd_preview.png',
+        alt: 'AGD gene overview page with orthologs table and genome browser',
+        caption: 'Preview of AGD, the complete database for Ashbya gossypii research',
+      },
+      { kind: 'photo', src: 'images/labtubes.jpeg', alt: 'Labeled Falcon tubes of Candida samples in a rack', caption: 'Samples in the lab' },
+    ],
   },
   {
     id: 'quantworks',
@@ -48,15 +53,14 @@ export const experience = [
       'Designed dashboards in Figma and built an artifact gallery for LLM output analysis',
     ],
     tools: 'Python · Claude API · Streamlit · Plotly · Figma',
-    links: [],
+    links: [{ label: 'Figma Prototype', href: 'https://www.figma.com/proto/NMqokwA5WdHVUaDz6iEAyz/Bourne?node-id=62-531&p=f&t=fmjFfF0sAOy3NPVS-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=8%3A16' }],
     context: '',
     outcomes: [],
-    thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    thumb: { src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office' },
+    media: [
+      { kind: 'photo', src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office', caption: 'At the Quantworks office in Durham' },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
   {
     id: 'ncssm',
@@ -68,15 +72,19 @@ export const experience = [
       'Presented research on agent-based neuron modeling, real gas behavior, and a modified cholera transmission model incorporating vaccination effects',
     ],
     tools: 'Mathematica · STELLA · Gaussian · NetLogo · Maple',
-    links: [],
+    links: [{ label: 'Cholera model paper (PDF)', href: import.meta.env.BASE_URL + 'Paper.pdf' }],
     context: '',
     outcomes: [],
-    thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    thumb: { src: 'images/NCSSM.jpeg', alt: 'Colin presenting neuron modeling research in an auditorium' },
+    media: [
+      {
+        kind: 'photo',
+        src: 'images/NCSSM.jpeg',
+        alt: 'Colin presenting "Studying Neurons Using the Hodgkin-Huxley Model" in an auditorium',
+        caption: 'Presenting Hodgkin-Huxley neuron modeling, NCSSM 2024',
+      },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
 ]
 
@@ -95,11 +103,10 @@ export const projects = [
     context: '',
     outcomes: [],
     thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    media: [
+      { kind: 'photo', src: '', alt: '', caption: '' },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
   {
     id: 'insight',
@@ -115,11 +122,10 @@ export const projects = [
     context: '',
     outcomes: [],
     thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    media: [
+      { kind: 'photo', src: '', alt: '', caption: '' },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
   {
     id: 'frisbee-classifier',
@@ -134,12 +140,16 @@ export const projects = [
     links: [],
     context: '',
     outcomes: [],
-    thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    thumb: { src: 'images/morefrisbee.jpeg', alt: 'Team USA players holding gold medals in the stands' },
+    media: [
+      {
+        kind: 'photo',
+        src: 'images/morefrisbee.jpeg',
+        alt: 'Team USA players holding gold medals in the stands',
+        caption: 'Team USA at WJUC 2026, the sport behind the classifier',
+      },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
   {
     id: 'event-horizon',
@@ -154,24 +164,23 @@ export const projects = [
     context: '',
     outcomes: [],
     thumb: { src: '', alt: '' },
-    media: {
-      hero: { src: '', alt: '', caption: '' },
-      diagram: { src: '', alt: '', caption: '' },
-      photo: { src: '', alt: '', caption: '' },
-    },
+    media: [
+      { kind: 'photo', src: '', alt: '', caption: '' },
+      { kind: 'photo', src: '', alt: '', caption: '' },
+    ],
   },
 ]
 
 export const home = {
   intro:
     'I study computer science and statistics at Duke. I build genomics tools and small web apps, and I like taking the things I imagine and making them real.',
-  photo: { src: '', alt: '', caption: '' },
+  photo: { src: 'images/homepage.jpeg', alt: 'Colin Zeng', caption: '' },
 }
 
-// The PDF lives at public/resume.pdf. __RESUME_AVAILABLE__ is set by
+// The PDF lives at public/Colin_Zeng_Resume.pdf. __RESUME_AVAILABLE__ is set by
 // vite.config.js at build time; until the file exists the link shows "soon".
 export const resume = {
-  href: import.meta.env.BASE_URL + 'resume.pdf',
+  href: import.meta.env.BASE_URL + 'Colin_Zeng_Resume.pdf',
   available: __RESUME_AVAILABLE__,
 }
 
@@ -180,11 +189,13 @@ export const about = {
     'I study computer science and statistics at Duke, and I like trying new things and figuring out how they could connect back to technology. Right now that means building databases and web tools for yeast pangenomes in the lab, making apps that improve my daily life, and using music and art to shape the experiences around me.',
     "Outside of work, you'll find me playing piano and guitar, messing around with production and content, and playing ultimate frisbee and pickleball competitively. More going here soon.",
   ],
-  photo: { src: '', alt: '', caption: '' },
+  photo: { src: 'images/frisbee.jpeg', alt: 'Colin in a Team USA #26 jersey holding up his cleats', caption: '' },
   // About desk: a drawn table with one penguin per interest. The table and
   // penguins share one canvas size (see public/images/desk/) so every penguin
   // lands on the tabletop without per-image positioning. `images` are the two
-  // captioned slots shown side by side beside the desk.
+  // captioned slots shown side by side beside the desk
+  // and `caption` is the line shown under the table; with
+  // `layout: 'sketchbook'` they become flippable pages instead (any count).
   desk: {
     table: 'images/desk/table.png',
   },
@@ -192,18 +203,27 @@ export const about = {
     {
       id: 'sports',
       label: 'sports',
+      caption: 'Ultimate frisbee and pickleball, both competitively. Most recently with Team USA at WJUC 2026.',
       penguin: {
         src: 'images/desk/penguin-sports.png',
         alt: 'A penguin in a cap holding a pickleball paddle, with a frisbee flying past and a bag of balls',
       },
       images: [
         { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'pickleball — caption coming soon' },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'ultimate frisbee — caption coming soon' },
+        {
+          kind: 'photo',
+          ratio: '4/5',
+        src: 'images/frisbee2.jpeg',
+        alt: 'Colin in USA #26 skying two France players for a disc',
+          placeholder: 'photo',
+        caption: 'ultimate frisbee — WJUC 2026 finals day',
+        },
       ],
     },
     {
       id: 'music',
       label: 'music',
+      caption: 'Piano and guitar, plus messing around with production and content.',
       penguin: {
         src: 'images/desk/penguin-music.png',
         alt: 'A penguin playing an acoustic guitar with a keyboard balanced on its head',
@@ -216,14 +236,60 @@ export const about = {
     {
       id: 'art',
       label: 'art',
+      caption: 'Painting, drawing and photography. Flip through the sketchbook.',
+      layout: 'sketchbook',
       penguin: {
         src: 'images/desk/penguin-art.png',
         alt: 'A curly-haired penguin with a paintbrush beside an easel, a camera clipped on top',
       },
       images: [
-        { kind: 'drawing', ratio: '4/5', src: '', alt: '', placeholder: 'from the sketchbook', caption: 'drawing — caption coming soon' },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'photography — caption coming soon' },
+        {
+          kind: 'drawing',
+          ratio: '4/5',
+        src: 'images/drawing.jpeg',
+        alt: 'Painting of a crowned tortoise crossing a finish line past a sleeping hare, titled Rate = k[tortoise]^n',
+          placeholder: 'from the sketchbook',
+        caption: 'painting — rate = k[tortoise]ⁿ',
+        },
+        {
+          kind: 'drawing',
+        src: 'images/drawing2.jpeg',
+        alt: 'Collage of a colored anime character lineup and two pencil sketches of a mosque and a city bridge',
+          placeholder: 'from the sketchbook',
+        caption: 'drawing — anime lineup and pencil sketches',
+        },
+        {
+          kind: 'drawing',
+        src: 'images/drawing3.jpeg',
+        alt: "Mural of Magneto and Wolverine with Maxwell's equations painted in the sky",
+          placeholder: 'from the sketchbook',
+        caption: "mural — Magneto, Wolverine and Maxwell's equations",
+        },
+        {
+          kind: 'photo',
+          ratio: '4/5',
+        src: 'images/photography.jpeg',
+        alt: 'Instant photo of four friends at dinner, dated 08.02.25',
+          placeholder: 'photo',
+        caption: 'photography — instant film',
+        },
       ],
     },
+  ],
+  // "duke" section under the desk. Only `name` is required; role, when
+  // (e.g. '2025 — present'), blurb, href and photo show once filled in.
+  clubs: [
+    {
+      name: 'Catalyst',
+      role: '',
+      when: '',
+      blurb: '',
+      href: '',
+      photo: { src: 'images/catalyst.jpeg', alt: 'Catalyst members in suits posing together as a group', caption: '' },
+    },
+    { name: 'Duke SSMU', role: '', when: '', blurb: '', href: '' },
+    { name: 'Duke Applied Machine Learning', role: '', when: '', blurb: '', href: '' },
+    { name: 'Duke Justice Project', role: '', when: '', blurb: '', href: '' },
+    { name: 'Duke Pickleball', role: '', when: '', blurb: '', href: '' },
   ],
 }

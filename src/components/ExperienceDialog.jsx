@@ -26,8 +26,12 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
       e.preventDefault()
       closeRef.current()
     }
-    // Some browsers close the dialog natively anyway; keep React in sync
-    const onNativeClose = () => closeRef.current()
+    // Some browsers close the dialog natively anyway; keep React in sync.
+    // `close` fires a task after close(), so a stale one (e.g. from StrictMode's
+    // dev-only unmount/remount) can arrive after showModal() reopened it.
+    const onNativeClose = () => {
+      if (!dialog.open) closeRef.current()
+    }
     dialog.addEventListener('cancel', onCancel)
     dialog.addEventListener('close', onNativeClose)
     if (!dialog.open) dialog.showModal()
@@ -59,7 +63,7 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
     }
   }
 
-  const { id, title, org, when, bullets, tools, links = [], context, outcomes = [], media = {} } = entry
+  const { id, title, org, when, bullets, tools, links = [], context, outcomes = [], media = [] } = entry
   const titleId = `${id}-dialog-title`
   const count = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
 
@@ -88,54 +92,53 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
           {tools && <p className="card-tools">{tools}</p>}
         </header>
 
-        <Frame kind="screenshot" ratio="16/9" {...media.hero} label="screenshot" className="xd-hero" />
+        {/* always two slots side by side; an empty one shows a placeholder */}
+        <div className="xd-pair">
+          {[0, 1].map((i) => {
+            const img = media[i] || {}
+            return <Frame key={i} kind={img.kind || 'photo'} ratio="4/3" {...img} label={img.kind || 'photo'} />
+          })}
+        </div>
 
-        <div className="xd-grid">
-          <div className="xd-text">
-            {context && (
-              <section>
-                <h3 className="xd-label mono">context</h3>
-                <p>{context}</p>
-              </section>
-            )}
+        <div className="xd-text">
+          {context && (
             <section>
-              <h3 className="xd-label mono">what I did</h3>
+              <h3 className="xd-label mono">context</h3>
+              <p>{context}</p>
+            </section>
+          )}
+          <section>
+            <h3 className="xd-label mono">what I did</h3>
+            <ul>
+              {bullets.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
+          </section>
+          {outcomes.length > 0 && (
+            <section>
+              <h3 className="xd-label mono">outcomes</h3>
               <ul>
-                {bullets.map((b) => (
-                  <li key={b}>{b}</li>
+                {outcomes.map((o) => (
+                  <li key={o}>{o}</li>
                 ))}
               </ul>
             </section>
-            {outcomes.length > 0 && (
-              <section>
-                <h3 className="xd-label mono">outcomes</h3>
-                <ul>
-                  {outcomes.map((o) => (
-                    <li key={o}>{o}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </div>
-
-          <aside className="xd-side">
-            <Frame kind="drawing" ratio="4/3" {...media.diagram} label="diagram or sketch" />
-            <Frame kind="photo" ratio="4/3" {...media.photo} label="photo" />
-            {links.length > 0 && (
-              <section>
-                <h3 className="xd-label mono">links</h3>
-                <ul className="xd-links">
-                  {links.map((l) => (
-                    <li key={l.href}>
-                      <a href={l.href} target="_blank" rel="noopener noreferrer">
-                        {l.label} <span aria-hidden="true">↗</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </aside>
+          )}
+          {links.length > 0 && (
+            <section>
+              <h3 className="xd-label mono">links</h3>
+              <ul className="xd-links">
+                {links.map((l) => (
+                  <li key={l.href}>
+                    <a href={l.href} target="_blank" rel="noopener noreferrer">
+                      {l.label} <span aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
       </div>
     </dialog>

@@ -28,7 +28,7 @@ npm test
 - About desk drawings: originals live in `drawings/`; web copies (transparent,
   1400px wide) live in `public/images/desk/`. The table and penguins must share
   one canvas size and crop so each penguin lands on the tabletop.
-- Resume: add `public/resume.pdf`. The `resume ↗` link appears on the next build
+- Resume: add `public/Colin_Zeng_Resume.pdf`. The `resume ↗` link appears on the next build
   (restart `npm run dev` after adding it); until then it shows "resume · soon".
 - `src/pages/` — one file per page (Home, Work, About).
 - `src/components/PianoNav.jsx` — the piano key nav bar and its press animation.

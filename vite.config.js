@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// The resume link only renders once public/resume.pdf exists.
+// The resume link only renders once public/Colin_Zeng_Resume.pdf exists.
 // Checked at startup, so restart `npm run dev` after adding the file.
-const resumeAvailable = existsSync(fileURLToPath(new URL('./public/resume.pdf', import.meta.url)))
+const resumeAvailable = existsSync(fileURLToPath(new URL('./public/Colin_Zeng_Resume.pdf', import.meta.url)))
 
 export default defineConfig({
   plugins: [react()],

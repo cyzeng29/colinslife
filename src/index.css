@@ -996,12 +996,11 @@ footer img {
   font-size: 15px;
   color: var(--ink-soft);
 }
-.xd-hero {
-  margin-bottom: 36px;
-}
-.xd-grid {
+.xd-pair {
   display: grid;
-  gap: 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px; /* keeps the taped corners of two photos from touching */
+  margin-bottom: 36px;
 }
 .xd-label {
   margin: 0 0 10px;
@@ -1031,11 +1030,6 @@ footer img {
 .xd-text li {
   margin-bottom: 8px;
 }
-.xd-side {
-  display: grid;
-  align-content: start;
-  gap: 24px;
-}
 .xd-links {
   display: grid;
   gap: 8px;
@@ -1049,12 +1043,6 @@ footer img {
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1px solid var(--olive);
-}
-@media (min-width: 760px) {
-  .xd-grid {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: 44px;
-  }
 }
 @media (max-width: 640px) {
   .xdialog {
@@ -1323,8 +1311,17 @@ footer img {
   }
 }
 
-.desk-panel-inner {
+.desk-panel-inner,
+.desk-caption {
   animation: rise 260ms ease both;
+}
+.desk-caption {
+  margin: 4px auto 0;
+  max-width: 52ch;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--ink-soft);
 }
 .desk-panel-label {
   margin: 0 0 14px;
@@ -1339,6 +1336,209 @@ footer img {
   gap: 44px; /* keeps neighbouring photo frames' tape corners from touching */
   align-items: start;
 }
+/* sketchbook: a spiral-bound book in the art tab; the turning leaf rotates
+   around the spine with a blank back face */
+.sb-book {
+  position: relative;
+  width: min(100%, 380px);
+  margin: 0 auto;
+  padding-left: 16px; /* room for the spiral */
+  perspective: 1400px;
+  cursor: pointer;
+  touch-action: pan-y; /* horizontal drags flip; vertical still scrolls */
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sb-book:focus-visible {
+  outline-offset: 6px;
+}
+.sb-spiral {
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  bottom: 10px;
+  z-index: 3;
+  width: 22px;
+  /* coil loops: an ink ring every 20px, punched through the page edge */
+  background: radial-gradient(ellipse 9px 5px at 50% 50%, transparent 55%, var(--ink-soft) 60% 78%, transparent 82%) 0 0 /
+    22px 20px repeat-y;
+  pointer-events: none;
+}
+.sb-stack {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  transform-style: preserve-3d;
+}
+/* the next pages peeking out under the current one */
+.sb-edge {
+  position: absolute;
+  inset: 4px -4px -4px 4px;
+  background: var(--key-white);
+  border: 1px solid var(--rule);
+  border-radius: 2px 8px 8px 2px;
+}
+.sb-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 18px 22px 26px;
+  background: var(--key-white);
+  border: 1px solid var(--rule);
+  border-radius: 2px 8px 8px 2px;
+  box-shadow: 0 1px 3px var(--rule);
+  overflow: hidden;
+}
+.sb-page img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+/* photos are taped onto the page */
+.sb-page.is-photo img {
+  border: 6px solid var(--bg);
+  box-shadow: 0 1px 4px var(--rule);
+  transform: rotate(-1.5deg);
+}
+.sb-page.is-photo::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 1;
+  width: 64px;
+  height: 18px;
+  margin-left: -32px;
+  background: var(--tape);
+  transform: rotate(-4deg);
+}
+.sb-page .frame-empty {
+  position: absolute;
+  inset: 0;
+}
+.sb-leaf {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  animation: sb-turn-next 560ms cubic-bezier(0.45, 0.05, 0.3, 1) both;
+}
+.sb-leaf.is-prev {
+  animation-name: sb-turn-prev;
+}
+.sb-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.sb-back {
+  background: var(--key-white);
+  border: 1px solid var(--rule);
+  border-radius: 8px 2px 2px 8px;
+  transform: rotateY(180deg);
+}
+@keyframes sb-turn-next {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-180deg);
+  }
+}
+@keyframes sb-turn-prev {
+  from {
+    transform: rotateY(-180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+.sb-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.sb-controls button {
+  font: inherit;
+  color: var(--olive-deep);
+  background: none;
+  border: 0;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+.sb-controls button:hover {
+  text-decoration: underline;
+}
+.sb-controls button[aria-disabled='true'] {
+  color: var(--ink-soft);
+  opacity: 0.45;
+  cursor: default;
+  text-decoration: none;
+}
+.sb-caption {
+  margin: 8px 0 0;
+  min-height: 1.5em;
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ink-soft);
+}
+/* about: "duke" clubs, a compact list with optional taped photos */
+.clubs {
+  margin-top: 80px;
+}
+.clubs-body {
+  display: grid;
+  gap: 40px;
+}
+.clubs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.club-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 17px;
+  color: var(--ink);
+}
+.club-name a {
+  color: inherit;
+}
+.club-meta {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.club-blurb {
+  margin: 4px 0 0;
+  max-width: 56ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.clubs-photos {
+  display: grid;
+  gap: 32px;
+  justify-self: center;
+  width: min(320px, 86%);
+}
+.clubs-photos .frame {
+  transform: rotate(-1.2deg);
+}
 @media (min-width: 860px) {
   .about-top {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -1348,7 +1548,16 @@ footer img {
   .desk {
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
     align-items: start;
-    gap: 48px;
+    gap: 88px; /* room for the sketchbook's page to swing left */
+  }
+  /* table and penguin hug the left edge, away from the sketchbook */
+  .desk-scene {
+    justify-self: start;
+  }
+  .clubs-body.has-photos {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 72px;
   }
 }
 
@@ -1370,6 +1579,7 @@ footer img {
   }
   .xdialog[open],
   .desk-panel-inner,
+  .desk-caption,
   .desk-path-waddle,
   .desk-penguin,
   .desk-shadow {

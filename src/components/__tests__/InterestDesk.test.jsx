@@ -100,6 +100,17 @@ describe('InterestDesk', () => {
   })
 })
 
+describe('InterestDesk captions', () => {
+  it('shows the selected interest’s caption under the table', async () => {
+    const withCaptions = interests.map((it) => ({ ...it, caption: `about ${it.id}` }))
+    render(<InterestDesk table="t.png" interests={withCaptions} />)
+    expect(screen.getByText('about sports')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('tab', { name: 'music' }))
+    expect(screen.getByText('about music')).toBeInTheDocument()
+    expect(screen.queryByText('about sports')).not.toBeInTheDocument()
+  })
+})
+
 describe('about desk content', () => {
   it('points at drawings that exist in public/', () => {
     const files = [about.desk.table, ...about.interests.map((it) => it.penguin.src)]
@@ -112,9 +123,10 @@ describe('about desk content', () => {
     for (const it of about.interests) expect(it.penguin.alt).not.toBe('')
   })
 
-  it('gives every interest two images, each with a caption', () => {
+  it('gives every gallery interest two images and every image a caption', () => {
     for (const it of about.interests) {
-      expect(it.images, it.id).toHaveLength(2)
+      if (it.layout === 'sketchbook') expect(it.images.length, it.id).toBeGreaterThan(1)
+      else expect(it.images, it.id).toHaveLength(2)
       for (const img of it.images) expect(img.caption, it.id).toBeTruthy()
     }
   })
