@@ -181,37 +181,49 @@ export const about = {
     "Outside of work, you'll find me playing piano and guitar, messing around with production and content, and playing ultimate frisbee and pickleball competitively. More going here soon.",
   ],
   photo: { src: '', alt: '', caption: '' },
-  // Objects on the About desk. `id` must match a drawing in InterestDesk.jsx.
+  // About desk: a drawn table with one penguin per interest. The table and
+  // penguins share one canvas size (see public/images/desk/) so every penguin
+  // lands on the tabletop without per-image positioning. `images` are the two
+  // captioned slots shown side by side beside the desk.
+  desk: {
+    table: 'images/desk/table.png',
+  },
   interests: [
     {
-      id: 'drawing',
-      label: 'drawing',
-      caption: 'sketches & doodles',
-      image: { kind: 'drawing', ratio: '3/2', src: '', alt: '', placeholder: 'from the sketchbook' },
+      id: 'sports',
+      label: 'sports',
+      penguin: {
+        src: 'images/desk/penguin-sports.png',
+        alt: 'A penguin in a cap holding a pickleball paddle, with a frisbee flying past and a bag of balls',
+      },
+      images: [
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'pickleball — caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'ultimate frisbee — caption coming soon' },
+      ],
     },
     {
       id: 'music',
-      label: 'guitar & piano',
-      caption: 'guitar, and piano too',
-      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
+      label: 'music',
+      penguin: {
+        src: 'images/desk/penguin-music.png',
+        alt: 'A penguin playing an acoustic guitar with a keyboard balanced on its head',
+      },
+      images: [
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'piano — caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'guitar — caption coming soon' },
+      ],
     },
     {
-      id: 'pickleball',
-      label: 'pickleball',
-      caption: 'played competitively',
-      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
-    },
-    {
-      id: 'frisbee',
-      label: 'ultimate frisbee',
-      caption: 'played competitively',
-      image: { kind: 'photo', ratio: '4/3', src: '', alt: '', placeholder: 'photo' },
-    },
-    {
-      id: 'content',
-      label: 'content',
-      caption: 'production & making things',
-      image: { kind: 'screenshot', ratio: '16/10', src: '', alt: '', placeholder: 'clip or still' },
+      id: 'art',
+      label: 'art',
+      penguin: {
+        src: 'images/desk/penguin-art.png',
+        alt: 'A curly-haired penguin with a paintbrush beside an easel, a camera clipped on top',
+      },
+      images: [
+        { kind: 'drawing', ratio: '4/5', src: '', alt: '', placeholder: 'from the sketchbook', caption: 'drawing — caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'photography — caption coming soon' },
+      ],
     },
   ],
 }

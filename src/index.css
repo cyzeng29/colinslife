@@ -1087,66 +1087,241 @@ footer img {
   gap: 32px;
   margin-top: 80px;
 }
-.desk-art {
-  display: block;
-  width: 100%;
-  height: auto;
-  fill: none;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+/* Sized so the path, penguin and tabletop fit below the sticky piano at once;
+   the stand may run past the fold on short screens. The stage is 1400:970,
+   the tabletop's front edge sits at ~75% of its height, and ~120px covers
+   the path and gaps. */
+.desk-scene {
+  display: grid;
+  gap: 8px;
+  justify-self: center;
+  width: min(100%, max(300px, calc((100svh - var(--piano-h, 240px) - 120px) / 0.75 * 1400 / 970)));
 }
-.desk-surface {
-  fill: var(--bg-tint);
-  stroke: var(--rule);
-  stroke-width: 1.5;
+
+/* interest path: circles on an ink line, a small penguin rides along the top */
+.desk-path {
+  --stop: calc(100% / var(--count));
+  position: relative;
+  padding-top: 42px;
 }
-.desk-obj {
-  color: var(--ink-soft);
-  stroke: currentColor;
-  cursor: pointer;
-  transition: color 150ms ease;
+.desk-path-stops {
+  display: grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
 }
-.desk-obj:hover,
-.desk-obj.is-selected {
-  color: var(--ink);
+.desk-path-line {
+  position: absolute;
+  top: 57px;
+  left: calc(var(--stop) / 2);
+  right: calc(var(--stop) / 2);
+  border-top: 1px solid var(--rule);
 }
-.desk-fill {
-  fill: currentColor;
-}
-.desk-hit {
-  fill: transparent;
-  stroke: none;
-}
-.desk-obj.is-selected .desk-hit {
-  stroke: var(--olive);
-  stroke-width: 1.4;
-  stroke-dasharray: 3 7;
-}
-.desk-tabs {
+.desk-stop {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  margin-top: 16px;
-}
-.desk-tab {
-  padding: 6px 12px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 4px;
   color: var(--ink-soft);
   background: none;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
+  border: 0;
   cursor: pointer;
+  /* keep focused stops (and the penguin above them) clear of the sticky piano */
+  scroll-margin-top: calc(var(--piano-h, 240px) + 48px);
 }
-.desk-tab:hover {
+.desk-stop-dot {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  background: var(--bg);
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition:
+    background-color 200ms ease,
+    transform 200ms ease;
+}
+.desk-stop-label {
+  font-size: 12px;
+}
+.desk-stop:hover {
   color: var(--ink);
 }
-.desk-tab[aria-selected='true'] {
-  color: var(--ink);
-  background: var(--bg-tint);
+.desk-stop:hover .desk-stop-dot {
+  transform: scale(1.15);
+}
+.desk-stop[aria-selected='true'] {
+  color: var(--olive-deep);
+}
+.desk-stop[aria-selected='true'] .desk-stop-dot {
+  background: var(--olive);
   border-color: var(--olive);
 }
+.desk-path-penguin {
+  position: absolute;
+  top: 11px;
+  left: calc(var(--stop) * (var(--index) + 0.5));
+  color: var(--ink);
+  transform: translateX(-50%);
+  transition: left 520ms cubic-bezier(0.45, 0, 0.3, 1);
+  pointer-events: none;
+}
+.desk-path-penguin .penguin {
+  width: 33px;
+  height: 39px;
+  stroke-width: 1.1;
+}
+.desk-path-penguin.is-left .penguin {
+  transform: scaleX(-1);
+}
+.desk-path-penguin .pg-body {
+  fill: var(--olive);
+}
+.desk-path-penguin .pg-belly,
+.desk-path-penguin .pg-eye {
+  fill: var(--bg);
+}
+.desk-path-waddle {
+  display: block;
+  transform-origin: 50% 100%;
+  animation: waddle 520ms ease-in-out;
+}
+@keyframes waddle {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateY(-3px) rotate(-8deg);
+  }
+  40% {
+    transform: rotate(7deg);
+  }
+  60% {
+    transform: translateY(-3px) rotate(-6deg);
+  }
+  80% {
+    transform: rotate(3deg);
+  }
+}
+
+/* desk stage: table and penguins share one canvas, so they stack exactly.
+   Clipped so a new penguin falls in from the top edge of the frame. */
+.desk-stage {
+  --feet-x: 48%;
+  --feet-y: 60%;
+  position: relative;
+  aspect-ratio: 1400 / 970;
+  overflow: hidden;
+}
+.desk-stage.is-empty {
+  background: var(--bg-tint);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+}
+.desk-table,
+.desk-penguin {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.desk-penguin {
+  transform-origin: var(--feet-x) var(--feet-y);
+  animation: penguin-drop 820ms both;
+}
+.desk-stage.is-waiting .desk-penguin,
+.desk-stage.is-waiting .desk-shadow {
+  animation-play-state: paused;
+}
+.desk-penguin.is-leaving {
+  animation: penguin-leave 240ms ease-in both;
+}
+.desk-penguin-fallback {
+  position: absolute;
+  left: var(--feet-x);
+  top: var(--feet-y);
+  color: var(--ink-soft);
+  transform: translate(-50%, -100%) scale(3);
+  transform-origin: 50% 100%;
+}
+/* contact shadow under the feet; grows as the penguin lands */
+.desk-shadow {
+  position: absolute;
+  left: calc(var(--feet-x) - 12%);
+  top: calc(var(--feet-y) - 2.5%);
+  width: 24%;
+  height: 5%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.35), transparent);
+  border-radius: 50%;
+  animation: penguin-shadow 820ms both;
+}
+@keyframes penguin-drop {
+  /* -64% puts the tallest drawing (keyboard, camera) just above the frame */
+  0% {
+    transform: translateY(-64%);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  44% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  52% {
+    transform: translateY(0) scale(1.07, 0.9);
+    animation-timing-function: ease-out;
+  }
+  66% {
+    transform: translateY(-8%) scale(0.98, 1.03);
+    animation-timing-function: ease-in;
+  }
+  78% {
+    transform: translateY(0) scale(1.03, 0.96);
+    animation-timing-function: ease-out;
+  }
+  88% {
+    transform: translateY(-2%) scale(1, 1);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes penguin-shadow {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  44%,
+  52% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  66% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+  78%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes penguin-leave {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-4%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(6%) scale(0.92);
+  }
+}
+
 .desk-panel-inner {
   animation: rise 260ms ease both;
 }
@@ -1157,6 +1332,12 @@ footer img {
   text-transform: uppercase;
   color: var(--olive-deep);
 }
+.desk-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 44px; /* keeps neighbouring photo frames' tape corners from touching */
+  align-items: start;
+}
 @media (min-width: 860px) {
   .about-top {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -1164,7 +1345,7 @@ footer img {
     gap: 72px;
   }
   .desk {
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
     align-items: start;
     gap: 48px;
   }
@@ -1173,8 +1354,12 @@ footer img {
 @media (prefers-reduced-motion: reduce) {
   .sheet,
   .penguin,
-  .desk-obj {
+  .desk-stop-dot,
+  .desk-path-penguin {
     transition: none;
+  }
+  .desk-penguin.is-leaving {
+    display: none;
   }
   .sheet:hover {
     transform: none;
@@ -1183,7 +1368,10 @@ footer img {
     transform: none;
   }
   .xdialog[open],
-  .desk-panel-inner {
+  .desk-panel-inner,
+  .desk-path-waddle,
+  .desk-penguin,
+  .desk-shadow {
     animation: none;
   }
 }

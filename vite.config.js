@@ -12,6 +12,10 @@ export default defineConfig({
   define: {
     __RESUME_AVAILABLE__: JSON.stringify(resumeAvailable),
   },
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
   server: {
     watch: {
       usePolling: true,

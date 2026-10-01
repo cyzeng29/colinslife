@@ -28,7 +28,7 @@ export default function About() {
         <Frame kind="photo" ratio="4/5" {...about.photo} label="personal photo" className="about-photo" />
       </div>
 
-      <InterestDesk interests={about.interests} />
+      <InterestDesk table={about.desk.table} interests={about.interests} />
     </section>
   )
 }
