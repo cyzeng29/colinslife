@@ -25,7 +25,11 @@ export default function App() {
         </div>
         <footer>
           <span>colin zeng</span>
-          <img src={asset('images/footer.png')} alt="Hand-drawn self-portrait of Colin Zeng" loading="lazy" />
+          <picture>
+            {/* Dark-mode variant has the signature recolored white */}
+            <source srcSet={asset('images/footer-dark.png')} media="(prefers-color-scheme: dark)" />
+            <img src={asset('images/footer.png')} alt="Hand-drawn self-portrait of Colin Zeng" loading="lazy" />
+          </picture>
         </footer>
       </div>
     </>
