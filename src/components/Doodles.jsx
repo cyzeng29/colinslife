@@ -2,6 +2,20 @@
 // follows the theme. Paths with className="draw" ink themselves in once
 // (see .draw in index.css); they need pathLength="1" for that to work.
 
+// SVG filters referenced from CSS (e.g. filter: url(#ink-wobble)). Rendered
+// once in App so each id exists a single time on the page.
+export function InkFilters() {
+  return (
+    <svg className="ink-filters" width="0" height="0" aria-hidden="true" focusable="false">
+      {/* roughens a clean CSS border into a slightly wobbly pen line */}
+      <filter id="ink-wobble" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="7" />
+        <feDisplacementMap in="SourceGraphic" scale="5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  )
+}
+
 export function FrameHint({ kind }) {
   return (
     <svg className="frame-hint" viewBox="0 0 32 24" width="32" height="24">

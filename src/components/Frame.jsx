@@ -8,7 +8,7 @@ export function asset(src) {
   return import.meta.env.BASE_URL + src
 }
 
-// One image slot. kind: 'photo' (taped corners), 'screenshot' (browser bar),
+// One image slot. kind: 'photo' (rounded, hand-inked outline), 'screenshot' (browser bar),
 // or 'drawing' (sketchy uneven border). Empty src renders a quiet placeholder.
 export default function Frame({ kind = 'photo', ratio = '4/3', src, alt = '', label, caption, className = '' }) {
   const url = asset(src)

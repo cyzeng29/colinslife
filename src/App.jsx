@@ -5,12 +5,14 @@ import Work from './pages/Work.jsx'
 import About from './pages/About.jsx'
 import IntroOverlay from './components/IntroOverlay.jsx'
 import { asset } from './components/Frame.jsx'
+import { InkFilters } from './components/Doodles.jsx'
 
 export default function App() {
   const location = useLocation()
 
   return (
     <>
+      <InkFilters />
       <IntroOverlay />
       <PianoNav />
       <div className="shell">

@@ -11,6 +11,8 @@
   --rule: rgba(46, 51, 32, 0.16);
   --tape: rgba(212, 222, 149, 0.6);
   --scrim: rgba(28, 30, 19, 0.55);
+  --desk-light: rgba(255, 255, 255, 0.95);
+  --desk-light-halo: rgba(212, 222, 149, 0.35);
   --radius: 3px;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -31,6 +33,8 @@
     --rule: rgba(237, 236, 221, 0.18);
     --tape: rgba(169, 178, 107, 0.3);
     --scrim: rgba(8, 9, 5, 0.7);
+    --desk-light: rgba(237, 236, 221, 0.3);
+    --desk-light-halo: rgba(237, 236, 221, 0.1);
   }
 }
 
@@ -500,6 +504,12 @@ footer img {
   background: var(--bg-tint);
   padding: 2px 6px;
 }
+.ink-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
 .frame-hint {
   fill: none;
   stroke: currentColor;
@@ -515,25 +525,40 @@ footer img {
   line-height: 1.5;
   color: var(--ink-soft);
 }
-/* photo: two strips of tape */
-.frame-photo::before,
-.frame-photo::after {
+/* photo: rounded corners traced by a hand-drawn ink line, gone over twice.
+   The box stops clipping so the strokes can sit just outside it; the image
+   and placeholder round their own corners instead. */
+.frame-photo .frame-box {
+  overflow: visible;
+  border: 0;
+  border-radius: 18px;
+}
+.frame-photo .frame-box img,
+.frame-photo .frame-empty {
+  border-radius: inherit;
+}
+.frame-photo .frame-empty {
+  overflow: hidden;
+}
+.frame-photo .frame-box::before,
+.frame-photo .frame-box::after {
   content: '';
   position: absolute;
-  top: 2px;
-  z-index: 1;
-  width: 58px;
-  height: 18px;
-  background: var(--tape);
   pointer-events: none;
+  filter: url(#ink-wobble);
 }
-.frame-photo::before {
-  left: -16px;
-  transform: rotate(-36deg);
+.frame-photo .frame-box::before {
+  inset: -5px;
+  border: 2px solid var(--ink-soft);
+  border-radius: 22px 20px 23px 19px;
 }
-.frame-photo::after {
-  right: -16px;
-  transform: rotate(36deg);
+/* the second, lighter pass drifts off the first like a quick re-trace */
+.frame-photo .frame-box::after {
+  inset: -9px -3px -2px -8px;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 26px 19px 22px 27px;
+  opacity: 0.3;
+  transform: rotate(-0.6deg);
 }
 /* screenshot: a thin browser bar */
 .frame-bar {
@@ -575,9 +600,6 @@ footer img {
   position: relative;
   width: min(300px, 74%);
   margin: 8px auto 40px;
-}
-.home-visual .frame {
-  transform: rotate(-1.5deg);
 }
 .home-accents {
   position: absolute;
@@ -996,11 +1018,24 @@ footer img {
   font-size: 15px;
   color: var(--ink-soft);
 }
-.xd-pair {
+.xd-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px; /* keeps the taped corners of two photos from touching */
-  margin-bottom: 36px;
+  gap: 32px;
+}
+.xd-side {
+  display: grid;
+  align-content: start;
+  gap: 28px; /* room for each photo's outer ink stroke */
+}
+/* text takes two thirds, the stacked images one third */
+@media (min-width: 641px) {
+  .xd-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 44px;
+  }
+  .xd-grid.is-text-only {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .xd-label {
   margin: 0 0 10px;
@@ -1069,22 +1104,19 @@ footer img {
 .about-photo {
   justify-self: center;
   width: min(280px, 78%);
-  transform: rotate(1.5deg);
 }
 .desk {
   display: grid;
   gap: 32px;
   margin-top: 80px;
 }
-/* Sized so the path, penguin and tabletop fit below the sticky piano at once;
-   the stand may run past the fold on short screens. The stage is 1400:970,
-   the tabletop's front edge sits at ~75% of its height, and ~120px covers
-   the path and gaps. */
+/* Sized so the path, penguin and its pool of light fit below the sticky piano
+   at once. The stage is 1400:760 and ~120px covers the path and gaps. */
 .desk-scene {
   display: grid;
   gap: 8px;
   justify-self: center;
-  width: min(100%, max(300px, calc((100svh - var(--piano-h, 240px) - 120px) / 0.75 * 1400 / 970)));
+  width: min(100%, max(300px, calc((100svh - var(--piano-h, 240px) - 120px) * 1400 / 760)));
 }
 
 /* interest path: circles on an ink line, a small penguin rides along the top */
@@ -1193,31 +1225,38 @@ footer img {
   }
 }
 
-/* desk stage: table and penguins share one canvas, so they stack exactly.
-   Clipped so a new penguin falls in from the top edge of the frame. */
+/* desk stage: penguins share one 1400:970 canvas, so they stack exactly. The
+   stage trims the canvas's empty bottom and clips so a new penguin falls in
+   from the top edge of the frame. --feet-y is the feet's height in the stage
+   (60% of the canvas). */
 .desk-stage {
   --feet-x: 48%;
-  --feet-y: 60%;
+  --feet-y: 76.5%;
   position: relative;
-  aspect-ratio: 1400 / 970;
+  aspect-ratio: 1400 / 760;
   overflow: hidden;
 }
-.desk-stage.is-empty {
-  background: var(--bg-tint);
-  border: 1px solid var(--rule);
-  border-radius: 18px;
+/* the soft spotlight left over from the old tabletop, centred on the feet */
+.desk-light {
+  position: absolute;
+  left: calc(var(--feet-x) - 30%);
+  top: calc(var(--feet-y) - 18%);
+  width: 60%;
+  height: 36%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--desk-light) 0%, var(--desk-light-halo) 55%, transparent);
 }
-.desk-table,
 .desk-penguin {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1400 / 970;
   user-select: none;
   -webkit-user-drag: none;
 }
 .desk-penguin {
-  transform-origin: var(--feet-x) var(--feet-y);
+  transform-origin: var(--feet-x) 60%;
   animation: penguin-drop 820ms both;
 }
 .desk-stage.is-waiting .desk-penguin,
@@ -1239,9 +1278,9 @@ footer img {
 .desk-shadow {
   position: absolute;
   left: calc(var(--feet-x) - 12%);
-  top: calc(var(--feet-y) - 2.5%);
+  top: calc(var(--feet-y) - 3.2%);
   width: 24%;
-  height: 5%;
+  height: 6.4%;
   background: radial-gradient(closest-side, rgba(0, 0, 0, 0.35), transparent);
   border-radius: 50%;
   animation: penguin-shadow 820ms both;
@@ -1330,17 +1369,20 @@ footer img {
   text-transform: uppercase;
   color: var(--olive-deep);
 }
+.is-sketchbook .desk-panel-label {
+  text-align: center;
+}
 .desk-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 44px; /* keeps neighbouring photo frames' tape corners from touching */
+  gap: 32px 44px; /* room for each photo's outer ink stroke */
   align-items: start;
 }
 /* sketchbook: a spiral-bound book in the art tab; the turning leaf rotates
    around the spine with a blank back face */
 .sb-book {
   position: relative;
-  width: min(100%, 380px);
+  width: min(100%, 300px); /* narrow enough that the turning page clears the penguin */
   margin: 0 auto;
   padding-left: 16px; /* room for the spiral */
   perspective: 1400px;
@@ -1492,52 +1534,51 @@ footer img {
   text-align: center;
   color: var(--ink-soft);
 }
-/* about: "duke" clubs, a compact list with optional taped photos */
+/* about: "duke" clubs, a carousel with one photo and caption per club */
 .clubs {
   margin-top: 80px;
 }
-.clubs-body {
-  display: grid;
-  gap: 40px;
+.club-carousel {
+  max-width: 820px;
+  margin: 0 auto;
 }
-.clubs-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.club-carousel:focus-visible {
+  outline-offset: 10px;
+}
+.club-slide {
   display: grid;
-  gap: 14px;
+  gap: 24px;
+  align-items: center;
+  animation: rise 260ms ease both;
+}
+.club-slide .frame {
+  justify-self: center;
+  width: min(100%, 440px);
 }
 .club-name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
   margin: 0;
-  font-size: 17px;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--ink);
 }
 .club-name a {
   color: inherit;
 }
 .club-meta {
+  margin: 8px 0 0;
   font-size: 11.5px;
   color: var(--ink-soft);
 }
 .club-blurb {
-  margin: 4px 0 0;
+  margin: 12px 0 0;
   max-width: 56ch;
   font-size: 15px;
   line-height: 1.6;
   color: var(--ink-soft);
 }
-.clubs-photos {
-  display: grid;
-  gap: 32px;
-  justify-self: center;
-  width: min(320px, 86%);
-}
-.clubs-photos .frame {
-  transform: rotate(-1.2deg);
+.club-controls {
+  margin-top: 28px;
 }
 @media (min-width: 860px) {
   .about-top {
@@ -1547,17 +1588,51 @@ footer img {
   }
   .desk {
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    align-items: start;
     gap: 88px; /* room for the sketchbook's page to swing left */
+  }
+  /* The 2x2 gallery takes no height of its own: it fills the panel, which
+     stretches to the penguin column, so it ends where the caption does. */
+  /* the sketchbook sits centred beside the penguin; the absolutely placed
+     gallery ignores this */
+  .desk-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .desk-panel-inner.is-gallery {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .is-gallery .desk-gallery {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .is-gallery .frame {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .is-gallery .frame-box {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto !important; /* overrides Frame's inline ratio; the row sets the height */
+  }
+  /* two caption lines either way, so photos in a row stay the same height */
+  .is-gallery .frame figcaption {
+    min-height: 3em;
   }
   /* table and penguin hug the left edge, away from the sketchbook */
   .desk-scene {
     justify-self: start;
   }
-  .clubs-body.has-photos {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 72px;
+  .club-slide {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 56px;
   }
 }
 
@@ -1580,6 +1655,7 @@ footer img {
   .xdialog[open],
   .desk-panel-inner,
   .desk-caption,
+  .club-slide,
   .desk-path-waddle,
   .desk-penguin,
   .desk-shadow {

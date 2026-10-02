@@ -32,21 +32,33 @@ describe('ExperienceDialog', () => {
     expect(screen.getByRole('dialog', { name: 'Demo Entry' })).toHaveAttribute('open')
   })
 
-  it('shows two images side by side, then what I did, then links', () => {
+  it('shows what I did and links beside the stacked images', () => {
     const full = {
       ...entry,
-      media: [{ kind: 'screenshot', src: 'a.png', alt: 'first image' }],
+      media: [{ kind: 'screenshot', src: 'a.png', alt: 'first image' }, { kind: 'photo', src: '' }],
       links: [{ label: 'Repo', href: 'https://example.com' }],
     }
     const { container } = render(<ExperienceDialog entry={full} kind="project" index={0} total={1} onClose={() => {}} />)
-    const pair = container.querySelector('.xd-pair')
-    expect(pair.querySelectorAll('figure')).toHaveLength(2)
+    const side = container.querySelector('.xd-side')
+    expect(side.querySelectorAll('figure')).toHaveLength(2)
     expect(screen.getByAltText('first image')).toBeInTheDocument()
-    expect(pair.querySelector('.frame-empty')).toBeInTheDocument() // missing second image
+    expect(side.querySelector('.frame-empty')).toBeInTheDocument() // slot without a src
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)
     expect(headings).toEqual(['what I did', 'links'])
-    const order = pair.compareDocumentPosition(screen.getByRole('link', { name: /Repo/ }))
-    expect(order & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const text = container.querySelector('.xd-text')
+    expect(text).toContainElement(screen.getByRole('link', { name: /Repo/ }))
+    expect(text.compareDocumentPosition(side) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('shows one image slot per media entry, and none without media', () => {
+    const one = { ...entry, media: [{ kind: 'photo', src: '' }] }
+    const { container, unmount } = render(<ExperienceDialog entry={one} kind="project" index={0} total={1} onClose={() => {}} />)
+    expect(container.querySelectorAll('.xd-side figure')).toHaveLength(1)
+    unmount()
+
+    const { container: c2 } = render(<ExperienceDialog entry={entry} kind="project" index={0} total={1} onClose={() => {}} />)
+    expect(c2.querySelector('.xd-side')).not.toBeInTheDocument()
+    expect(c2.querySelector('.xd-grid')).toHaveClass('is-text-only')
   })
 
   it('reports a native close so the page can unmount it', async () => {

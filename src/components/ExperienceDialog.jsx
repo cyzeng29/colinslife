@@ -86,58 +86,64 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
           </button>
         </div>
 
-        <header className="xd-head">
-          <h2 id={titleId}>{title}</h2>
-          {(org || when) && <p className="xd-meta">{[org, when].filter(Boolean).join(' · ')}</p>}
-          {tools && <p className="card-tools">{tools}</p>}
-        </header>
+        {/* title and text on the left, images stacked on the right, so the whole
+            entry fits on screen when it opens */}
+        <div className={'xd-grid' + (media.length ? '' : ' is-text-only')}>
+          <div className="xd-main">
+            <header className="xd-head">
+              <h2 id={titleId}>{title}</h2>
+              {(org || when) && <p className="xd-meta">{[org, when].filter(Boolean).join(' · ')}</p>}
+              {tools && <p className="card-tools">{tools}</p>}
+            </header>
+            <div className="xd-text">
+              {context && (
+                <section>
+                  <h3 className="xd-label mono">context</h3>
+                  <p>{context}</p>
+                </section>
+              )}
+              <section>
+                <h3 className="xd-label mono">what I did</h3>
+                <ul>
+                  {bullets.map((b) => (
+                    <li key={b}>{b}</li>
+                  ))}
+                </ul>
+              </section>
+              {outcomes.length > 0 && (
+                <section>
+                  <h3 className="xd-label mono">outcomes</h3>
+                  <ul>
+                    {outcomes.map((o) => (
+                      <li key={o}>{o}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {links.length > 0 && (
+                <section>
+                  <h3 className="xd-label mono">links</h3>
+                  <ul className="xd-links">
+                    {links.map((l) => (
+                      <li key={l.href}>
+                        <a href={l.href} target="_blank" rel="noopener noreferrer">
+                          {l.label} <span aria-hidden="true">↗</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+          </div>
 
-        {/* always two slots side by side; an empty one shows a placeholder */}
-        <div className="xd-pair">
-          {[0, 1].map((i) => {
-            const img = media[i] || {}
-            return <Frame key={i} kind={img.kind || 'photo'} ratio="4/3" {...img} label={img.kind || 'photo'} />
-          })}
-        </div>
-
-        <div className="xd-text">
-          {context && (
-            <section>
-              <h3 className="xd-label mono">context</h3>
-              <p>{context}</p>
-            </section>
-          )}
-          <section>
-            <h3 className="xd-label mono">what I did</h3>
-            <ul>
-              {bullets.map((b) => (
-                <li key={b}>{b}</li>
+          {/* one slot per media entry; an entry without a src shows a placeholder */}
+          {media.length > 0 && (
+            <aside className="xd-side">
+              {media.map((img, i) => (
+                <Frame key={i} kind={img.kind || 'photo'} ratio="4/3" {...img} label={img.kind || 'photo'} />
               ))}
-            </ul>
-          </section>
-          {outcomes.length > 0 && (
-            <section>
-              <h3 className="xd-label mono">outcomes</h3>
-              <ul>
-                {outcomes.map((o) => (
-                  <li key={o}>{o}</li>
-                ))}
-              </ul>
-            </section>
-          )}
-          {links.length > 0 && (
-            <section>
-              <h3 className="xd-label mono">links</h3>
-              <ul className="xd-links">
-                {links.map((l) => (
-                  <li key={l.href}>
-                    <a href={l.href} target="_blank" rel="noopener noreferrer">
-                      {l.label} <span aria-hidden="true">↗</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            </aside>
           )}
         </div>
       </div>

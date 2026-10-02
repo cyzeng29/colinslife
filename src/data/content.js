@@ -30,15 +30,16 @@ export const experience = [
     links: [{ label: 'pondslime.ccn.duke.edu', href: 'https://pondslime.ccn.duke.edu' }],
     context: '',
     outcomes: [],
-    thumb: { src: 'images/agd_preview.png', alt: 'Gene overview page in the Ashbya gossypii Genome Database' },
+    thumb: { src: 'images/agd_preview.png', alt: 'Gene overview page in the Ashbya gossypii Genome Database', ratio: '1232/1228' },
     media: [
       {
         kind: 'screenshot',
         src: 'images/agd_preview.png',
+        ratio: '1232/1228',
         alt: 'AGD gene overview page with orthologs table and genome browser',
         caption: 'Preview of AGD, the complete database for Ashbya gossypii research',
       },
-      { kind: 'photo', src: 'images/labtubes.jpeg', alt: 'Labeled Falcon tubes of Candida samples in a rack', caption: 'Samples in the lab' },
+      { kind: 'photo', src: 'images/labtubes.jpeg', alt: 'Labeled Falcon tubes of Candida samples in a rack', caption: 'Streaked Candida samples in the lab for Plasmidsaurus analysis' },
     ],
   },
   {
@@ -56,10 +57,10 @@ export const experience = [
     links: [{ label: 'Figma Prototype', href: 'https://www.figma.com/proto/NMqokwA5WdHVUaDz6iEAyz/Bourne?node-id=62-531&p=f&t=fmjFfF0sAOy3NPVS-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=8%3A16' }],
     context: '',
     outcomes: [],
-    thumb: { src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office' },
+    thumb: {src: 'images/figma.png', alt: 'Figma prototype of the artifact gallery for LLM output analysis', ratio: '1888/1226'},
     media: [
+      { kind: 'photo', src: 'images/figma.png', ratio: '1888/1226', alt: 'Figma prototype of the artifact gallery for LLM output analysis', caption: 'Figma prototype of the job selection window and artifact gallery for LLM output analysis' },
       { kind: 'photo', src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office', caption: 'At the Quantworks office in Durham' },
-      { kind: 'photo', src: '', alt: '', caption: '' },
     ],
   },
   {
@@ -70,20 +71,32 @@ export const experience = [
     when: 'Summer 2023 — Summer 2024',
     bullets: [
       'Presented research on agent-based neuron modeling, real gas behavior, and a modified cholera transmission model incorporating vaccination effects',
+      'Authored two papers: "Analysis of Neurons Under the Hodgkin-Huxley Model Using NetLogo," on agent-based modeling of action potentials, and "Analysis of Gas Behaviors Under Ideal and Real Conditions," on comparing ideal and real gas models',  
+      'Co-authored "Modification of the SIWRS Model for Cholera Transmission to Include Vaccination Compartments," modeling the effects of vaccination rates, efficacy, and waning immunity using systems of differential equations in Maple',
     ],
     tools: 'Mathematica · STELLA · Gaussian · NetLogo · Maple',
-    links: [{ label: 'Cholera model paper (PDF)', href: import.meta.env.BASE_URL + 'Paper.pdf' }],
+    links: [
+      { label: 'Cholera model paper (PDF)', href: import.meta.env.BASE_URL + 'Paper.pdf' },
+      { label: 'Gas Laws paper (PDF)', href: import.meta.env.BASE_URL + 'GasLaws.pdf' },
+      { label: 'Agent-based neuron modeling paper (PDF)', href: import.meta.env.BASE_URL + 'HodgkinHuxley.pdf' },
+
+    ],
     context: '',
     outcomes: [],
-    thumb: { src: 'images/NCSSM.jpeg', alt: 'Colin presenting neuron modeling research in an auditorium' },
+    thumb: { src: 'images/Vaccine.png', alt: 'Model of cholera transmission with imperfect vaccination compartments' },
     media: [
+      { 
+        kind: 'photo', 
+        src: 'images/Vaccine.png', 
+        alt: 'Model of cholera transmission with imperfect vaccination compartments' ,
+        caption: 'Visual diagram of cholera transmission with imperfect vaccination compartments',
+      },
       {
         kind: 'photo',
         src: 'images/NCSSM.jpeg',
         alt: 'Colin presenting "Studying Neurons Using the Hodgkin-Huxley Model" in an auditorium',
-        caption: 'Presenting Hodgkin-Huxley neuron modeling, NCSSM 2024',
+        caption: 'Presenting Hodgkin-Huxley neuron modeling, NCSSM Summer Research and Innovation Program 2024',
       },
-      { kind: 'photo', src: '', alt: '', caption: '' },
     ],
   },
 ]
@@ -99,7 +112,7 @@ export const projects = [
       'Benchmarked a custom random forest classifier against a premade model',
     ],
     tools: 'Python · Whisper · scikit-learn',
-    links: [],
+    links: [{ label: 'Github', href: 'https://github.com/DAML-Spring26/auto-speech-destuttering' }],
     context: '',
     outcomes: [],
     thumb: { src: '', alt: '' },
@@ -118,7 +131,7 @@ export const projects = [
       'Client-side isolation using SHA-256 hashed API keys — no raw credentials stored',
     ],
     tools: 'React · Groq API · LLM integration',
-    links: [],
+    links: [{ label: 'Github', href: 'https://github.com/cyzeng29/Insight' }],
     context: '',
     outcomes: [],
     thumb: { src: '', alt: '' },
@@ -137,7 +150,7 @@ export const projects = [
       'Benchmarked ResNet18 against a self-built CNN and EfficientNet-B0; ResNet18 hit 91.3% accuracy at 1/36th the size',
     ],
     tools: 'PyTorch · YOLOv8 · Computer vision',
-    links: [],
+    links: [{ label: 'Github', href: 'https://github.com/cyzeng29/frisbee-classifier' }],
     context: '',
     outcomes: [],
     thumb: { src: 'images/morefrisbee.jpeg', alt: 'Team USA players holding gold medals in the stands' },
@@ -146,7 +159,7 @@ export const projects = [
         kind: 'photo',
         src: 'images/morefrisbee.jpeg',
         alt: 'Team USA players holding gold medals in the stands',
-        caption: 'Team USA at WJUC 2026, the sport behind the classifier',
+        caption: 'The sport behind the classifier, inspiring this project',
       },
       { kind: 'photo', src: '', alt: '', caption: '' },
     ],
@@ -165,8 +178,7 @@ export const projects = [
     outcomes: [],
     thumb: { src: '', alt: '' },
     media: [
-      { kind: 'photo', src: '', alt: '', caption: '' },
-      { kind: 'photo', src: '', alt: '', caption: '' },
+      { kind: 'photo', src: 'images/EventHorizon.png', alt: 'Event Horizon game screenshot', caption: 'Snapshot of Event Horizon in Unreal Engine 5' },
     ],
   },
 ]
@@ -190,20 +202,17 @@ export const about = {
     "Outside of work, you'll find me playing piano and guitar, messing around with production and content, and playing ultimate frisbee and pickleball competitively. More going here soon.",
   ],
   photo: { src: 'images/frisbee.jpeg', alt: 'Colin in a Team USA #26 jersey holding up his cleats', caption: '' },
-  // About desk: a drawn table with one penguin per interest. The table and
+  // About desk: one penguin per interest, dropped into a pool of light. The
   // penguins share one canvas size (see public/images/desk/) so every penguin
-  // lands on the tabletop without per-image positioning. `images` are the two
-  // captioned slots shown side by side beside the desk
-  // and `caption` is the line shown under the table; with
+  // lands in the light without per-image positioning. `images` are the four
+  // captioned slots shown 2x2 beside the desk
+  // and `caption` is the line shown under the penguin; with
   // `layout: 'sketchbook'` they become flippable pages instead (any count).
-  desk: {
-    table: 'images/desk/table.png',
-  },
   interests: [
     {
       id: 'sports',
       label: 'sports',
-      caption: 'Ultimate frisbee and pickleball, both competitively. Most recently with Team USA at WJUC 2026.',
+      caption: 'My brother brought me into the sport of ultimate frisbee in 7th grade. From then, it has been nonstop; From middle school to high school to club, and most recently winning gold with Team USA at WJUC 2026. For pickleball, it was a smooth transition from dad-to-son tennis training, and I have managed the local pickleball scene through high school and now am competiting at the collegiate level on Duke.',
       penguin: {
         src: 'images/desk/penguin-sports.png',
         alt: 'A penguin in a cap holding a pickleball paddle, with a frisbee flying past and a bag of balls',
@@ -218,12 +227,14 @@ export const about = {
           placeholder: 'photo',
         caption: 'ultimate frisbee — WJUC 2026 finals day',
         },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
       ],
     },
     {
       id: 'music',
       label: 'music',
-      caption: 'Piano and guitar, plus messing around with production and content.',
+      caption: 'I had a piano teacher for almost a decade, but it was only after I quit that I truly started to enjoy making music. Now I have added a guitar to the music kit, and I am exploring new techniques in the hopes that I can produce my own one day.',
       penguin: {
         src: 'images/desk/penguin-music.png',
         alt: 'A penguin playing an acoustic guitar with a keyboard balanced on its head',
@@ -231,12 +242,14 @@ export const about = {
       images: [
         { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'piano — caption coming soon' },
         { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'guitar — caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
       ],
     },
     {
       id: 'art',
       label: 'art',
-      caption: 'Painting, drawing and photography. Flip through the sketchbook.',
+      caption: 'My favorite pastimes include painting, drawing and photography (I want to make my own films). Just a serene feeling to create something original and creative. Check out the sketchbook.',
       layout: 'sketchbook',
       penguin: {
         src: 'images/desk/penguin-art.png',

@@ -5,10 +5,10 @@ import Sketchbook from './Sketchbook.jsx'
 import { Penguin } from './Doodles.jsx'
 import usePianoHeight from '../hooks/usePianoHeight.js'
 
-// The About desk: a drawn table with the selected interest's penguin dropped
-// onto it. Switching interests sends the old penguin off while the new one
+// The About desk: the selected interest's penguin dropped into a soft pool of
+// light. Switching interests sends the old penguin off while the new one
 // falls in from the top of the frame and bounces (styled in index.css).
-export default function InterestDesk({ table, interests }) {
+export default function InterestDesk({ interests }) {
   const [selected, setSelected] = useState(interests[0].id)
   const [leaving, setLeaving] = useState(null)
   const [broken, setBroken] = useState({})
@@ -51,7 +51,6 @@ export default function InterestDesk({ table, interests }) {
   }
 
   const markBroken = (key) => setBroken((b) => ({ ...b, [key]: true }))
-  const showTable = table && !broken.table
   const showPenguin = current.penguin?.src && !broken[current.id]
 
   return (
@@ -59,13 +58,8 @@ export default function InterestDesk({ table, interests }) {
       <div className="desk-scene">
         <InterestPath interests={interests} selected={selected} onSelect={select} />
 
-        <div
-          ref={stageRef}
-          className={'desk-stage' + (showTable ? '' : ' is-empty') + (inView ? '' : ' is-waiting')}
-        >
-          {showTable && (
-            <img className="desk-table" src={asset(table)} alt="" onError={() => markBroken('table')} />
-          )}
+        <div ref={stageRef} className={'desk-stage' + (inView ? '' : ' is-waiting')}>
+          <span className="desk-light" aria-hidden="true" />
 
           {previous?.penguin?.src && !broken[previous.id] && (
             <img
@@ -102,7 +96,7 @@ export default function InterestDesk({ table, interests }) {
       </div>
 
       <div className="desk-panel" role="tabpanel" id="desk-panel" aria-labelledby={`desk-tab-${current.id}`}>
-        <div className="desk-panel-inner" key={current.id}>
+        <div className={'desk-panel-inner' + (current.layout === 'sketchbook' ? ' is-sketchbook' : ' is-gallery')} key={current.id}>
           <p className="desk-panel-label mono">{current.label}</p>
           {current.layout === 'sketchbook' ? (
             <Sketchbook pages={current.images} />

@@ -1,5 +1,5 @@
 import Frame from '../components/Frame.jsx'
-import ClubList from '../components/ClubList.jsx'
+import ClubCarousel from '../components/ClubCarousel.jsx'
 import InterestDesk from '../components/InterestDesk.jsx'
 import { about } from '../data/content.js'
 
@@ -29,9 +29,9 @@ export default function About() {
         <Frame kind="photo" ratio="4/5" {...about.photo} label="personal photo" className="about-photo" />
       </div>
 
-      <InterestDesk table={about.desk.table} interests={about.interests} />
+      <InterestDesk interests={about.interests} />
 
-      <ClubList clubs={about.clubs} />
+      <ClubCarousel clubs={about.clubs} />
     </section>
   )
 }
