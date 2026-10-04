@@ -35,7 +35,8 @@ export default function WorkCard({ entry, index, kind, onOpen }) {
           </button>
         </div>
       </div>
-      <Frame kind="drawing" ratio="4/3" {...thumb} label={`fig. ${num}`} className="sheet-thumb" />
+      {/* a click anywhere on the sheet opens the dialog, where images enlarge */}
+      <Frame kind="drawing" ratio="4/3" {...thumb} label={`fig. ${num}`} className="sheet-thumb" zoomable={false} />
     </article>
   )
 }

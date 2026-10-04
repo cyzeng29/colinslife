@@ -63,7 +63,7 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
     }
   }
 
-  const { id, title, org, when, bullets, tools, links = [], context, outcomes = [], media = [] } = entry
+  const { id, title, org, when, bullets, details, tools, links = [], context, outcomes = [], media = [] } = entry
   const titleId = `${id}-dialog-title`
   const count = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
 
@@ -105,7 +105,7 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
               <section>
                 <h3 className="xd-label mono">what I did</h3>
                 <ul>
-                  {bullets.map((b) => (
+                  {(details ?? bullets).map((b) => (
                     <li key={b}>{b}</li>
                   ))}
                 </ul>
@@ -141,7 +141,7 @@ export default function ExperienceDialog({ entry, kind, index, total, opener, on
           {media.length > 0 && (
             <aside className="xd-side">
               {media.map((img, i) => (
-                <Frame key={i} kind={img.kind || 'photo'} ratio="4/3" {...img} label={img.kind || 'photo'} />
+                <Frame key={i} kind={img.kind || 'photo'} ratio="4/3" {...img} label={img.kind || 'photo'} loading="eager" />
               ))}
             </aside>
           )}

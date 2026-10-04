@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { asset } from './Frame.jsx'
 import { FrameHint } from './Doodles.jsx'
+import { useLightbox } from './Lightbox.jsx'
 
 const SWIPE = 30 // px of horizontal drag that counts as a flip rather than a click
 
@@ -14,6 +15,8 @@ export default function Sketchbook({ pages }) {
   const [turn, setTurn] = useState(null) // { dir: 'next' | 'prev', to }
   const [broken, setBroken] = useState({})
   const startX = useRef(null)
+  const bookRef = useRef(null)
+  const openLightbox = useLightbox()
   const last = pages.length - 1
 
   // Warm the cache so the page underneath a turning leaf is already there.
@@ -61,6 +64,15 @@ export default function Sketchbook({ pages }) {
   const under = turn?.dir === 'next' ? turn.to : index
   const leaf = turn ? (turn.dir === 'next' ? index : turn.to) : null
   const shown = turn ? turn.to : index
+  const shownPage = pages[shown]
+  const canEnlarge = openLightbox && shownPage.src && !broken[shown]
+
+  // Clicking the page flips it, so enlarging gets its own button.
+  function enlarge() {
+    if (turn || !canEnlarge) return
+    const from = bookRef.current.querySelector('.sb-stack > .sb-page img')
+    openLightbox({ src: asset(shownPage.src), alt: shownPage.alt, caption: shownPage.caption, from })
+  }
 
   const renderPage = (i) => {
     const page = pages[i]
@@ -87,6 +99,7 @@ export default function Sketchbook({ pages }) {
   return (
     <div className="sketchbook">
       <div
+        ref={bookRef}
         className="sb-book"
         role="group"
         aria-roledescription="sketchbook"
@@ -121,6 +134,11 @@ export default function Sketchbook({ pages }) {
         <button type="button" onClick={() => flip('next')} aria-disabled={shown === last}>
           next<span className="sr-only"> page</span> <span aria-hidden="true">›</span>
         </button>
+        {canEnlarge && (
+          <button type="button" className="sb-enlarge" onClick={enlarge}>
+            enlarge<span className="sr-only"> page</span> <span aria-hidden="true">⤢</span>
+          </button>
+        )}
       </div>
       <p className="sb-caption mono" aria-live="polite">
         {pages[shown].caption}

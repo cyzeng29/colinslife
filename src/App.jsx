@@ -6,12 +6,13 @@ import About from './pages/About.jsx'
 import IntroOverlay from './components/IntroOverlay.jsx'
 import { asset } from './components/Frame.jsx'
 import { InkFilters } from './components/Doodles.jsx'
+import { LightboxProvider } from './components/Lightbox.jsx'
 
 export default function App() {
   const location = useLocation()
 
   return (
-    <>
+    <LightboxProvider>
       <InkFilters />
       <IntroOverlay />
       <PianoNav />
@@ -34,6 +35,6 @@ export default function App() {
           </picture>
         </footer>
       </div>
-    </>
+    </LightboxProvider>
   )
 }

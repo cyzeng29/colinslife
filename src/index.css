@@ -560,6 +560,30 @@ footer img {
   opacity: 0.3;
   transform: rotate(-0.6deg);
 }
+/* a filled frame is a button that enlarges its image (see Lightbox.jsx) */
+.frame-zoom {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: inherit;
+  cursor: zoom-in;
+}
+.frame-zoom img {
+  transition: transform 220ms ease, filter 220ms ease;
+}
+.frame-zoom:hover img {
+  filter: brightness(1.04);
+}
+.frame-zoom:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 8px;
+}
+
 /* screenshot: a thin browser bar */
 .frame-bar {
   display: flex;
@@ -852,14 +876,14 @@ footer img {
   display: none;
 }
 @media (min-width: 640px) {
+  /* text two thirds, thumbnail one third */
   .sheet {
-    grid-template-columns: minmax(0, 1fr) 150px;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
   }
   .sheet-thumb {
     display: block;
     margin-top: 8px;
-    transform: rotate(1.2deg);
   }
 }
 
@@ -1661,4 +1685,73 @@ footer img {
   .desk-shadow {
     animation: none;
   }
+}
+
+/* ---------- lightbox: one image enlarged over everything ---------- */
+.lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  cursor: zoom-out;
+}
+.lightbox::backdrop {
+  background: transparent;
+}
+.lb-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.lb-figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  margin: 0;
+  padding: 56px 24px 32px;
+  pointer-events: none;
+}
+.lb-figure img {
+  display: block;
+  max-width: min(100%, 1200px);
+  max-height: calc(100dvh - 140px);
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  will-change: transform, clip-path;
+}
+.lb-figure figcaption {
+  max-width: 60ch;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: #f3f2e6;
+}
+.lb-close {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  z-index: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #f3f2e6;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(243, 242, 230, 0.4);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.lb-close:focus-visible {
+  outline: 2px solid #f3f2e6;
+  outline-offset: 3px;
 }

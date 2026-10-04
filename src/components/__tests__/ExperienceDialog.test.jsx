@@ -41,7 +41,7 @@ describe('ExperienceDialog', () => {
     const { container } = render(<ExperienceDialog entry={full} kind="project" index={0} total={1} onClose={() => {}} />)
     const side = container.querySelector('.xd-side')
     expect(side.querySelectorAll('figure')).toHaveLength(2)
-    expect(screen.getByAltText('first image')).toBeInTheDocument()
+    expect(screen.getByAltText('first image')).toHaveAttribute('loading', 'eager') // lazy can stall in a scrolling dialog
     expect(side.querySelector('.frame-empty')).toBeInTheDocument() // slot without a src
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)
     expect(headings).toEqual(['what I did', 'links'])
@@ -59,6 +59,17 @@ describe('ExperienceDialog', () => {
     const { container: c2 } = render(<ExperienceDialog entry={entry} kind="project" index={0} total={1} onClose={() => {}} />)
     expect(c2.querySelector('.xd-side')).not.toBeInTheDocument()
     expect(c2.querySelector('.xd-grid')).toHaveClass('is-text-only')
+  })
+
+  it('lists the longer details under what I did, falling back to the card bullets', () => {
+    const { unmount } = render(
+      <ExperienceDialog entry={{ ...entry, details: ['the long version'] }} kind="project" index={0} total={1} onClose={() => {}} />,
+    )
+    expect(screen.getByText('the long version')).toBeInTheDocument()
+    expect(screen.queryByText('did a thing')).not.toBeInTheDocument()
+    unmount()
+    render(<ExperienceDialog entry={entry} kind="project" index={0} total={1} onClose={() => {}} />)
+    expect(screen.getByText('did a thing')).toBeInTheDocument()
   })
 
   it('reports a native close so the page can unmount it', async () => {
