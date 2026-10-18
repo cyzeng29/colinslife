@@ -23,7 +23,7 @@ The site is itself evidence of the claim in the intro ("I like taking the things
 
 ## Operating Context
 
-- Three routes: `/` (Home: intro, contact links, photo), `/work` (experience and project cards, penguin timeline, detail dialogs), `/about` (bio and an interests "desk").
+- Four routes: `/` (Home: a landing drawn by Colin, with a sidebar, piano strings and his pixel character, a bridge into a desk of hobbies, then case studies), `/work` (experience and project cards, penguin timeline, detail dialogs), `/about` (bio and an interests "desk"), `/encore` (a placeholder for something fun).
 - A recruiter usually lands on `/` or is deep-linked to `/work`. The intro video plays only on `/`, once per session, and never under reduced motion.
 - All content lives in `src/data/content.js`. Colin adds entries and images there without editing JSX, and future work must keep that workflow.
 - Deployed on Vercel as a Vite static build.
@@ -44,6 +44,7 @@ The following are binding and should be preserved by any future redesign or refi
 - **Piano-key navigation with sound.** Pressing a nav key plays a note.
 - **The dive intro video** (`public/dive.mp4`) as the opening overlay.
 - **The penguin timeline and hand-drawn doodle personality.**
+- **Colin's drawing as the landing and piano bar.** The site uses its palette (green page, light panels) everywhere; there is no separate dark theme.
 - **Lowercase, casual, first-person voice.** Plain words and lowercase labels ("email", "resume · soon", "view experience →"), with no corporate phrasing.
 - Name: Colin Zeng. Contact email: colin.zeng@duke.edu.
 

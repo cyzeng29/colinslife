@@ -3,6 +3,29 @@
 
 let ctx = null
 
+// The visitor's sound preference (the White Dragon tile in the piano bar).
+// Remembered per browser; storage can be blocked, so default to sound on.
+const MUTE_KEY = 'piano-muted'
+let muted = false
+try {
+  muted = localStorage.getItem(MUTE_KEY) === '1'
+} catch {
+  // ignore
+}
+
+export function isMuted() {
+  return muted
+}
+
+export function setMuted(value) {
+  muted = value
+  try {
+    localStorage.setItem(MUTE_KEY, value ? '1' : '0')
+  } catch {
+    // ignore
+  }
+}
+
 function ensureContext() {
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext
@@ -22,8 +45,8 @@ if (typeof window !== 'undefined') {
 }
 
 export function playNote(freq, { volume = 0.12, duration = 1.4 } = {}) {
-  // Still locked (no click yet): stay silent instead of queuing a stray sound
-  if (!ctx || ctx.state !== 'running') return
+  // Muted, or still locked (no click yet): stay silent instead of queuing a stray sound
+  if (muted || !ctx || ctx.state !== 'running') return
 
   const now = ctx.currentTime
   const master = ctx.createGain()

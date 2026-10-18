@@ -31,7 +31,35 @@ npm test
 - Resume: add `public/Colin_Zeng_Resume.pdf`. The `resume ↗` link appears on the next build
   (restart `npm run dev` after adding it); until then it shows "resume · soon".
 - `src/pages/` — one file per page (Home, Work, About).
-- `src/components/PianoNav.jsx` — the piano key nav bar and its press animation.
+- `src/components/PianoNav.jsx` — the drawn piano bar (every page): 曾 毅
+  tiles, the third tile as the sound on/off switch (remembered per browser),
+  and one octave C–C. Invisible hit areas sit over each drawn key; C, E, A and
+  high C navigate (home, experience, about, encore), the rest only play a note.
+- `src/components/landing/` — the Home landing, built from Colin's drawing:
+  sidebar, strings (a key click makes the character walk over and pluck its
+  string, then navigates), the bridge in the fog, and the desk (the backpack
+  unrolls a "what I have done" scroll; the monitor switches its screen on).
+  Scrolling walks the character down to the desk (`src/hooks/useScrollProgress.js`).
+
+## Updating the drawing
+
+The landing and piano bar are Colin's Procreate drawing, exported as layers
+(Share → PNG Files) on the 2732×2048 canvas, so every layer is already in
+position.
+
+1. Put the exported PNGs in `drawings/landing/`, named as in
+   `scripts/layers.config.mjs` (e.g. `frame.png`, `piano.png`, `dog.png`).
+2. Run `npm run layers`. It trims each layer into `public/images/landing/` and
+   writes where each one sits to `src/data/landingLayers.json`. Layers drawn
+   as one (like the four strings) are split by the rectangles in the config.
+3. The script lists drawings that aren't made yet (front-walk frames, the
+   ENCORE label, the framed sound tile, clouds, zzz); the site uses a fallback
+   for each until they exist.
+
+Words for the drawing (alt text, the bridge bubble, desk labels) live in
+`landing` in `src/data/content.js`; measured spots in the drawing (key edges,
+the pick, the desk panel) live in `src/data/landingGeometry.js`. The site
+uses the drawing's palette (green page, light panels) in light and dark mode.
 - `src/components/WorkCard.jsx` — the card layout, shared by experience and projects.
 - `src/index.css` — every design token (colors, fonts) and component style, all in one file.
 

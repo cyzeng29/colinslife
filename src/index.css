@@ -1,41 +1,31 @@
 :root {
-  --bg: #faf9f1;
-  --bg-tint: #eff0de;
+  /* Colin's drawing: green frame, light grey panels (one palette; the
+     drawing reads the same in light and dark surroundings) */
+  color-scheme: light;
+  --page-green: #4d624b;
+  --panel: #dddddd;
+  --panel-glow: rgba(255, 255, 255, 0.4);
+  --on-green: #eef1ea;
+  --canvas-max: 1600px;
+  --bg: #dddddd;
+  --bg-tint: #d2d5cb;
   --ink: #2e3320;
-  --ink-soft: #565c3e;
+  --ink-soft: #4f5540;
   --olive-deep: #3d4127;
-  --olive: #636b2f;
-  --olive-pale: #d4de95;
-  --key-white: #fffef8;
+  --olive: #5b6b45;
+  --olive-pale: #c9d6b4;
+  --key-white: #eeeeec;
   --key-black: #2e3320;
-  --rule: rgba(46, 51, 32, 0.16);
-  --tape: rgba(212, 222, 149, 0.6);
-  --scrim: rgba(28, 30, 19, 0.55);
+  --rule: rgba(46, 51, 32, 0.18);
+  --tape: rgba(201, 214, 180, 0.7);
+  --scrim: rgba(28, 34, 27, 0.6);
   --desk-light: rgba(255, 255, 255, 0.95);
-  --desk-light-halo: rgba(212, 222, 149, 0.35);
+  --desk-light-halo: rgba(201, 214, 180, 0.4);
+  --fog-color: rgba(255, 255, 255, 0.92);
   --radius: 3px;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --bg: #1c1e13;
-    --bg-tint: #262a18;
-    --ink: #edecdd;
-    --ink-soft: #b9bc9f;
-    --olive-deep: #d4de95;
-    --olive: #a9b26b;
-    --olive-pale: #3d4127;
-    --key-white: #2a2d1c;
-    --key-black: #edecdd;
-    --rule: rgba(237, 236, 221, 0.18);
-    --tape: rgba(169, 178, 107, 0.3);
-    --scrim: rgba(8, 9, 5, 0.7);
-    --desk-light: rgba(237, 236, 221, 0.3);
-    --desk-light-halo: rgba(237, 236, 221, 0.1);
-  }
 }
 
 * {
@@ -55,7 +45,7 @@ body {
 }
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--page-green);
   color: var(--ink);
   font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
   -webkit-font-smoothing: antialiased;
@@ -65,157 +55,139 @@ body {
   font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 
-/* ---------- shell ---------- */
+/* ---------- shell: green page, content on light panels ---------- */
 .shell {
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 40px 24px 100px;
+  padding: 0 0 100px;
+}
+.page-content,
+footer {
+  width: min(1500px, calc(100% - 32px));
+  margin-inline: auto;
+}
+/* each content section sits on a panel like the ones in the drawing */
+.page-content {
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--panel);
+  border-radius: 22px;
+  box-shadow: 0 0 22px var(--panel-glow);
 }
 
-/* ---------- piano nav ---------- */
+/* ---------- drawn canvas (piano bar + landing) ---------- */
+.canvas-region {
+  position: relative;
+  width: min(100%, var(--canvas-max));
+  margin: 0 auto;
+}
+.layer,
+.spot {
+  position: absolute;
+  margin: 0;
+}
+.layer {
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+.layer-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---------- piano nav (drawn; sticky on every page) ---------- */
 .piano-wrap {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: var(--bg);
-  padding: 28px 0 0;
-  border-bottom: 1px solid var(--rule);
+  background: var(--page-green);
 }
-.piano-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 0 24px 18px;
+/* the band's panel filled in as one rounded rectangle while the bar floats */
+.piano-panel {
+  pointer-events: none;
+  background: var(--panel);
+  border-bottom-left-radius: var(--corner);
+  border-bottom-right-radius: var(--corner);
 }
-.brand {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-.brand-note {
-  font-size: 13px;
-  color: var(--ink-soft);
-}
-.piano {
-  display: flex;
-  justify-content: center;
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-.keys {
-  /* 80px keys, shrinking just enough to fit mid-size screens */
-  --key-w: min(80px, calc((100vw - 80px) / 10));
-  --black-w: calc(var(--key-w) * 0.44);
-  position: relative;
-  display: flex;
-  border-left: 1px solid var(--ink);
-}
-.key {
-  position: relative;
-  width: var(--key-w);
-  height: 160px;
-  background: var(--key-white);
-  border-right: 1px solid var(--ink);
-  border-bottom: 3px solid var(--ink);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 10px;
-  text-decoration: none;
-  transition:
-    transform 120ms ease,
-    border-bottom-width 120ms ease,
-    background 200ms ease;
-}
-.key.playable {
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-}
-.key-letter {
+/* glow only where the drawing's own glow stops (the bottom corners) */
+.piano-panel::after {
+  content: '';
   position: absolute;
-  top: 10px;
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  color: var(--ink-soft);
-  opacity: 0.55;
-  transition: opacity 150ms ease, color 150ms ease;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 22px var(--panel-glow);
+  clip-path: inset(var(--glow-from) -60px -60px -60px);
 }
-.key.playable.active .key-letter {
-  color: var(--olive-deep);
-  opacity: 1;
+/* invisible hit areas cut to each drawn white key */
+.key {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    transform 120ms ease;
 }
-.key.playable:hover {
-  background: var(--bg-tint);
-}
-.key.playable .label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.03em;
-  color: var(--ink-soft);
-  transition: color 150ms ease;
-  white-space: normal;
-  text-align: center;
-  width: 100%;
-  overflow-wrap: break-word;
-}
-.key.playable.active .label {
-  color: var(--olive-deep);
-  font-weight: 500;
+.key:hover {
+  background: rgba(46, 51, 32, 0.08);
 }
 .key.playable.active {
-  background: var(--bg-tint);
+  background: rgba(46, 51, 32, 0.12);
 }
-.key.playable:active,
+.key:active,
 .key.playable.pressed {
-  transform: translateY(3px);
-  border-bottom-width: 0px;
+  background: rgba(46, 51, 32, 0.2);
+  transform: translateY(2px);
 }
-.black-key {
+.key.playable:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+.tile-sound {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.tile-sound:active {
+  transform: translateY(3px);
+}
+.tile-sound:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+/* muted, until a drawn muted tile exists: faded with a slash */
+.tile-sound.is-muted-fallback .layer-img {
+  opacity: 0.45;
+}
+.tile-sound.is-muted-fallback::after {
+  content: '';
   position: absolute;
-  top: 0;
-  width: var(--black-w);
-  height: 90px;
-  background: var(--key-black);
-  z-index: 2;
-  border-radius: 0 0 2px 2px;
-  pointer-events: none;
+  left: 18%;
+  right: 18%;
+  top: 46%;
+  border-top: 3px solid var(--ink-soft);
+  transform: rotate(-35deg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .key {
+  .key,
+  .tile-sound {
     transition: none;
-  }
-}
-@media (max-width: 640px) {
-  .keys {
-    --key-w: 40px;
-    --black-w: 22px;
-  }
-  .key {
-    height: 200px;
-  }
-  .black-key {
-    height: 58px;
-  }
-  .key.playable .label {
-    font-size: 9px;
-  }
-}
-@media (max-width: 420px) {
-  .keys {
-    transform: scale(0.86);
-    transform-origin: top center;
   }
 }
 
 /* ---------- page transition ---------- */
 .page {
-  padding-top: 56px;
+  padding-top: 40px;
+}
+/* the landing continues the piano bar's drawing with no gap */
+.page:has(> .landing) {
+  padding-top: 0;
 }
 .page.active {
   animation: rise 420ms ease both;
@@ -234,39 +206,6 @@ body {
   .page.active {
     animation: none;
   }
-}
-
-/* ---------- home ---------- */
-.home-title {
-  font-size: clamp(40px, 8vw, 64px);
-  line-height: 1.02;
-  margin: 0 0 20px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-.home-role {
-  font-size: 17px;
-  color: var(--ink-soft);
-  max-width: 46ch;
-  line-height: 1.6;
-  margin: 0 0 40px;
-}
-.home-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 12px 22px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-}
-.home-links a {
-  color: var(--ink);
-  text-decoration: none;
-  border-bottom: 1px solid var(--olive);
-  padding-bottom: 2px;
-}
-.home-links a:hover {
-  color: var(--olive-deep);
 }
 
 /* ---------- work ---------- */
@@ -355,14 +294,19 @@ body {
 footer {
   margin-top: 70px;
   padding-top: 18px;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid rgba(238, 241, 234, 0.3);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11.5px;
-  color: var(--ink-soft);
+  color: var(--on-green);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+}
+.footer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 footer img {
   display: block;
@@ -437,33 +381,6 @@ footer img {
   outline: 2px solid var(--olive);
   outline-offset: 3px;
   border-radius: 2px;
-}
-.key.playable:focus-visible {
-  outline-offset: -5px;
-}
-
-/* sketch lines that ink themselves in once (paths need pathLength="1") */
-.draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: ink 700ms ease-out 250ms forwards;
-}
-.draw.d2 {
-  animation-delay: 500ms;
-}
-.draw.d3 {
-  animation-delay: 750ms;
-}
-@keyframes ink {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .draw {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
 }
 
 /* ---------- image frames / placeholders ---------- */
@@ -613,56 +530,6 @@ footer img {
   box-shadow:
     4px 4px 0 -1px var(--bg),
     4px 4px 0 0 var(--rule);
-}
-
-/* ---------- home: text + visual ---------- */
-.home {
-  display: grid;
-  gap: 56px;
-}
-.home-visual {
-  position: relative;
-  width: min(300px, 74%);
-  margin: 8px auto 40px;
-}
-.home-accents {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 2;
-  /* the frame sits at (40,40)-(380,465) inside the 420x505 viewBox */
-  width: 123.53%;
-  margin: -11.76% 0 0 -11.76%;
-  overflow: visible;
-  fill: none;
-  stroke: var(--olive);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-.home-fig {
-  position: absolute;
-  left: 62%;
-  top: calc(100% + 16px);
-  font-size: 11px;
-  color: var(--ink-soft);
-}
-.link-soon {
-  color: var(--ink-soft);
-  border-bottom: 1px dashed var(--rule);
-  padding-bottom: 2px;
-}
-@media (min-width: 860px) {
-  .home {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 72px;
-  }
-  .home-visual {
-    width: min(340px, 82%);
-    margin: 0 auto;
-  }
 }
 
 /* ---------- work: timeline + sheets ---------- */
@@ -1754,4 +1621,516 @@ footer img {
 .lb-close:focus-visible {
   outline: 2px solid #f3f2e6;
   outline-offset: 3px;
+}
+
+/* ---------- home landing (Colin's drawing) ---------- */
+.landing {
+  /* scroll-driven values, set by useScrollProgress */
+  --p: 0;
+  --fog: 0.7;
+  --walk: 0;
+  --arrive: 0;
+  width: min(100%, var(--canvas-max));
+  margin: 0 auto 40px;
+}
+/* wide screens: sidebar | stage, in the drawing's proportions */
+@media (min-width: 701px) {
+  .landing {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.strings,
+.hall-char,
+.desk-group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* sidebar: hand-lettered name and tagline, then plain text */
+.landing-side {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.6vw, 26px);
+  padding: clamp(24px, 3vw, 48px) 9% 32px;
+  color: var(--on-green);
+}
+@media (min-width: 701px) {
+  /* stays in view (with Recruiter Mode) while the scene scrolls */
+  .landing-side {
+    position: sticky;
+    top: var(--piano-h, 0px);
+    max-height: calc(100dvh - var(--piano-h, 0px));
+    overflow: auto;
+  }
+}
+.side-name,
+.side-tagline {
+  margin: 0;
+}
+.side-name {
+  width: 74%;
+}
+.side-tagline {
+  width: 52%;
+}
+.side-name .layer-img,
+.side-tagline .layer-img {
+  height: auto;
+}
+.side-facts {
+  list-style: none;
+  margin: clamp(4px, 1vw, 16px) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55em;
+  font-size: clamp(15px, 1.3vw, 20px);
+  line-height: 1.3;
+}
+.recruiter-mode {
+  align-self: flex-start;
+  margin-top: clamp(4px, 1vw, 16px);
+  padding: 0.5em 1em;
+  font-size: clamp(15px, 1.3vw, 20px);
+  color: var(--on-green);
+  text-decoration: none;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+.recruiter-mode:hover {
+  background: var(--on-green);
+  color: var(--page-green);
+}
+.recruiter-mode:focus-visible {
+  outline: 3px solid var(--on-green);
+  outline-offset: 4px;
+}
+
+/* stage: hall (screen 1), the seam with the bridge, the desk (screen 2).
+   Sizes use canvas units: 1 canvas px = 100cqw / --stage-fr. */
+.stage {
+  container-type: inline-size;
+}
+/* fills the window below the piano, leaving the top half of the bridge
+   peeking up from the bottom edge */
+.hall {
+  position: relative;
+  min-height: max(
+    calc(470 / var(--stage-fr) * 100cqw),
+    calc(100dvh - var(--piano-h, 0px) - 27.5 / var(--stage-fr) * 100cqw)
+  );
+}
+/* the drawn hall panel, continuing the piano band's panel above */
+.hall::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--hall-left);
+  right: var(--hall-right);
+  background: var(--panel);
+  border-radius: 0 0 calc(16 / var(--stage-fr) * 100cqw) calc(16 / var(--stage-fr) * 100cqw);
+  box-shadow: 0 0 calc(22 / var(--stage-fr) * 100cqw) var(--panel-glow);
+  /* no glow along the top, where it joins the band */
+  clip-path: inset(0 -60px -60px -60px);
+}
+.seam {
+  position: relative;
+  height: 0;
+  margin-top: calc(27.5 / var(--stage-fr) * 100cqw);
+}
+/* home only: scrolling settles on screen 1 or on the desk screen (with the
+   whole bridge in view) when it comes to rest near either; free elsewhere */
+html:has(.landing) {
+  scroll-snap-type: y proximity;
+}
+/* screen 1 (the hall fits the window, so it's a clean snap target) */
+.hall {
+  scroll-snap-align: start;
+  scroll-margin-top: var(--piano-h, 0px);
+}
+.screen-two {
+  position: absolute;
+  top: calc(var(--screen-two-lead) / var(--stage-fr) * -100cqw);
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  scroll-margin-top: var(--piano-h, 0px);
+  pointer-events: none;
+}
+.seam-region {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* its transform makes it a stacking context; lift it over the desk panel
+     (later in the DOM) so the bridge's bottom half isn't hidden. Stays below
+     the desk objects (2) and Colin (3). */
+  z-index: 1;
+}
+.desk-region {
+  margin-top: calc(27.5 / var(--stage-fr) * 100cqw);
+}
+.desk-panel {
+  pointer-events: none;
+  background: var(--panel);
+  border-radius: calc(16 / var(--stage-fr) * 100cqw);
+  box-shadow: 0 0 calc(22 / var(--stage-fr) * 100cqw) var(--panel-glow);
+}
+@media (max-width: 700px) {
+  .hall {
+    min-height: max(calc(470 / var(--stage-fr) * 100cqw), 60svh);
+  }
+}
+
+/* strings: the plucked one hums */
+.string.is-plucked {
+  animation: string-hum 320ms linear;
+}
+@keyframes string-hum {
+  15% { transform: translateX(4px); }
+  35% { transform: translateX(-3px); }
+  55% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+}
+
+/* Colin: slides to a string on a pluck, walks down the bridge on scroll */
+.hall-char {
+  z-index: 3;
+  transform: translate(var(--dx, 0%), calc(var(--walk) * var(--walk-px, 0px)));
+  opacity: calc(1 - var(--walk) * var(--walk));
+}
+.hall-char.is-moving {
+  transition: transform 280ms ease;
+}
+.char-frame,
+.char-walk-front {
+  visibility: hidden;
+}
+.char-frame.is-current {
+  visibility: visible;
+}
+.hall-char.is-plucking .char-frame.is-current {
+  animation: strum 320ms ease;
+}
+@keyframes strum {
+  40% { transform: translateY(-2%) rotate(-1deg); }
+}
+/* walking down: the two back-walk frames alternate (or, once drawn, the
+   front-walk frames), only while the page is actually moving */
+.landing[data-walking] .hall-char .char-frame {
+  visibility: hidden;
+}
+.landing[data-walking] .hall-char:not(:has(.char-walk-front)) .frame-walking-back-1 {
+  animation: walk-step 300ms steps(1) infinite;
+}
+.landing[data-walking] .hall-char:not(:has(.char-walk-front)) .frame-walking-back-2 {
+  animation: walk-step 300ms steps(1) -150ms infinite;
+}
+.landing[data-walking] .char-walk-front.f1 {
+  animation: walk-step 300ms steps(1) infinite;
+}
+.landing[data-walking] .char-walk-front.f2 {
+  animation: walk-step 300ms steps(1) -150ms infinite;
+}
+@keyframes walk-step {
+  0% { visibility: visible; }
+  50% { visibility: hidden; }
+}
+
+/* bridge, markers and the "where I live" bubble */
+.bridge,
+.marker-alert {
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.bridge:hover .layer-img,
+.bridge[aria-expanded='true'] .layer-img {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95));
+}
+.marker-alert .layer-img {
+  animation: bob 1.8s ease-in-out infinite;
+}
+@keyframes bob {
+  50% { transform: translateY(-8%); }
+}
+/* Stardew-style text box (placeholder until the drawn bubble arrives) */
+.bubble {
+  z-index: 5;
+  height: auto !important;
+  padding: 10px 14px;
+  font-size: clamp(11px, 1vw, 14px);
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--key-white);
+  border: 2px solid var(--ink-soft);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 var(--olive-pale);
+}
+.bubble[hidden] {
+  display: none;
+}
+
+/* fog between the panels: drawn clouds, or soft CSS fog until then */
+.fog,
+.fog-cloud {
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--fog);
+}
+.fog-cloud {
+  animation: fog-drift 16s ease-in-out infinite alternate;
+}
+.fog-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--fog-color), transparent);
+  filter: blur(14px);
+  animation: fog-drift 16s ease-in-out infinite alternate;
+}
+.fog-blob-0 { left: 0; top: 30%; width: 46%; height: 50%; }
+.fog-blob-1 { left: 26%; top: 18%; width: 50%; height: 64%; animation-duration: 21s; }
+.fog-blob-2 { right: 0; top: 34%; width: 44%; height: 46%; animation-duration: 18s; }
+.fog-blob-3 { left: 14%; top: 50%; width: 72%; height: 40%; animation-duration: 24s; animation-direction: alternate-reverse; }
+@keyframes fog-drift {
+  to { transform: translateX(4%); }
+}
+
+/* the desk: soft until the walk down arrives */
+.desk-group {
+  z-index: 2;
+  filter: blur(calc((1 - var(--p)) * 5px));
+}
+.desk-obj {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 10px;
+}
+.desk-obj:hover,
+.desk-obj:focus-visible {
+  outline: 2px dashed var(--olive);
+  outline-offset: 4px;
+}
+.desk-obj:hover > *,
+.desk-obj:focus-visible > *,
+.desk-obj.is-nudged > * {
+  animation: nudge 460ms ease;
+}
+@keyframes nudge {
+  25% { transform: rotate(-3deg); }
+  60% { transform: rotate(2.5deg); }
+}
+.monitor-screen {
+  opacity: 0.15;
+  transition:
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+.monitor-screen.is-on {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(220, 255, 210, 0.8));
+}
+.desk-char {
+  opacity: var(--arrive);
+}
+
+/* Kora: asleep, with a faint name */
+.desk-dog {
+  pointer-events: auto;
+}
+.dog-zzz,
+.dog-zzz-drawn {
+  position: absolute;
+}
+.dog-zzz {
+  right: 30%;
+  top: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(9px, 1vw, 15px);
+  color: var(--ink-soft);
+}
+.dog-zzz i {
+  position: absolute;
+  font-style: normal;
+  opacity: 0;
+  animation: zzz 3.6s ease-in infinite;
+}
+.dog-zzz i:nth-child(2) { animation-delay: 1.2s; font-size: 1.15em; }
+.dog-zzz i:nth-child(3) { animation-delay: 2.4s; font-size: 1.3em; }
+@keyframes zzz {
+  20% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(14px, -26px); }
+}
+.dog-zzz-drawn {
+  inset: 0;
+  animation: zzz-drawn 3.6s ease-in-out infinite;
+}
+@keyframes zzz-drawn {
+  50% { transform: translateY(-4%); opacity: 0.6; }
+}
+.dog-name {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  transform: translateX(-50%);
+  font-size: clamp(9px, 0.9vw, 13px);
+  color: var(--ink-soft);
+  opacity: 0.35;
+  transition: opacity 200ms ease;
+}
+.desk-dog:hover .dog-name {
+  opacity: 0.8;
+}
+
+/* the backpack's "what I have done…" scroll */
+.bp-dialog {
+  width: min(94vw, 1100px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+.bp-dialog::backdrop {
+  background: var(--scrim);
+}
+.bp-scroll {
+  position: relative;
+  aspect-ratio: 1504 / 840;
+  animation: unroll 480ms ease both;
+}
+@keyframes unroll {
+  from { clip-path: inset(0 46% 0 46%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.bp-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* the empty writing area of the drawn scroll, left of the portrait */
+.bp-body {
+  position: absolute;
+  left: 8.5%;
+  top: 22%;
+  width: 57%;
+  height: 60%;
+  overflow: auto;
+  font-size: clamp(10px, 1.2vw, 15px);
+  line-height: 1.35;
+  color: var(--ink);
+}
+.bp-list,
+.bp-skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.bp-list {
+  display: grid;
+  gap: 0.7em;
+}
+.bp-list li {
+  display: grid;
+}
+.bp-role {
+  font-weight: 600;
+}
+.bp-org,
+.bp-when {
+  color: var(--ink-soft);
+}
+.bp-when {
+  font-size: 0.8em;
+}
+.bp-skills-title {
+  margin: 1em 0 0.4em;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.bp-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+}
+.bp-skills li {
+  padding: 0.15em 0.5em;
+  font-size: 0.75em;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+}
+.bp-close {
+  position: absolute;
+  right: 4%;
+  top: 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--key-white);
+  border: 1px solid var(--ink-soft);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* below the landing: case studies on their own panel; encore is its own page */
+h2.section-label {
+  font-weight: 400;
+}
+.case-studies {
+  margin-top: 40px;
+  scroll-margin-top: calc(var(--piano-h, 0px) + 24px);
+}
+/* the next resting point after the desk screen (see html:has(.landing)) */
+.case-studies {
+  scroll-snap-align: start;
+}
+.encore-soon {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-group {
+    filter: none;
+  }
+  .hall-char {
+    transform: translate(var(--dx, 0%), 0);
+    opacity: 1;
+  }
+  .desk-char {
+    opacity: 1;
+  }
+  .bp-scroll {
+    animation: fade-in 200ms ease both;
+  }
+  .fog-blob,
+  .fog-cloud,
+  .marker-alert .layer-img,
+  .dog-zzz i,
+  .dog-zzz-drawn,
+  .string.is-plucked,
+  .desk-obj > *,
+  .hall-char .char-frame {
+    animation: none !important;
+  }
+  .dog-zzz i:first-child {
+    opacity: 0.6;
+  }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
 }

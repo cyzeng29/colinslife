@@ -1,6 +1,5 @@
 // Small hand-drawn line art. Everything strokes with currentColor so it
-// follows the theme. Paths with className="draw" ink themselves in once
-// (see .draw in index.css); they need pathLength="1" for that to work.
+// follows the theme.
 
 // SVG filters referenced from CSS (e.g. filter: url(#ink-wobble)). Rendered
 // once in App so each id exists a single time on the page.
@@ -33,24 +32,6 @@ export function FrameHint({ kind }) {
         </>
       )}
       {kind === 'drawing' && <path d="M3 17 C7 7 10 7 12 13 S17 21 20 12 S26 5 29 9" />}
-    </svg>
-  )
-}
-
-// Abstract sketch marks around the Home photo: a loose scribble ring,
-// hatching, an annotation arrow and a small spark. No hobby imagery.
-export function HomeAccents() {
-  // viewBox is sized so the photo frame sits at (40,40)-(380,465)
-  return (
-    <svg className="home-accents" viewBox="0 0 420 505" aria-hidden="true">
-      <path
-        className="draw"
-        pathLength="1"
-        d="M70 20 C30 12 8 48 18 78 C28 104 70 104 82 76 C92 52 76 26 50 28 C38 29 28 36 24 44"
-      />
-      <path className="draw d2" pathLength="1" d="M14 478 L30 460 M20 490 L42 468 M28 498 L52 474 M40 503 L60 483" />
-      <path className="draw d3" pathLength="1" d="M344 492 C360 492 370 484 374 470 M367 476 L374 469 L379 477" />
-      <path className="draw d3" pathLength="1" d="M400 6 V34 M386 20 H414 M390 10 L410 30 M410 10 L390 30" />
     </svg>
   )
 }

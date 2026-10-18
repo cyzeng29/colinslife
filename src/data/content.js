@@ -222,10 +222,32 @@ export const projects = [
   },
 ]
 
-export const home = {
-  intro:
-    'I study computer science and statistics at Duke. I build genomics tools and small web apps, and I like taking the things I imagine and making them real.',
-  photo: { src: 'images/homepage.jpeg', alt: 'Colin Zeng', caption: '' },
+// Home landing. The pictures are Colin's drawing, exported as layers into
+// drawings/landing/ and turned into images by `npm run layers` (positions
+// live in landingLayers.json). This holds the words: alt text for each drawn
+// piece and the labels and text that go with them.
+export const landing = {
+  sidebar: {
+    name: 'Colin Zeng',
+    tagline: 'making design interactive.',
+    // plain text for now (the hand-lettered versions are in the drawing)
+    facts: ['CS + Stat @ Duke', 'Research Intern @ Dietrich Lab'],
+    recruiter: 'Recruiter Mode',
+  },
+  // shown on hover or from the "!" marker (placeholder until the bubble is drawn)
+  bridge: {
+    text: 'home base: durham, nc. this bridge is drawn after the japanese bridge in duke gardens.',
+  },
+  // Clickable desk objects whose pop-ups are still being drawn
+  desk: [
+    { slug: 'frisbee', label: 'frisbee world championships medal' },
+    { slug: 'globe', label: 'globe of places explored' },
+    { slug: 'camera', label: 'camera: photos taken' },
+    { slug: 'sketchbook', label: 'sketchbook: drawings' },
+  ],
+  backpack: { label: 'backpack: what i have done', title: 'what i have done…' },
+  monitor: { label: 'monitor', screen: 'designed with procreate and figma' },
+  dog: { name: 'kora', alt: 'kora, asleep on a dog bed' },
 }
 
 // The PDF lives at public/Colin_Zeng_Resume.pdf. __RESUME_AVAILABLE__ is set by

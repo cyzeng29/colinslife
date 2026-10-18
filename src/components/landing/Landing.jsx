@@ -1,0 +1,143 @@
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import CanvasRegion from './CanvasRegion.jsx'
+import LandingSidebar from './LandingSidebar.jsx'
+import StringHall from './StringHall.jsx'
+import Character from './Character.jsx'
+import Bridge from './Bridge.jsx'
+import Desk from './Desk.jsx'
+import { octave } from '../PianoNav.jsx'
+import { usePluck } from '../PluckProvider.jsx'
+import usePianoHeight from '../../hooks/usePianoHeight.js'
+import useScrollProgress from '../../hooks/useScrollProgress.js'
+import useMediaQuery from '../../hooks/useMediaQuery.js'
+import useArrowScreens from '../../hooks/useArrowScreens.js'
+import { CANVAS, FEET_Y, HALL, SEAM_Y, SIDEBAR_W, stageRegions } from '../../data/landingGeometry.js'
+import { landing } from '../../data/content.js'
+
+const navKeys = octave.filter((k) => k.to)
+// walk under the string, then pluck; ~0.6s from click to page change
+const MOVE_MS = 280
+const PLUCK_MS = 320
+
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// The Home landing, drawn by Colin: the sidebar, the hall with the strings
+// (screen 1, stretched to fill the window so half the bridge peeks up from
+// the bottom edge), the bridge in the fog, and the desk (screen 2). It
+// continues the piano bar's drawing above. Scrolling (or ↓ / ↑) walks Colin
+// down to the desk and back; a piano nav key makes him pluck its string
+// first, then goes there.
+export default function Landing() {
+  const rootRef = useRef(null)
+  const hallRef = useRef(null)
+  const screenTwoRef = useRef(null) // the second screen starts here (whole bridge in view)
+  const [plucking, setPlucking] = useState(null)
+  const navigate = useNavigate()
+  const pluck = usePluck()
+  const phone = useMediaQuery('(max-width: 700px)')
+  usePianoHeight() // sets --piano-h, used for scroll offsets
+  useScrollProgress(rootRef, screenTwoRef)
+  useArrowScreens(screenTwoRef)
+  const regions = stageRegions(phone)
+
+  // How far the walk down has to go: from where Colin stands to the bridge,
+  // which depends on how tall the window makes the hall.
+  useEffect(() => {
+    const hall = hallRef.current
+    const root = rootRef.current
+    if (!hall || !root) return
+    const measure = () => {
+      const scale = hall.clientWidth / regions.hallTop.w // px per canvas px
+      const feet = (FEET_Y - regions.hallTop.y) * scale
+      const seam = hall.offsetHeight + (SEAM_Y - (regions.hallTop.y + regions.hallTop.h)) * scale
+      root.style.setProperty('--walk-px', `${Math.max(0, seam - feet)}px`)
+    }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(measure)
+    ro.observe(hall)
+    return () => ro.disconnect()
+  }, [regions.hallTop])
+
+  useEffect(() => {
+    if (!pluck) return
+    let timers = []
+    let pending = false
+    const clear = () => {
+      timers.forEach(clearTimeout)
+      timers = []
+    }
+
+    function go(key) {
+      pending = false
+      setPlucking(null)
+      const smooth = reducedMotion() ? 'auto' : 'smooth'
+      navigate(key.to)
+      if (key.to === '/') window.scrollTo?.({ top: 0, behavior: smooth })
+      if (key.to.includes('#')) document.getElementById(key.to.split('#')[1])?.scrollIntoView?.({ behavior: smooth })
+    }
+
+    const unregister = pluck.register((key) => {
+      if (reducedMotion()) return false // plain link, no animation
+      clear()
+      // a second key mid-pluck skips straight to the new destination
+      if (pending) {
+        go(key)
+        return true
+      }
+      pending = true
+      setPlucking({ to: key.to, phase: 'move' })
+      timers.push(setTimeout(() => setPlucking({ to: key.to, phase: 'pluck' }), MOVE_MS))
+      timers.push(setTimeout(() => go(key), MOVE_MS + PLUCK_MS))
+      return true
+    })
+    return () => {
+      unregister()
+      clear()
+    }
+  }, [pluck, navigate])
+
+  return (
+    <div
+      className="landing"
+      ref={rootRef}
+      style={{
+        // sidebar column width as drawn, and canvas-unit maths in index.css
+        '--sidebar-w': `${(SIDEBAR_W / CANVAS.w) * 100}%`,
+        '--stage-fr': regions.hallTop.w,
+        // the second screen starts this far (canvas px) above the gap's centre
+        '--screen-two-lead': SEAM_Y - regions.seam.y,
+        // where the drawn hall panel sits across the stage
+        '--hall-left': `${((HALL.x - regions.hallTop.x) / regions.hallTop.w) * 100}%`,
+        '--hall-right': `${((regions.hallTop.x + regions.hallTop.w - HALL.x - HALL.w) / regions.hallTop.w) * 100}%`,
+      }}
+    >
+      <LandingSidebar content={landing.sidebar} />
+      <div className="stage">
+        <div className="hall" ref={hallRef}>
+          <CanvasRegion region={regions.hallTop} className="hall-top">
+            <StringHall keys={navKeys} plucking={plucking} />
+            <Character keys={navKeys} plucking={plucking} />
+          </CanvasRegion>
+        </div>
+        <div className="seam">
+          {/* scroll-snap point and walk target for the desk screen: just
+              above the bridge, so all of it shows under the piano */}
+          <span ref={screenTwoRef} className="screen-two" aria-hidden="true" />
+          {/* centred on the gap, so half the bridge sits in each panel */}
+          <CanvasRegion
+            region={regions.seam}
+            className="seam-region"
+            style={{ transform: `translateY(${(-(SEAM_Y - regions.seam.y) / regions.seam.h) * 100}%)` }}
+          >
+            <Bridge text={landing.bridge.text} />
+          </CanvasRegion>
+        </div>
+        <CanvasRegion region={regions.desk} className="desk-region">
+          <Desk content={landing} />
+        </CanvasRegion>
+      </div>
+    </div>
+  )
+}

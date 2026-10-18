@@ -1,67 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import Frame from './Frame.jsx'
-
-const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+import useModalDialog from '../hooks/useModalDialog.js'
 
 // Detail view for one sheet. Uses the native <dialog> (top layer, inert
 // background, Escape) plus focus trapping, focus restore and scroll lock.
 export default function ExperienceDialog({ entry, kind, index, total, opener, onClose }) {
   const ref = useRef(null)
-  const closeRef = useRef(onClose)
-  closeRef.current = onClose
-
-  useEffect(() => {
-    const dialog = ref.current
-    // Safari doesn't focus buttons on click, so the caller passes the opener
-    const returnTo = opener || document.activeElement
-
-    const body = document.body
-    const prevOverflow = body.style.overflow
-    const prevPadding = body.style.paddingRight
-    const gutter = window.innerWidth - document.documentElement.clientWidth
-    body.style.overflow = 'hidden'
-    if (gutter > 0) body.style.paddingRight = gutter + 'px'
-
-    const onCancel = (e) => {
-      e.preventDefault()
-      closeRef.current()
-    }
-    // Some browsers close the dialog natively anyway; keep React in sync.
-    // `close` fires a task after close(), so a stale one (e.g. from StrictMode's
-    // dev-only unmount/remount) can arrive after showModal() reopened it.
-    const onNativeClose = () => {
-      if (!dialog.open) closeRef.current()
-    }
-    dialog.addEventListener('cancel', onCancel)
-    dialog.addEventListener('close', onNativeClose)
-    if (!dialog.open) dialog.showModal()
-    dialog.querySelector('.xd-close')?.focus()
-
-    return () => {
-      dialog.removeEventListener('cancel', onCancel)
-      dialog.removeEventListener('close', onNativeClose)
-      if (dialog.open) dialog.close()
-      body.style.overflow = prevOverflow
-      body.style.paddingRight = prevPadding
-      if (returnTo && typeof returnTo.focus === 'function') returnTo.focus({ preventScroll: true })
-    }
-  }, [])
-
-  function onKeyDown(e) {
-    if (e.key !== 'Tab') return
-    const items = [...ref.current.querySelectorAll(FOCUSABLE)]
-    if (!items.length) return
-    const first = items[0]
-    const last = items[items.length - 1]
-    const inside = ref.current.contains(document.activeElement)
-    if (e.shiftKey && (document.activeElement === first || !inside)) {
-      e.preventDefault()
-      last.focus()
-    } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
-      e.preventDefault()
-      first.focus()
-    }
-  }
+  const onKeyDown = useModalDialog(ref, { onClose, opener, focusSelector: '.xd-close' })
 
   const { id, title, org, when, bullets, details, tools, links = [], context, outcomes = [], media = [] } = entry
   const titleId = `${id}-dialog-title`
