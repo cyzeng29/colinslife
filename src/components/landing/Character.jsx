@@ -1,14 +1,28 @@
 import { useEffect, useState } from 'react'
-import { Layer, useRegion } from './CanvasRegion.jsx'
+import { Layer, LayerImg, Spot, useRegion } from './CanvasRegion.jsx'
 import { LAYERS, PICK_X, hasLayer } from '../../data/landingGeometry.js'
 
 const STEP_MS = 110
 
+// The front-walk frames are drawn where he stands at the desk (char-front).
+// Shift both by the same amount so that pose's feet land on the plucking
+// pose's feet, keeping the two frames registered with each other.
+function frontWalkBox(slug) {
+  const box = LAYERS[slug]
+  const desk = LAYERS['char-front']
+  const stand = LAYERS['char-pluck']
+  return {
+    ...box,
+    x: box.x + stand.x + stand.w / 2 - (desk.x + desk.w / 2),
+    y: box.y + stand.y + stand.h - (desk.y + desk.h),
+  }
+}
+
 // Colin under the strings, from behind. On a pluck he walks (the two drawn
 // back-walk frames) until the pick lines up with the string, then plucks.
 // Scrolling walks him down toward the bridge (--walk, set on the landing),
-// stepping through the back-walk frames for now (the front-walk frames take
-// over once they're drawn); he then appears at the desk.
+// stepping through the front-walk frames (back-walk until those are drawn);
+// he then appears at the desk.
 export default function Character({ plucking, keys }) {
   const region = useRegion()
   const [step, setStep] = useState(0)
@@ -36,8 +50,12 @@ export default function Character({ plucking, keys }) {
       ))}
       {hasLayer('walking-front-1') && (
         <>
-          <Layer slug="walking-front-1" className="char-walk-front f1" />
-          <Layer slug="walking-front-2" className="char-walk-front f2" />
+          <Spot box={frontWalkBox('walking-front-1')} className="char-walk-front f1">
+            <LayerImg slug="walking-front-1" />
+          </Spot>
+          <Spot box={frontWalkBox('walking-front-2')} className="char-walk-front f2">
+            <LayerImg slug="walking-front-2" />
+          </Spot>
         </>
       )}
     </div>

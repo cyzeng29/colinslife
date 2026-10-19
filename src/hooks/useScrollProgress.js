@@ -4,8 +4,9 @@ const clamp = (v) => Math.min(1, Math.max(0, v))
 // how long after the last scroll event he keeps stepping
 const STEP_LINGER_MS = 160
 
-// Scroll position of the second screen: the element (a marker just above the
-// bridge) lands under the sticky piano, so the whole bridge shows above the desk.
+// Scroll position of the second screen: the element (a marker just inside the
+// desk panel) lands under the sticky piano, so the panel's top edge sits just
+// under the keys, behind their labels.
 // It's the end of the walk down, and where the ↓ key takes you.
 export function secondScreenTop(el) {
   const pianoH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--piano-h')) || 0

@@ -101,23 +101,6 @@ footer {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
-  background: var(--page-green);
-}
-/* the band's panel filled in as one rounded rectangle while the bar floats */
-.piano-panel {
-  pointer-events: none;
-  background: var(--panel);
-  border-bottom-left-radius: var(--corner);
-  border-bottom-right-radius: var(--corner);
-}
-/* glow only where the drawing's own glow stops (the bottom corners) */
-.piano-panel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: 0 0 22px var(--panel-glow);
-  clip-path: inset(var(--glow-from) -60px -60px -60px);
 }
 /* invisible hit areas cut to each drawn white key */
 .key {
@@ -1725,11 +1708,11 @@ footer img {
     calc(100dvh - var(--piano-h, 0px) - 27.5 / var(--stage-fr) * 100cqw)
   );
 }
-/* the drawn hall panel, continuing the piano band's panel above */
+/* the drawn hall panel, reaching up behind the piano bar's key labels */
 .hall::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: calc(var(--hall-reach) / var(--stage-fr) * -100cqw);
   bottom: 0;
   left: var(--hall-left);
   right: var(--hall-right);
@@ -1744,8 +1727,8 @@ footer img {
   height: 0;
   margin-top: calc(27.5 / var(--stage-fr) * 100cqw);
 }
-/* home only: scrolling settles on screen 1 or on the desk screen (with the
-   whole bridge in view) when it comes to rest near either; free elsewhere */
+/* home only: scrolling settles on screen 1 or on the desk screen (its panel
+   just under the piano) when it comes to rest near either; free elsewhere */
 html:has(.landing) {
   scroll-snap-type: y proximity;
 }
@@ -2086,7 +2069,7 @@ html:has(.landing) {
   cursor: pointer;
 }
 
-/* below the landing: case studies on their own panel; encore is its own page */
+/* below the landing: case studies on their own panel; create is its own page */
 h2.section-label {
   font-weight: 400;
 }
@@ -2098,7 +2081,7 @@ h2.section-label {
 .case-studies {
   scroll-snap-align: start;
 }
-.encore-soon {
+.create-soon {
   color: var(--ink-soft);
   font-size: 15px;
 }

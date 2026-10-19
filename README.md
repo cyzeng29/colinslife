@@ -34,7 +34,7 @@ npm test
 - `src/components/PianoNav.jsx` — the drawn piano bar (every page): 曾 毅
   tiles, the third tile as the sound on/off switch (remembered per browser),
   and one octave C–C. Invisible hit areas sit over each drawn key; C, E, A and
-  high C navigate (home, experience, about, encore), the rest only play a note.
+  high C navigate (home, experience, about, create), the rest only play a note.
 - `src/components/landing/` — the Home landing, built from Colin's drawing:
   sidebar, strings (a key click makes the character walk over and pluck its
   string, then navigates), the bridge in the fog, and the desk (the backpack
@@ -48,12 +48,12 @@ The landing and piano bar are Colin's Procreate drawing, exported as layers
 position.
 
 1. Put the exported PNGs in `drawings/landing/`, named as in
-   `scripts/layers.config.mjs` (e.g. `frame.png`, `piano.png`, `dog.png`).
+   `scripts/layers.config.mjs` (e.g. `frame.png`, `header.png`, `dog.png`).
 2. Run `npm run layers`. It trims each layer into `public/images/landing/` and
    writes where each one sits to `src/data/landingLayers.json`. Layers drawn
    as one (like the four strings) are split by the rectangles in the config.
-3. The script lists drawings that aren't made yet (front-walk frames, the
-   ENCORE label, the framed sound tile, clouds, zzz); the site uses a fallback
+3. The script lists drawings that aren't made yet (the framed sound tile,
+   clouds, zzz); the site uses a fallback
    for each until they exist.
 
 Words for the drawing (alt text, the bridge bubble, desk labels) live in

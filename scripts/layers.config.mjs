@@ -14,21 +14,20 @@ export const layers = {
   'frame-top': { src: 'frame', rect: [0, 0, 2732, 466], trim: false },
   'frame-body': { src: 'frame', rect: [0, 466, 2732, 1582], trim: false },
 
-  'tile-zeng': { src: 'tiles', rect: [80, 40, 242, 380] },
-  'tile-yi': { src: 'tiles', rect: [322, 40, 233, 380] },
-  'tile-blank': { src: 'tiles', rect: [555, 40, 240, 380] },
-  piano: { src: 'piano', rect: [770, 40, 1880, 380] },
-
-  // the drawn key labels (in the piano bar, on every page)
-  'label-home': { src: 'headings', rect: [845, 395, 120, 71] },
-  'label-experience': { src: 'headings', rect: [1255, 395, 190, 71] },
-  'label-about': { src: 'headings', rect: [1985, 395, 120, 71] },
-  'label-colin': { src: 'headings', rect: [2440, 395, 125, 71] },
+  // the piano bar header: tiles, keys and the drawn key labels (every page)
+  'tile-zeng': { src: 'header', rect: [80, 40, 242, 380] },
+  'tile-yi': { src: 'header', rect: [322, 40, 233, 380] },
+  'tile-blank': { src: 'header', rect: [555, 40, 227, 380] },
+  piano: { src: 'header', rect: [782, 40, 1868, 372] },
+  'label-home': { src: 'header', rect: [845, 412, 120, 54] },
+  'label-experience': { src: 'header', rect: [1255, 412, 190, 54] },
+  'label-about': { src: 'header', rect: [1985, 412, 120, 54] },
+  'label-create': { src: 'header', rect: [2420, 412, 165, 54] },
   // one string per nav key (peg + line), then the shared line they hang to
   'string-home': { src: 'headings', rect: [845, 466, 120, 166] },
   'string-experience': { src: 'headings', rect: [1255, 466, 190, 166] },
   'string-about': { src: 'headings', rect: [1985, 466, 120, 166] },
-  'string-encore': { src: 'headings', rect: [2440, 466, 125, 166] },
+  'string-create': { src: 'headings', rect: [2440, 466, 125, 166] },
   'string-bar': { src: 'headings', rect: [880, 628, 1640, 40] },
 
   'side-name': { src: 'text', rect: [40, 555, 560, 345] },
@@ -41,6 +40,9 @@ export const layers = {
   'walking-back-1': { src: 'walking-back-1', rect: [1570, 455, 310, 430] },
   'walking-back-2': { src: 'walking-back-2', rect: [1570, 455, 310, 430] },
   'char-front': { src: 'char-front', rect: [1570, 1110, 260, 440] },
+  // walking toward the viewer, drawn where char-front stands
+  'walking-front-1': { src: 'walking-front-1', rect: [1570, 1110, 300, 450] },
+  'walking-front-2': { src: 'walking-front-2', rect: [1570, 1110, 300, 450] },
 
   'marker-swirl': { src: 'bridge', rect: [1230, 930, 130, 70] },
   bridge: { src: 'bridge', rect: [1420, 800, 600, 300] },
@@ -63,9 +65,6 @@ export const layers = {
 // the run; the site falls back (CSS fog, CSS zzz, COLIN label, blank tile).
 // Each is exported on the same canvas and trimmed to its full drawing.
 export const optional = [
-  'walking-front-1',
-  'walking-front-2',
-  'label-encore',
   'tile-dragon',
   'tile-dragon-muted',
   'cloud-1',

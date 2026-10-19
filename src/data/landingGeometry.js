@@ -41,12 +41,6 @@ export const PIANO = {
   blackBottom: 171,
 }
 
-// The piano band's light panel, from just under its drawn top edge to the
-// bar's bottom. Drawn, its tile section stops short with a seam beside the
-// piano (it flows into the hall below); once the bar floats over the page it
-// is filled in as one rounded rectangle instead.
-export const PIANO_PANEL = { x: 47, y: 80, w: 2628, h: 386, r: 16 }
-
 // Tip of the guitar pick in the plucking pose: the character slides so this
 // point lines up with the string being plucked.
 export const PICK_X = 1850
@@ -57,11 +51,24 @@ export const PICK_X = 1850
 export const HALL = { x: 690, y: 466, w: 1985, h: 470 }
 export const DESK_PANEL = { x: 694, y: 991, w: 1977, h: 988 }
 export const SEAM_Y = (HALL.y + HALL.h + DESK_PANEL.y) / 2
+// At the top of Home the hall panel reaches up behind the piano bar's key
+// labels to here (just under the piano's bottom edge), and scrolls away with
+// the hall, leaving the bar itself transparent.
+export const HALL_REACH_Y = 400
 // The desk panel as shown: its top edge sits a little lower than drawn, so the
 // water splashes under the bridge and the "!" marker stay on clear green
-// instead of fading into the panel's glow.
+// instead of fading into the panel's glow; its bottom edge sits a little
+// higher, so there's less empty panel under the (shifted) desk.
 const DESK_FRAME_Y = 1030
-export const DESK_FRAME = { ...DESK_PANEL, y: DESK_FRAME_Y, h: DESK_PANEL.y + DESK_PANEL.h - DESK_FRAME_Y }
+const DESK_FRAME_TRIM = 40
+export const DESK_FRAME = { ...DESK_PANEL, y: DESK_FRAME_Y, h: DESK_PANEL.y + DESK_PANEL.h - DESK_FRAME_Y - DESK_FRAME_TRIM }
+// Everything on the desk panel sits this far below where it's drawn, so the
+// shelf clears the key labels when the desk screen is under the piano bar.
+export const DESK_SHIFT = 60
+// The desk screen (where ↓ stops): the desk panel's top edge lands just under
+// the piano, as the hall's does on screen 1, so the key labels sit on it. This
+// canvas y lines up with the bar's bottom edge.
+export const SCREEN_TWO_Y = DESK_FRAME_Y + (map.top - HALL_REACH_Y)
 // Feet of the standing pose; the walk down measures from here.
 export const FEET_Y = 905
 // Band of fog around the bridge, between the two panels.

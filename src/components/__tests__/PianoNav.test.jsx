@@ -50,22 +50,15 @@ describe('PianoNav', () => {
     window.scrollY = 0
   })
 
-  it('keeps the drawn band joined to the hall at the top of Home', () => {
+  it('draws only the header (no backdrop), at the top and once scrolled', () => {
+    const drawn = (container) =>
+      [...container.querySelectorAll('.piano-region img')].map((img) => img.getAttribute('src').split('/').pop())
     const { container } = renderNav()
-    expect(container.querySelector('.piano-panel')).toBeNull()
-  })
-
-  it('fills the band in as one rounded panel once Home scrolls', () => {
-    const { container } = renderNav()
+    const atTop = drawn(container)
+    expect(atTop).not.toContain('frame-top.png')
+    expect(atTop).toEqual(expect.arrayContaining(['tile-zeng.png', 'tile-yi.png', 'piano.png', 'label-create.png']))
     scrollTo(200)
-    expect(container.querySelector('.piano-panel')).toBeInTheDocument()
-    scrollTo(0)
-    expect(container.querySelector('.piano-panel')).toBeNull()
-  })
-
-  it('shows the band as one rounded panel on other pages', () => {
-    const { container } = renderNav(null, '/work')
-    expect(container.querySelector('.piano-panel')).toBeInTheDocument()
+    expect(drawn(container)).toEqual(atTop)
   })
 
   it('puts a hit area over each of the eight drawn white keys', () => {
@@ -77,13 +70,19 @@ describe('PianoNav', () => {
   it('makes the C, E, A and high C keys the navigation', () => {
     renderNav()
     const links = screen.getAllByRole('link').map((l) => l.textContent)
-    expect(links).toEqual(['home', 'experience', 'about', 'encore'])
-    expect(screen.getByRole('link', { name: 'encore' })).toHaveAttribute('href', '/encore')
+    expect(links).toEqual(['home', 'experience', 'about', 'create'])
+    expect(screen.getByRole('link', { name: 'create' })).toHaveAttribute('href', '/create')
   })
 
-  it('marks the encore key active on its own page', () => {
-    renderNav(null, '/encore')
-    expect(screen.getByRole('link', { name: 'encore' })).toHaveClass('active')
+  it('labels the high C key with the drawn CREATE label', () => {
+    const { container } = renderNav()
+    const labels = [...container.querySelectorAll('.key-label')].map((img) => img.getAttribute('src').split('/').pop())
+    expect(labels).toEqual(['label-home.png', 'label-experience.png', 'label-about.png', 'label-create.png'])
+  })
+
+  it('marks the create key active on its own page', () => {
+    renderNav(null, '/create')
+    expect(screen.getByRole('link', { name: 'create' })).toHaveClass('active')
     expect(screen.getByRole('link', { name: 'home' })).not.toHaveClass('active')
   })
 

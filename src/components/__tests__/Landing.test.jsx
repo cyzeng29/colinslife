@@ -190,5 +190,19 @@ describe('Landing screens by arrow key', () => {
     expect(root).not.toHaveAttribute('data-walking')
     vi.useRealTimers()
   })
+
+  it('walks down with the front-walk frames, standing where he plucks', () => {
+    const { container } = renderLanding()
+    const frames = container.querySelectorAll('.hall-char .char-walk-front')
+    expect([...frames].map((f) => f.querySelector('img').getAttribute('src').split('/').pop())).toEqual([
+      'walking-front-1.png',
+      'walking-front-2.png',
+    ])
+    // drawn down at the desk, but shown in the hall: inside its top/bottom edges
+    for (const f of frames) {
+      expect(parseFloat(f.style.top)).toBeGreaterThanOrEqual(0)
+      expect(parseFloat(f.style.top) + parseFloat(f.style.height)).toBeLessThanOrEqual(100)
+    }
+  })
 })
 

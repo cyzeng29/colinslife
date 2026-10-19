@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Layer, LayerImg, Spot } from './CanvasRegion.jsx'
+import { Layer, LayerImg, Spot, useRegion } from './CanvasRegion.jsx'
 import BackpackDialog from './BackpackDialog.jsx'
-import { DESK_FRAME, hasLayer } from '../../data/landingGeometry.js'
+import { DESK_FRAME, DESK_SHIFT, hasLayer } from '../../data/landingGeometry.js'
 import { experience, projects } from '../../data/content.js'
 
 // Screen 2: Colin's desk, "who I am outside the resume", all drawn layers.
@@ -10,6 +10,7 @@ import { experience, projects } from '../../data/content.js'
 // still being drawn, so a click only nudges them. Kora sleeps.
 export default function Desk({ content }) {
   const { desk, backpack, monitor, dog } = content
+  const region = useRegion()
   const [nudged, setNudged] = useState(null)
   const [screenOn, setScreenOn] = useState(false)
   const [backpackFrom, setBackpackFrom] = useState(null) // the opener while open
@@ -23,7 +24,7 @@ export default function Desk({ content }) {
   return (
     <>
       <Spot box={DESK_FRAME} className="desk-panel" aria-hidden="true" />
-      <div className="desk-group">
+      <div className="desk-group" style={{ transform: `translateY(${(DESK_SHIFT / region.h) * 100}%)` }}>
         <Layer slug="shelf" />
         <Spot role="img" slug="dog" className="desk-dog" aria-label={dog.alt}>
           <LayerImg slug="dog" />

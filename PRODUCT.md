@@ -23,7 +23,7 @@ The site is itself evidence of the claim in the intro ("I like taking the things
 
 ## Operating Context
 
-- Four routes: `/` (Home: a landing drawn by Colin, with a sidebar, piano strings and his pixel character, a bridge into a desk of hobbies, then case studies), `/work` (experience and project cards, penguin timeline, detail dialogs), `/about` (bio and an interests "desk"), `/encore` (a placeholder for something fun).
+- Four routes: `/` (Home: a landing drawn by Colin, with a sidebar, piano strings and his pixel character, a bridge into a desk of hobbies, then case studies), `/work` (experience and project cards, penguin timeline, detail dialogs), `/about` (bio and an interests "desk"), `/create` (a placeholder for something fun).
 - A recruiter usually lands on `/` or is deep-linked to `/work`. The intro video plays only on `/`, once per session, and never under reduced motion.
 - All content lives in `src/data/content.js`. Colin adds entries and images there without editing JSX, and future work must keep that workflow.
 - Deployed on Vercel as a Vite static build.

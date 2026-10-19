@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { isMuted, playNote, setMuted } from '../audio/notes.js'
 import { usePluck } from './PluckProvider.jsx'
 import CanvasRegion, { Layer, LayerImg, Spot, place, useRegion } from './landing/CanvasRegion.jsx'
 import useMediaQuery from '../hooks/useMediaQuery.js'
-import useScrolled from '../hooks/useScrolled.js'
-import { LAYERS, PIANO, PIANO_PANEL, hasLayer, stageRegions } from '../data/landingGeometry.js'
+import { LAYERS, PIANO, hasLayer, stageRegions } from '../data/landingGeometry.js'
 
 // One real octave, C4 to C5, matching the drawn keys. Keys with `to` navigate
 // (each carries a drawn label and hangs a string on the Home landing); the
@@ -18,11 +17,9 @@ export const octave = [
   { note: 'G', freq: 392.0 },
   { note: 'A', freq: 440.0, to: '/about', label: 'about' },
   { note: 'B', freq: 493.88 },
-  { note: 'C', freq: 523.25, to: '/encore', label: 'encore' },
+  { note: 'C', freq: 523.25, to: '/create', label: 'create' },
 ]
 
-// The encore label falls back to the drawn COLIN label until it's redrawn
-const labelSlug = (label) => (label === 'encore' && !hasLayer('label-encore') ? 'label-colin' : `label-${label}`)
 
 // Plain clicks only: cmd/ctrl/shift-click should still open a new tab.
 const isPlainClick = (e) => e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey
@@ -87,13 +84,7 @@ export default function PianoNav() {
   const [muted, setMutedState] = useState(isMuted)
   const pluck = usePluck()
   const phone = useMediaQuery('(max-width: 700px)')
-  const scrolled = useScrolled()
-  const { pathname } = useLocation()
-  // At the top of Home the drawn band flows into the hall below; anywhere
-  // else it floats over the page as one whole rounded panel.
-  const floating = scrolled || pathname !== '/'
   const bar = stageRegions(phone).bar
-  const cornerH = 2 * PIANO_PANEL.r // canvas px at the bottom left to the panel alone
 
   function handleNav(e, k) {
     setPressed(k.label)
@@ -112,17 +103,8 @@ export default function PianoNav() {
   return (
     <div className="piano-wrap">
       <CanvasRegion region={bar} className="piano-region">
-        {/* floating: the drawing (and its glow) stops above the bottom
-            corners; the panel covers its inside and rounds those corners */}
-        <Layer slug="frame-top" style={floating ? { clipPath: `inset(0 0 ${(cornerH / bar.h) * 100}% 0)` } : undefined} />
-        {floating && (
-          <Spot
-            box={PIANO_PANEL}
-            className="piano-panel"
-            aria-hidden="true"
-            style={{ '--corner': `${(PIANO_PANEL.r / PIANO_PANEL.w) * 100}% ${(PIANO_PANEL.r / PIANO_PANEL.h) * 100}%`, '--glow-from': `${100 - (cornerH / PIANO_PANEL.h) * 100}%` }}
-          />
-        )}
+        {/* just the drawn header (tiles, keys, labels): no backdrop, so the
+            page shows through around it as it scrolls underneath */}
         <Layer slug="tile-zeng" />
         <Layer slug="tile-yi" />
         <Spot
@@ -142,7 +124,7 @@ export default function PianoNav() {
         {octave
           .filter((k) => k.to)
           .map((k) => (
-            <Layer key={k.to} slug={labelSlug(k.label)} className="key-label" />
+            <Layer key={k.to} slug={`label-${k.label}`} className="key-label" />
           ))}
       </CanvasRegion>
     </div>

@@ -12,7 +12,7 @@ import usePianoHeight from '../../hooks/usePianoHeight.js'
 import useScrollProgress from '../../hooks/useScrollProgress.js'
 import useMediaQuery from '../../hooks/useMediaQuery.js'
 import useArrowScreens from '../../hooks/useArrowScreens.js'
-import { CANVAS, FEET_Y, HALL, SEAM_Y, SIDEBAR_W, stageRegions } from '../../data/landingGeometry.js'
+import { CANVAS, FEET_Y, HALL, HALL_REACH_Y, SCREEN_TWO_Y, SEAM_Y, SIDEBAR_W, stageRegions } from '../../data/landingGeometry.js'
 import { landing } from '../../data/content.js'
 
 const navKeys = octave.filter((k) => k.to)
@@ -107,10 +107,13 @@ export default function Landing() {
         '--sidebar-w': `${(SIDEBAR_W / CANVAS.w) * 100}%`,
         '--stage-fr': regions.hallTop.w,
         // the second screen starts this far (canvas px) above the gap's centre
-        '--screen-two-lead': SEAM_Y - regions.seam.y,
+        // (negative: below it)
+        '--screen-two-lead': SEAM_Y - SCREEN_TWO_Y,
         // where the drawn hall panel sits across the stage
         '--hall-left': `${((HALL.x - regions.hallTop.x) / regions.hallTop.w) * 100}%`,
         '--hall-right': `${((regions.hallTop.x + regions.hallTop.w - HALL.x - HALL.w) / regions.hallTop.w) * 100}%`,
+        // canvas px the hall panel reaches up behind the key labels
+        '--hall-reach': HALL.y - HALL_REACH_Y,
       }}
     >
       <LandingSidebar content={landing.sidebar} />
@@ -122,8 +125,8 @@ export default function Landing() {
           </CanvasRegion>
         </div>
         <div className="seam">
-          {/* scroll-snap point and walk target for the desk screen: just
-              above the bridge, so all of it shows under the piano */}
+          {/* scroll-snap point and walk target for the desk screen: the
+              desk panel's top edge lands just under the piano */}
           <span ref={screenTwoRef} className="screen-two" aria-hidden="true" />
           {/* centred on the gap, so half the bridge sits in each panel */}
           <CanvasRegion
