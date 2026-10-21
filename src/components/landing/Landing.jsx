@@ -97,10 +97,8 @@ export default function Landing() {
     function go(key) {
       pending = false
       setPlucking(null)
-      const smooth = reducedMotion() ? 'auto' : 'smooth'
+      // Home scrolls to the top (HOME) or to its case studies (EXPERIENCE)
       navigate(key.to)
-      if (key.to === '/') window.scrollTo?.({ top: 0, behavior: smooth })
-      if (key.to.includes('#')) document.getElementById(key.to.split('#')[1])?.scrollIntoView?.({ behavior: smooth })
     }
 
     const unregister = pluck.register((key) => {

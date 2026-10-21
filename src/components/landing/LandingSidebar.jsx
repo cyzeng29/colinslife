@@ -7,8 +7,8 @@ const external = (href) => /^https?:/.test(href)
 // The green column beside the scene: Colin's hand-lettered name and tagline
 // (drawings, with their words as alt text), then plain-text facts (a bold
 // label for where, a softer line for what), a row of contact links and the
-// Recruiter Mode button, a link straight to the plain work list. On wide
-// screens it stays in view while the scene scrolls.
+// Recruiter Mode button, a link straight to the plain work list
+// (/work/list). On wide screens it stays in view while the scene scrolls.
 export default function LandingSidebar({ content }) {
   const { name, tagline, facts, recruiter } = content
   return (
@@ -45,7 +45,7 @@ export default function LandingSidebar({ content }) {
             </li>
           )}
         </ul>
-        <Link to="/work" className="recruiter-mode" title="skip straight to experience & projects">
+        <Link to="/work/list" className="recruiter-mode" title="skip straight to the full list of experience & projects">
           {recruiter}
         </Link>
       </div>

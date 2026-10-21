@@ -1,17 +1,6 @@
-/* LT Hoop (LyonsType, SIL Open Font License: public/fonts/lt-hoop/OFL.txt),
-   self-hosted; headings and the sidebar's bold labels */
-@font-face {
-  font-family: 'LT Hoop';
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/lt-hoop/lt-hoop-semibold.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'LT Hoop';
-  font-weight: 800;
-  font-display: swap;
-  src: url('/fonts/lt-hoop/lt-hoop-extrabold.woff2') format('woff2');
-}
+/* Tomarik Poster (headings and the sidebar's labels) and Tomarik Introvert
+   (everything else) come from Colin's Adobe Fonts web project, linked in
+   index.html */
 
 :root {
   /* Colin's drawing: green frame, light grey panels (one palette; the
@@ -41,9 +30,20 @@
   --desk-light-halo: rgba(201, 214, 180, 0.4);
   --fog-color: rgba(255, 255, 255, 0.92);
   --radius: 3px;
-  /* type: LT Hoop for headings and labels, Pliant for everything else */
-  --font-display: 'LT Hoop', 'Pliant', system-ui, sans-serif;
-  --font-body: 'Pliant', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* type: Tomarik Poster for headings and labels, Tomarik Introvert for
+     everything else */
+  --font-display: 'tomarik-poster', 'tomarik-introvert', system-ui, sans-serif;
+  --font-body: 'tomarik-introvert', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* round cursor in the page green with a see-through grey ring, so it shows
+     on the green page too (url() can't read vars, so colours are inlined).
+     Clickable things keep the same size, with a stronger ring in place of
+     the hand */
+  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='%234d624b' stroke='%23a3a79c' stroke-opacity='0.55' stroke-width='3'/%3E%3C/svg%3E")
+      8 8,
+    auto;
+  --cursor-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='%234d624b' stroke='%23a3a79c' stroke-opacity='0.9' stroke-width='3'/%3E%3C/svg%3E")
+      8 8,
+    pointer;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -54,6 +54,26 @@
 }
 html {
   scroll-padding-top: env(safe-area-inset-top, 0px);
+  cursor: var(--cursor-dot);
+}
+/* the round cursor everywhere, never the browser's arrow, hand or text bar:
+   everything takes its parent's, and anything clickable gets the clickable
+   one (rules below that set a cursor still win) */
+*,
+*::before,
+*::after {
+  cursor: inherit;
+}
+::backdrop {
+  cursor: var(--cursor-dot);
+}
+a[href],
+button:not(:disabled),
+[role='button'],
+label[for],
+select,
+summary {
+  cursor: var(--cursor-pointer);
 }
 html,
 body {
@@ -68,7 +88,11 @@ body {
   margin: 0;
   background: var(--page-green);
   color: var(--ink);
+  cursor: var(--cursor-dot);
   font-family: var(--font-body);
+  /* both Tomarik styles have one weight; bold settings use it as drawn rather
+     than a browser-thickened copy (inherited by everything) */
+  font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -143,7 +167,7 @@ footer {
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition:
     background 120ms ease,
     transform 120ms ease;
@@ -168,7 +192,7 @@ footer {
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: transform 120ms ease;
 }
 .tile-sound:active {
@@ -195,6 +219,107 @@ footer {
   .key,
   .tile-sound {
     transition: none;
+  }
+}
+
+/* condensing (--condense 0 → 1, set by useHeaderCondense): on Home as the
+   case studies arrive, always on other pages. A green band fades in behind
+   the bar so the keys and labels read over the cards scrolling beneath. */
+.piano-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 calc(-0.6 * var(--gutter)) 0;
+  background: var(--page-green);
+  box-shadow: 0 10px 18px -12px rgba(20, 28, 19, 0.55);
+  opacity: var(--condense, 0);
+  pointer-events: none;
+}
+/* the tiles lift away and fade (phones keep them: no room for the name) */
+.header-tiles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(1 - var(--condense, 0));
+  transform: translateY(calc(-14% * var(--condense, 0)));
+}
+.header-tiles .tile-sound {
+  pointer-events: auto;
+}
+.header-tiles[aria-hidden] .tile-sound {
+  pointer-events: none;
+}
+.piano-wrap[data-phone] .header-tiles {
+  opacity: 1;
+  transform: none;
+}
+/* Colin's name and tagline in the tiles' corner. On Home each drawing flies
+   up from the sidebar (an inline transform, eased to rest as the header
+   condenses); hidden until it takes off. */
+.header-name {
+  visibility: hidden;
+}
+.piano-wrap[data-name] .header-name {
+  visibility: visible;
+}
+.header-home {
+  display: block;
+  color: inherit;
+}
+.header-home:focus-visible {
+  outline: 3px solid var(--on-green);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.fly-slot {
+  position: absolute;
+}
+.fly {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+}
+/* labels: the current page's at full strength, the rest a step back once the
+   band is behind them */
+.key-label {
+  opacity: calc(1 - 0.3 * var(--condense, 0));
+  transition: opacity 200ms ease;
+}
+.key-label.is-current {
+  opacity: 1;
+}
+/* the drawn underline, under one label's box (--x0/--w0) or the other's
+   (--x1/--w1) by --nav-u, gliding across when it switches. Drawn in the
+   labels' own grey ink. */
+.nav-underline {
+  position: absolute;
+  left: calc(var(--x0) + (var(--x1) - var(--x0)) * var(--nav-u, 0));
+  width: calc(var(--w0) + (var(--w1) - var(--w0)) * var(--nav-u, 0));
+  color: #acb1ab;
+  pointer-events: none;
+  transition:
+    left 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-underline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  filter: url(#ink-wobble);
+}
+/* the sidebar's own name and tagline hide while the header's copy flies */
+html[data-flying] .landing-side .side-name,
+html[data-flying] .landing-side .side-tagline {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .key-label,
+  .nav-underline {
+    transition: none;
+  }
+  .header-tiles {
+    transform: none;
   }
 }
 
@@ -376,7 +501,7 @@ footer img {
   border: 1px solid rgba(46, 51, 32, 0.4);
   border-radius: 3px;
   padding: 8px 14px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .intro-skip {
   right: 20px;
@@ -521,7 +646,7 @@ footer img {
   background: none;
   border: 0;
   border-radius: inherit;
-  cursor: zoom-in;
+  cursor: var(--cursor-pointer);
 }
 .frame-zoom img {
   transition: transform 220ms ease, filter 220ms ease;
@@ -608,7 +733,7 @@ footer img {
   font: inherit;
   text-align: left;
   color: var(--ink-soft);
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .tl-item:focus-visible {
   outline-offset: 0;
@@ -752,7 +877,7 @@ footer img {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   color: var(--olive-deep);
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 /* stretch the button over the whole sheet */
 .sheet-open::after {
@@ -922,7 +1047,7 @@ footer img {
   background: none;
   border: 1px solid var(--rule);
   border-radius: 999px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .xd-close:hover {
   background: var(--bg-tint);
@@ -1070,7 +1195,7 @@ footer img {
   color: var(--ink-soft);
   background: none;
   border: 0;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   /* keep focused stops (and the penguin above them) clear of the sticky piano */
   scroll-margin-top: calc(var(--piano-h, 240px) + 48px);
 }
@@ -1310,7 +1435,7 @@ footer img {
   margin: 0 auto;
   padding-left: 16px; /* room for the spiral */
   perspective: 1400px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   touch-action: pan-y; /* horizontal drags flip; vertical still scrolls */
   user-select: none;
   -webkit-user-select: none;
@@ -1439,7 +1564,7 @@ footer img {
   background: none;
   border: 0;
   padding: 6px 4px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .sb-controls button:hover {
   text-decoration: underline;
@@ -1447,7 +1572,7 @@ footer img {
 .sb-controls button[aria-disabled='true'] {
   color: var(--ink-soft);
   opacity: 0.45;
-  cursor: default;
+  cursor: var(--cursor-dot);
   text-decoration: none;
 }
 .sb-caption {
@@ -1598,7 +1723,8 @@ footer img {
   overflow: hidden;
   background: transparent;
   border: 0;
-  cursor: zoom-out;
+  /* a click anywhere closes it */
+  cursor: var(--cursor-pointer);
 }
 .lightbox::backdrop {
   background: transparent;
@@ -1649,7 +1775,7 @@ footer img {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(243, 242, 230, 0.4);
   border-radius: 999px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .lb-close:focus-visible {
   outline: 2px solid #f3f2e6;
@@ -1778,13 +1904,35 @@ footer img {
   text-decoration: none;
   border: 2px solid currentColor;
   border-radius: 3px;
+  box-shadow:
+    0 0 0 rgba(20, 28, 19, 0),
+    0 0 0 rgba(20, 28, 19, 0);
+  /* floats up on hover like a lifted card: a small rise and a soft
+     shadow that spreads beneath it, settling back down on press */
   transition:
-    background 150ms ease,
-    color 150ms ease;
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .recruiter-mode:hover {
-  background: var(--on-green);
-  color: var(--page-green);
+  transform: translateY(-4px);
+  box-shadow:
+    0 2px 4px rgba(20, 28, 19, 0.16),
+    0 12px 24px -6px rgba(20, 28, 19, 0.38);
+}
+.recruiter-mode:active {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 2px rgba(20, 28, 19, 0.16),
+    0 4px 10px -4px rgba(20, 28, 19, 0.3);
+  transition-duration: 120ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .recruiter-mode,
+  .recruiter-mode:hover,
+  .recruiter-mode:active {
+    transform: none;
+    transition: box-shadow 150ms ease;
+  }
 }
 .recruiter-mode:focus-visible {
   outline: 3px solid var(--on-green);
@@ -2025,7 +2173,7 @@ html:has(.landing) {
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .bridge:hover .layer-img,
 .bridge[aria-expanded='true'] .layer-img {
@@ -2088,19 +2236,75 @@ html:has(.landing) {
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   pointer-events: auto;
   border-radius: 10px;
+  --float-time: 3.2s;
+  --float-delay: 0s;
 }
-.desk-obj:hover,
-.desk-obj:focus-visible {
-  outline: 2px dashed var(--olive);
-  outline-offset: 4px;
+/* clickable objects hover very slowly on their own, out of step with each
+   other, so they read as things to pick up. Hovering lifts them a little
+   higher (translate, so it stacks on the float's transform). */
+.desk-obj > * {
+  animation: desk-float var(--float-time) ease-in-out var(--float-delay) infinite alternate;
+  transition: translate 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* a soft shadow on the desk just under the object, smaller and fainter as
+   it rises; it stays put while the drawing floats */
+.desk-obj::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -0.3cqw;
+  height: 0.9cqw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(20, 28, 19, 0.32), transparent);
+  pointer-events: none;
+  animation: desk-shadow var(--float-time) ease-in-out var(--float-delay) infinite alternate;
+  transition: scale 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.desk-obj:nth-of-type(2n) {
+  --float-time: 3.7s;
+  --float-delay: -1.4s;
+}
+.desk-obj:nth-of-type(3n) {
+  --float-time: 3.5s;
+  --float-delay: -2.3s;
 }
 .desk-obj:hover > *,
-.desk-obj:focus-visible > *,
+.desk-obj:focus-visible > * {
+  translate: 0 -0.5cqw;
+}
+.desk-obj:hover::after,
+.desk-obj:focus-visible::after {
+  scale: 0.8;
+}
+.desk-obj:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 4px;
+}
 .desk-obj.is-nudged > * {
   animation: nudge 460ms ease;
+}
+@keyframes desk-float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-0.9cqw); }
+}
+@keyframes desk-shadow {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.7); opacity: 0.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desk-obj > *,
+  .desk-obj::after {
+    animation: none;
+    transition: none;
+  }
+  .desk-obj:hover > *,
+  .desk-obj:focus-visible > * {
+    translate: none;
+  }
 }
 @keyframes nudge {
   25% { transform: rotate(-3deg); }
@@ -2108,13 +2312,10 @@ html:has(.landing) {
 }
 .monitor-screen {
   opacity: 0.15;
-  transition:
-    opacity 300ms ease,
-    filter 300ms ease;
+  transition: opacity 300ms ease;
 }
 .monitor-screen.is-on {
   opacity: 1;
-  filter: drop-shadow(0 0 10px rgba(220, 255, 210, 0.8));
 }
 .desk-char {
   opacity: var(--arrive);
@@ -2258,7 +2459,7 @@ html:has(.landing) {
   background: var(--key-white);
   border: 1px solid var(--ink-soft);
   border-radius: 999px;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 
 /* below the landing: case studies on their own panel; create is its own page */
@@ -2266,12 +2467,459 @@ h2.section-label {
   font-weight: 400;
 }
 .case-studies {
-  margin-top: 40px;
-  scroll-margin-top: calc(var(--piano-h, 0px) + 24px);
+  width: min(1240px, calc(100% - 2 * var(--gutter)));
+  margin: 40px auto 0;
+  /* clear of the sticky piano and the green band that hangs below it */
+  scroll-margin-top: calc(var(--piano-h, 0px) + 0.6 * var(--gutter) + 20px);
 }
 /* the next resting point after the desk screen (see html:has(.landing)) */
 .case-studies {
   scroll-snap-align: start;
+}
+
+/* ---------- case study grid: picture first, then a quiet caption ---------- */
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(36px, 4.4vw, 56px) clamp(20px, 3vw, 40px);
+  padding-bottom: 24px;
+}
+.case-card {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
+}
+.case-tile {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  background: var(--tile-bg, var(--panel));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 7% 9%;
+}
+.case-tile img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 12px 26px -16px rgba(20, 28, 19, 0.55);
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.case-tile.is-cover {
+  padding: 0;
+}
+.case-tile.is-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+}
+/* a phone screenshot stands upright in its tile */
+.case-tile.is-phone {
+  padding: 0;
+}
+.case-tile.is-phone img {
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  height: 86%;
+  width: auto;
+  max-width: none;
+  aspect-ratio: 522 / 997;
+  object-fit: cover;
+  object-position: top;
+  border: 5px solid var(--ink);
+  border-radius: 18px;
+  transform: translateX(-50%);
+}
+.case-card:hover .case-tile img {
+  transform: scale(1.025);
+}
+.case-card:hover .case-tile.is-phone img {
+  transform: translateX(-50%) scale(1.025);
+}
+.case-card-text {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.case-card-title {
+  margin: 0;
+  font-size: clamp(22px, 2.1vw, 28px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--on-green);
+  text-wrap: balance;
+}
+.case-card-at {
+  color: var(--on-green-soft);
+}
+/* the title's link covers the whole card */
+.case-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+.case-card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.case-card:has(.case-card-link:focus-visible) {
+  outline: 3px solid var(--on-green);
+  outline-offset: 8px;
+  border-radius: 12px;
+}
+.case-card-link:focus-visible {
+  outline: none;
+}
+.case-card-meta {
+  margin: 0;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--on-green-soft);
+}
+.case-card-summary {
+  margin: 2px 0 0;
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--on-green);
+  max-width: 54ch;
+}
+.case-card-skills {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.case-card-skills li {
+  font-size: 12px;
+  padding: 3px 10px;
+  border: 1px solid rgba(238, 241, 234, 0.28);
+  border-radius: 999px;
+  color: var(--on-green-soft);
+}
+
+/* ---------- case study page: sticky section list beside the story ---------- */
+.case-study {
+  /* clear of the sticky piano and the green band that hangs below it */
+  --cs-clear: calc(var(--piano-h, 0px) + 0.6 * var(--gutter) + 24px);
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 72px);
+  width: min(1240px, calc(100% - 2 * var(--gutter)));
+  padding: clamp(28px, 4.5vw, 64px) clamp(18px, 4vw, 56px);
+}
+.cs-nav {
+  position: sticky;
+  top: var(--cs-clear);
+  align-self: start;
+  display: grid;
+  gap: 32px;
+}
+.cs-nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.cs-back,
+.cs-nav a {
+  font-size: 17px;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+.cs-back {
+  color: var(--ink-soft);
+}
+.cs-nav ol a {
+  color: rgba(46, 51, 32, 0.42);
+}
+.cs-back:hover,
+.cs-nav ol a:hover {
+  color: var(--ink);
+}
+.cs-nav ol a[aria-current='true'] {
+  color: var(--olive);
+}
+.cs-main {
+  display: grid;
+  gap: clamp(64px, 8vw, 104px);
+  min-width: 0;
+}
+.cs-section {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  scroll-margin-top: var(--cs-clear);
+}
+.cs-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+.case-study h1,
+.cs-section h2 {
+  margin: 0;
+  font-size: clamp(28px, 2.8vw, 38px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.case-study h1:focus {
+  outline: none;
+}
+.cs-prose {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.cs-prose p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+.cs-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(22px, 3.5vw, 44px);
+  align-items: start;
+}
+.cs-split.is-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+.cs-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 32px;
+  margin: 8px 0 0;
+}
+.cs-facts dt {
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.cs-facts dd {
+  margin: 3px 0 0;
+  font-size: 16px;
+  color: var(--ink);
+}
+.cs-photo {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.cs-photo-zoom {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: var(--cursor-pointer);
+  border-radius: 8px;
+}
+.cs-photo-zoom:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+.cs-photo img {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  background: var(--key-white);
+  box-shadow: 0 12px 26px -18px rgba(20, 28, 19, 0.55);
+}
+.cs-photo.is-phone {
+  justify-self: center;
+  width: min(100%, 240px);
+}
+.cs-photo.is-phone img {
+  border: 6px solid var(--ink);
+  border-radius: 26px;
+}
+.cs-photo figcaption {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.cs-solution {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(200px, 1fr);
+  gap: clamp(24px, 4vw, 52px);
+  align-items: center;
+}
+.cs-challenges h3 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+}
+.cs-challenges ol,
+.cs-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.cs-challenges ol {
+  gap: 22px;
+  counter-reset: challenge;
+}
+.cs-challenges li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 4px 10px;
+  counter-increment: challenge;
+}
+.cs-challenges li::before,
+.cs-steps li::before {
+  grid-row: span 2;
+  padding-top: 2px;
+  font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  font-size: 15px;
+}
+.cs-challenges li::before {
+  content: counter(challenge, decimal-leading-zero);
+  color: var(--ink-soft);
+}
+.cs-challenges em {
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+.cs-challenges span {
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.cs-steps {
+  gap: 26px;
+  counter-reset: step;
+  max-width: 70ch;
+}
+.cs-steps li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 4px 12px;
+  counter-increment: step;
+}
+.cs-steps li::before {
+  content: counter(step, decimal-leading-zero);
+  color: var(--olive);
+}
+.cs-steps h3 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--ink);
+}
+.cs-steps p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.cs-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+.cs-results li {
+  display: grid;
+  gap: 2px;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: var(--bg-tint);
+}
+.cs-results strong {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.8vw, 36px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.cs-results span {
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.cs-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  font-size: 14px;
+}
+.cs-links a {
+  color: var(--ink);
+  text-underline-offset: 4px;
+  text-decoration-color: var(--olive);
+  text-decoration-thickness: 2px;
+}
+.cs-next {
+  margin: 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  text-align: right;
+  font-size: 18px;
+}
+.cs-next a {
+  color: var(--ink);
+  text-decoration-color: var(--olive);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+@media (max-width: 860px) {
+  .case-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case-study {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cs-nav {
+    position: static;
+    gap: 18px;
+  }
+  .cs-nav ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+  .cs-split,
+  .cs-solution {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-tile img,
+  .cs-back,
+  .cs-nav a {
+    transition: none;
+  }
+  .case-card:hover .case-tile img {
+    transform: none;
+  }
+  .case-card:hover .case-tile.is-phone img {
+    transform: translateX(-50%);
+  }
 }
 .create-soon {
   color: var(--ink-soft);

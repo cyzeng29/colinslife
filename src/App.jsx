@@ -1,7 +1,8 @@
 import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import PianoNav from './components/PianoNav.jsx'
 import Home from './pages/Home.jsx'
-import Work from './pages/Work.jsx'
+import WorkList from './pages/WorkList.jsx'
+import CaseStudy from './pages/CaseStudy.jsx'
 import About from './pages/About.jsx'
 import Create from './pages/Create.jsx'
 import IntroOverlay from './components/IntroOverlay.jsx'
@@ -9,9 +10,11 @@ import { asset } from './components/Frame.jsx'
 import { InkFilters } from './components/Doodles.jsx'
 import { LightboxProvider } from './components/Lightbox.jsx'
 import { PluckProvider } from './components/PluckProvider.jsx'
+import useScrollToTopOnNavigate from './hooks/useScrollToTopOnNavigate.js'
 
 export default function App() {
   const location = useLocation()
+  useScrollToTopOnNavigate()
 
   return (
     <LightboxProvider>
@@ -25,7 +28,10 @@ export default function App() {
           <div className="page active" key={location.pathname}>
             <Routes location={location}>
               <Route path="/" element={<Home />} />
-              <Route path="/work" element={<Work />} />
+              {/* the case studies live on Home, under the landing */}
+              <Route path="/work" element={<Navigate to="/#case-studies" replace />} />
+              <Route path="/work/list" element={<WorkList />} />
+              <Route path="/work/:id" element={<CaseStudy />} />
               <Route path="/about" element={<About />} />
               <Route path="/create" element={<Create />} />
               {/* the page's old name, for existing links */}

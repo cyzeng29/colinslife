@@ -26,7 +26,8 @@ function mockReducedMotion(reduce) {
 }
 
 function Where() {
-  return <p data-testid="where">{useLocation().pathname}</p>
+  const { pathname, hash } = useLocation()
+  return <p data-testid="where">{pathname + hash}</p>
 }
 
 const renderLanding = () =>
@@ -62,7 +63,8 @@ describe('Landing pluck navigation', () => {
     expect(screen.getByTestId('string-experience')).toHaveClass('is-plucked')
     expect(where()).toBe('/')
     act(() => vi.advanceTimersByTime(400))
-    expect(where()).toBe('/work')
+    // EXPERIENCE leads to the case studies under the landing
+    expect(where()).toBe('/#case-studies')
   })
 
   it('skips the animation when a second key is pressed mid-pluck', () => {
@@ -76,14 +78,14 @@ describe('Landing pluck navigation', () => {
     mockReducedMotion(true)
     renderLanding()
     fireEvent.click(key('experience'))
-    expect(where()).toBe('/work')
+    expect(where()).toBe('/#case-studies')
   })
 })
 
 describe('Landing content', () => {
   beforeEach(() => mockReducedMotion(false))
 
-  it('shows the sidebar name, facts and a recruiter shortcut to the work page', () => {
+  it('shows the sidebar name, facts and a recruiter shortcut to the full work list', () => {
     renderLanding()
     expect(screen.getByRole('heading', { level: 1, name: landing.sidebar.name })).toBeInTheDocument()
     expect(screen.getByAltText(landing.sidebar.tagline)).toBeInTheDocument()
@@ -97,7 +99,7 @@ describe('Landing content', () => {
     expect(links.getByRole('link', { name: 'github' })).toHaveAttribute('target', '_blank')
     expect(links.getByRole('link', { name: 'email' })).not.toHaveAttribute('target')
     fireEvent.click(screen.getByRole('link', { name: 'Recruiter Mode' }))
-    expect(where()).toBe('/work')
+    expect(where()).toBe('/work/list')
   })
 
   it('opens and closes the bridge bubble from the "!" marker', () => {

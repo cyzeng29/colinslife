@@ -15,7 +15,9 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export default function Work() {
+// The plain list of every experience and project, with the timeline beside
+// it: where Recruiter Mode goes (/work/list).
+export default function WorkList() {
   const pianoH = usePianoHeight()
   const [activeId, setActiveId] = useState(allIds[0])
   const [open, setOpen] = useState(null) // { id, opener }

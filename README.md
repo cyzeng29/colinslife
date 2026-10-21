@@ -22,7 +22,15 @@ npm test
 
 - `src/data/content.js` — every work/project card, the Home intro, the About bio,
   the desk interests, and every image slot. Add an object to either array and a
-  new card (and timeline penguin) appears on the Work page automatically.
+  new card (and timeline penguin) appears on the full work list (`/work/list`,
+  where Recruiter Mode goes) automatically.
+- `src/data/caseStudies.js` — the case studies: the grid under the Home landing
+  (the EXPERIENCE key scrolls there, `/#case-studies`; old `/work` links
+  redirect to it), and each one's page (`/work/<id>`):
+  card text, tile picture, and the story (context, solution, process,
+  results). Role, dates, tools and links come from the matching entry in
+  `content.js`. A case study's Reflection section appears once its
+  `reflection` is filled in.
 - Images: put files in `public/images/` and set `src: 'images/name.jpg'` on any
   slot in `content.js`. Empty slots show a sketch-style placeholder.
 - About desk drawings: originals live in `drawings/`; web copies (transparent,
@@ -30,11 +38,19 @@ npm test
   one canvas size and crop so each penguin lands on the tabletop.
 - Resume: add `public/Colin_Zeng_Resume.pdf`. The `resume ↗` link appears on the next build
   (restart `npm run dev` after adding it); until then it shows "resume · soon".
-- `src/pages/` — one file per page (Home, Work, About).
+- `src/pages/` — one file per page: Home (with the case study grid), CaseStudy,
+  WorkList (the full list), About, Create. Opening a different page starts at
+  its top (`src/hooks/useScrollToTopOnNavigate.js`).
 - `src/components/PianoNav.jsx` — the drawn piano bar (every page): 曾 毅
   tiles, the third tile as the sound on/off switch (remembered per browser),
   and one octave C–C. Invisible hit areas sit over each drawn key; C, E, A and
   high C navigate (home, experience, about, create), the rest only play a note.
+  It condenses (`src/hooks/useHeaderCondense.js`, maths in
+  `src/components/headerMotion.js`): as Home reaches the case studies the
+  tiles (sound tile included) fade, the sidebar's name and tagline fly up
+  into their corner and a green band fades in behind the bar; a drawn
+  underline sits under HOME over the landing and glides to EXPERIENCE once the
+  case studies fill a good part of the window. Other pages stay condensed.
 - `src/components/landing/` — the Home landing, built from Colin's drawing:
   sidebar, strings (a key click makes the character walk over and pluck its
   string, then navigates), the bridge in the fog, and the desk (the backpack
