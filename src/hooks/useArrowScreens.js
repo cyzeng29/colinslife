@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { secondScreenTop } from './useScrollProgress.js'
 
-// slow enough to watch him walk between the screens
-const WALK_MS = 1100
-const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
+// slow enough to watch him walk between the screens, at a steady pace (a
+// gentle start and stop, not a dash through the middle)
+const WALK_MS = 1600
+const ease = (t) => (1 - Math.cos(Math.PI * t)) / 2
 
 // ↓ on the first screen walks Colin down to the desk screen; ↑ from anywhere
 // up to the desk walks him back to the strings. Further down the page the

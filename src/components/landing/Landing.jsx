@@ -12,7 +12,18 @@ import usePianoHeight from '../../hooks/usePianoHeight.js'
 import useScrollProgress from '../../hooks/useScrollProgress.js'
 import useMediaQuery from '../../hooks/useMediaQuery.js'
 import useArrowScreens from '../../hooks/useArrowScreens.js'
-import { CANVAS, FEET_Y, HALL, HALL_REACH_Y, SCREEN_TWO_Y, SEAM_Y, SIDEBAR_W, stageRegions } from '../../data/landingGeometry.js'
+import {
+  CANVAS,
+  DESK_FEET_Y,
+  DESK_FRAME,
+  FEET_Y,
+  HALL,
+  HALL_REACH_Y,
+  SCREEN_TWO_Y,
+  SEAM_Y,
+  SIDEBAR_W,
+  stageRegions,
+} from '../../data/landingGeometry.js'
 import { landing } from '../../data/content.js'
 
 const navKeys = octave.filter((k) => k.to)
@@ -26,11 +37,12 @@ const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce
 // (screen 1, stretched to fill the window so half the bridge peeks up from
 // the bottom edge), the bridge in the fog, and the desk (screen 2). It
 // continues the piano bar's drawing above. Scrolling (or ↓ / ↑) walks Colin
-// down to the desk and back; a piano nav key makes him pluck its string
+// down to his spot at the desk and back; a piano nav key makes him pluck its string
 // first, then goes there.
 export default function Landing() {
   const rootRef = useRef(null)
   const hallRef = useRef(null)
+  const deskRef = useRef(null)
   const screenTwoRef = useRef(null) // the second screen starts here (whole bridge in view)
   const [plucking, setPlucking] = useState(null)
   const navigate = useNavigate()
@@ -41,24 +53,37 @@ export default function Landing() {
   useArrowScreens(screenTwoRef)
   const regions = stageRegions(phone)
 
-  // How far the walk down has to go: from where Colin stands to the bridge,
-  // which depends on how tall the window makes the hall.
+  // How far the walk down has to go: from where Colin stands under the
+  // strings to where he stands at the desk, which depends on how tall the
+  // window makes the hall. Also how tall the sidebar is: from the bottom of
+  // the piano to the bottom of the desk panel on the desk screen, so it stays
+  // put the whole way down and Recruiter Mode lines up with the panel's edge;
+  // and the strip of landing below that edge (--side-tail), so scrolling on
+  // past the desk takes the sidebar away with the panel instead of leaving
+  // Recruiter Mode below it.
   useEffect(() => {
     const hall = hallRef.current
+    const desk = deskRef.current
+    const screenTwo = screenTwoRef.current
     const root = rootRef.current
-    if (!hall || !root) return
+    if (!hall || !desk || !screenTwo || !root) return
     const measure = () => {
       const scale = hall.clientWidth / regions.hallTop.w // px per canvas px
-      const feet = (FEET_Y - regions.hallTop.y) * scale
-      const seam = hall.offsetHeight + (SEAM_Y - (regions.hallTop.y + regions.hallTop.h)) * scale
-      root.style.setProperty('--walk-px', `${Math.max(0, seam - feet)}px`)
+      const deskTop = desk.getBoundingClientRect().top
+      const feet = hall.getBoundingClientRect().top + (FEET_Y - regions.hallTop.y) * scale
+      const deskFeet = deskTop + (DESK_FEET_Y - regions.desk.y) * scale
+      root.style.setProperty('--walk-px', `${Math.max(0, deskFeet - feet)}px`)
+      const panelBottom = deskTop + (DESK_FRAME.y + DESK_FRAME.h - regions.desk.y) * scale
+      const sideH = Math.max(0, panelBottom - screenTwo.getBoundingClientRect().top)
+      root.style.setProperty('--side-h', `${sideH}px`)
+      root.style.setProperty('--side-tail', `${Math.max(0, root.getBoundingClientRect().bottom - panelBottom)}px`)
     }
     measure()
     if (typeof ResizeObserver === 'undefined') return
     const ro = new ResizeObserver(measure)
     ro.observe(hall)
     return () => ro.disconnect()
-  }, [regions.hallTop])
+  }, [regions.hallTop, regions.desk])
 
   useEffect(() => {
     if (!pluck) return
@@ -137,7 +162,7 @@ export default function Landing() {
             <Bridge text={landing.bridge.text} />
           </CanvasRegion>
         </div>
-        <CanvasRegion region={regions.desk} className="desk-region">
+        <CanvasRegion region={regions.desk} className="desk-region" ref={deskRef}>
           <Desk content={landing} />
         </CanvasRegion>
       </div>

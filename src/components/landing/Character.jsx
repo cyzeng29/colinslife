@@ -5,24 +5,44 @@ import { LAYERS, PICK_X, hasLayer } from '../../data/landingGeometry.js'
 const STEP_MS = 110
 
 // The front-walk frames are drawn where he stands at the desk (char-front).
-// Shift both by the same amount so that pose's feet land on the plucking
-// pose's feet, keeping the two frames registered with each other.
+// Shift them all by the same amount so that pose's feet land on the plucking
+// pose's feet, keeping the frames registered with each other. Walking down
+// undoes the sideways part of the shift, so he arrives on the desk pose.
+const deskShiftX = (() => {
+  const desk = LAYERS['char-front']
+  const stand = LAYERS['char-pluck']
+  return desk && stand ? stand.x + stand.w / 2 - (desk.x + desk.w / 2) : 0
+})()
 function frontWalkBox(slug) {
   const box = LAYERS[slug]
   const desk = LAYERS['char-front']
   const stand = LAYERS['char-pluck']
-  return {
-    ...box,
-    x: box.x + stand.x + stand.w / 2 - (desk.x + desk.w / 2),
-    y: box.y + stand.y + stand.h - (desk.y + desk.h),
-  }
+  return { ...box, x: box.x + deskShiftX, y: box.y + stand.y + stand.h - (desk.y + desk.h) }
+}
+// Stardew-style front walk: step, stand, other step, stand
+const FRONT_WALK = [
+  ['walking-front-1', 'f1'],
+  ['char-front', 'stand'],
+  ['walking-front-2', 'f2'],
+]
+// Walking back up he faces away: the two back-walk frames, their feet set on
+// the plucking pose's feet so he doesn't hop when he turns around.
+const BACK_WALK = [
+  ['walking-back-1', 'b1'],
+  ['walking-back-2', 'b2'],
+]
+function backWalkBox(slug) {
+  const box = LAYERS[slug]
+  const stand = LAYERS['char-pluck']
+  return { ...box, y: stand.y + stand.h - box.h }
 }
 
 // Colin under the strings, from behind. On a pluck he walks (the two drawn
 // back-walk frames) until the pick lines up with the string, then plucks.
-// Scrolling walks him down toward the bridge (--walk, set on the landing),
-// stepping through the front-walk frames (back-walk until those are drawn);
-// he then appears at the desk.
+// Scrolling walks him down past the bridge to his spot at the desk (--walk,
+// set on the landing), facing front and stepping through the front-walk
+// frames (back-walk until those are drawn); there the desk pose takes over.
+// Scrolling back up, he turns and walks away through the back-walk frames.
 export default function Character({ plucking, keys }) {
   const region = useRegion()
   const [step, setStep] = useState(0)
@@ -41,7 +61,7 @@ export default function Character({ plucking, keys }) {
   return (
     <div
       className={'hall-char' + (plucking?.phase === 'pluck' ? ' is-plucking' : '') + (moving ? ' is-moving' : '')}
-      style={{ '--dx': `${dx}%` }}
+      style={{ '--dx': `${dx}%`, '--walk-dx': `${(-deskShiftX / region.w) * 100}%` }}
       aria-hidden="true"
     >
       {/* all frames stay mounted (no reload flicker); only the current one shows */}
@@ -50,12 +70,16 @@ export default function Character({ plucking, keys }) {
       ))}
       {hasLayer('walking-front-1') && (
         <>
-          <Spot box={frontWalkBox('walking-front-1')} className="char-walk-front f1">
-            <LayerImg slug="walking-front-1" />
-          </Spot>
-          <Spot box={frontWalkBox('walking-front-2')} className="char-walk-front f2">
-            <LayerImg slug="walking-front-2" />
-          </Spot>
+          {FRONT_WALK.map(([slug, beat]) => (
+            <Spot key={slug} box={frontWalkBox(slug)} className={`char-walk-front ${beat}`}>
+              <LayerImg slug={slug} />
+            </Spot>
+          ))}
+          {BACK_WALK.map(([slug, beat]) => (
+            <Spot key={slug} box={backWalkBox(slug)} className={`char-walk-back ${beat}`}>
+              <LayerImg slug={slug} />
+            </Spot>
+          ))}
         </>
       )}
     </div>

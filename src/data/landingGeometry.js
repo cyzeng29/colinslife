@@ -71,6 +71,9 @@ export const DESK_SHIFT = 60
 export const SCREEN_TWO_Y = DESK_FRAME_Y + (map.top - HALL_REACH_Y)
 // Feet of the standing pose; the walk down measures from here.
 export const FEET_Y = 905
+// Feet of the pose at the desk (as shown, shifted down with the desk); the
+// walk down ends here.
+export const DESK_FEET_Y = LAYERS['char-front'] ? LAYERS['char-front'].y + LAYERS['char-front'].h + DESK_SHIFT : FEET_Y
 // Band of fog around the bridge, between the two panels.
 export const FOG = { x: 694, y: 800, w: 1977, h: 360 }
 // Where the "where I live" bubble sits (above the "!" marker).

@@ -1,3 +1,18 @@
+/* LT Hoop (LyonsType, SIL Open Font License: public/fonts/lt-hoop/OFL.txt),
+   self-hosted; headings and the sidebar's bold labels */
+@font-face {
+  font-family: 'LT Hoop';
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/lt-hoop/lt-hoop-semibold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'LT Hoop';
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/lt-hoop/lt-hoop-extrabold.woff2') format('woff2');
+}
+
 :root {
   /* Colin's drawing: green frame, light grey panels (one palette; the
      drawing reads the same in light and dark surroundings) */
@@ -6,7 +21,10 @@
   --panel: #dddddd;
   --panel-glow: rgba(255, 255, 255, 0.4);
   --on-green: #eef1ea;
+  --on-green-soft: rgba(238, 241, 234, 0.62);
   --canvas-max: 1600px;
+  /* space either side of the piano bar, the landing and the page panels */
+  --gutter: clamp(16px, 3.5vw, 64px);
   --bg: #dddddd;
   --bg-tint: #d2d5cb;
   --ink: #2e3320;
@@ -23,6 +41,9 @@
   --desk-light-halo: rgba(201, 214, 180, 0.4);
   --fog-color: rgba(255, 255, 255, 0.92);
   --radius: 3px;
+  /* type: LT Hoop for headings and labels, Pliant for everything else */
+  --font-display: 'LT Hoop', 'Pliant', system-ui, sans-serif;
+  --font-body: 'Pliant', system-ui, -apple-system, 'Segoe UI', sans-serif;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -47,9 +68,15 @@ body {
   margin: 0;
   background: var(--page-green);
   color: var(--ink);
-  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
 }
 .mono {
   font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
@@ -61,7 +88,7 @@ body {
 }
 .page-content,
 footer {
-  width: min(1500px, calc(100% - 32px));
+  width: min(1500px, calc(100% - 2 * var(--gutter)));
   margin-inline: auto;
 }
 /* each content section sits on a panel like the ones in the drawing */
@@ -101,6 +128,13 @@ footer {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
+}
+/* wide screens: the bar and the landing share the same gutters, so the
+   strings stay under their keys */
+@media (min-width: 701px) {
+  .piano-region {
+    width: min(calc(100% - 2 * var(--gutter)), var(--canvas-max));
+  }
 }
 /* invisible hit areas cut to each drawn white key */
 .key {
@@ -223,7 +257,7 @@ footer {
 }
 .card-title {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
 }
 .card-when {
@@ -303,19 +337,34 @@ footer img {
   position: fixed;
   inset: 0;
   z-index: 100;
-  /* Same color the video ends on, so any letterboxing or load gap is invisible */
-  background: #faf9f1;
-  transition: opacity 600ms ease;
+  /* The site's green: when the intro ends, the video fades into it first, so
+     the page appears out of its own colour instead of the video's darker one */
+  background: var(--page-green);
 }
 .intro.fading {
   opacity: 0;
   pointer-events: none;
+  transition: opacity 400ms ease 400ms;
 }
 .intro video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover; /* fills any screen shape; crops the edges */
+}
+.intro.fading video {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+/* the splash ending's floor colour (see introEnding.js): the video shows
+   through wherever it's lighter. Once it's at the site's green it needs no
+   fade of its own. */
+.intro-floor {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  mix-blend-mode: lighten;
+  pointer-events: none;
 }
 .intro-skip,
 .intro-play {
@@ -343,7 +392,8 @@ footer img {
   background: #eff0de;
 }
 @media (prefers-reduced-motion: reduce) {
-  .intro {
+  .intro.fading,
+  .intro.fading video {
     transition: none;
   }
 }
@@ -1432,7 +1482,7 @@ footer img {
 .club-name {
   margin: 0;
   font-size: clamp(22px, 3vw, 28px);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
   color: var(--ink);
 }
@@ -1613,12 +1663,15 @@ footer img {
   --fog: 0.7;
   --walk: 0;
   --arrive: 0;
+  /* how long each frame of the walk cycle shows */
+  --walk-beat: 200ms;
   width: min(100%, var(--canvas-max));
   margin: 0 auto 40px;
 }
 /* wide screens: sidebar | stage, in the drawing's proportions */
 @media (min-width: 701px) {
   .landing {
+    width: min(calc(100% - 2 * var(--gutter)), var(--canvas-max));
     display: grid;
     grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
     align-items: start;
@@ -1636,19 +1689,13 @@ footer img {
 .landing-side {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 1.6vw, 26px);
-  padding: clamp(24px, 3vw, 48px) 9% 32px;
+  /* spacing follows the window's height, so the whole column fits under
+     the piano on the first screen */
+  gap: clamp(10px, 2.2vh, 26px);
+  padding: clamp(12px, 3vh, 48px) 9% clamp(12px, 3vh, 32px);
   color: var(--on-green);
 }
-@media (min-width: 701px) {
-  /* stays in view (with Recruiter Mode) while the scene scrolls */
-  .landing-side {
-    position: sticky;
-    top: var(--piano-h, 0px);
-    max-height: calc(100dvh - var(--piano-h, 0px));
-    overflow: auto;
-  }
-}
+
 .side-name,
 .side-tagline {
   margin: 0;
@@ -1663,14 +1710,64 @@ footer img {
 .side-tagline .layer-img {
   height: auto;
 }
+/* facts: a bold uppercase label (where), then a softer, see-through detail
+   line (what) */
 .side-facts {
   list-style: none;
   margin: clamp(4px, 1vw, 16px) 0 0;
   padding: 0;
   display: grid;
-  gap: 0.55em;
+  gap: 1.1em;
   font-size: clamp(15px, 1.3vw, 20px);
   line-height: 1.3;
+}
+.side-facts li {
+  display: grid;
+  gap: 0.3em;
+}
+.fact-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.fact-detail {
+  color: var(--on-green-soft);
+}
+/* contact links over Recruiter Mode, kept a fixed gap apart */
+.side-foot {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2.2vh, 26px);
+}
+/* contact links: one quiet row, brightening on hover */
+.side-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em 1.1em;
+  font-size: clamp(13px, 1.1vw, 17px);
+}
+.side-links a {
+  color: var(--on-green-soft);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.25em;
+  transition:
+    color 150ms ease,
+    text-decoration-color 150ms ease;
+}
+.side-links a:hover,
+.side-links a:focus-visible {
+  color: var(--on-green);
+  text-decoration-color: currentColor;
+}
+.side-links a:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 .recruiter-mode {
   align-self: flex-start;
@@ -1692,6 +1789,58 @@ footer img {
 .recruiter-mode:focus-visible {
   outline: 3px solid var(--on-green);
   outline-offset: 4px;
+}
+@media (min-width: 701px) {
+  /* stays in view the whole walk down: exactly as tall as the piano's bottom
+     to the desk panel's bottom on the desk screen (--side-h, measured by
+     Landing), with Recruiter Mode on that bottom edge. Its contents are sized
+     in units of its height (cqh, which on children means this column), so
+     they fit at any window size. */
+  .landing-side {
+    position: sticky;
+    top: var(--piano-h, 0px);
+    height: var(--side-h, calc(100dvh - var(--piano-h, 0px)));
+    container-type: size;
+    gap: 0;
+    padding: 0 9%;
+    /* sticking stops when this margin meets the landing's bottom, i.e. just
+       as the desk panel's bottom edge reaches Recruiter Mode */
+    margin-bottom: var(--side-tail, 0px);
+  }
+  .landing-side > * {
+    margin-top: 3cqh;
+  }
+  .side-name {
+    width: auto;
+    height: 26cqh;
+    margin-top: 4cqh;
+  }
+  .side-tagline {
+    width: auto;
+    height: 12cqh;
+  }
+  .side-name .layer-img,
+  .side-tagline .layer-img {
+    width: auto;
+    height: 100%;
+  }
+  .side-facts {
+    margin-top: 5cqh;
+    font-size: 4.2cqh;
+  }
+  .side-links {
+    font-size: 3.7cqh;
+  }
+  .landing-side .recruiter-mode {
+    margin-top: 0;
+    font-size: 4.2cqh;
+  }
+  /* at the column's bottom, so Recruiter Mode sits on the desk panel's
+     bottom edge on the desk screen */
+  .landing-side > .side-foot {
+    margin-top: auto;
+    gap: 3cqh;
+  }
 }
 
 /* stage: hall (screen 1), the seam with the bridge, the desk (screen 2).
@@ -1782,17 +1931,23 @@ html:has(.landing) {
   75% { transform: translateX(-1px); }
 }
 
-/* Colin: slides to a string on a pluck, walks down the bridge on scroll */
+/* Colin: slides to a string on a pluck, walks down to the desk on scroll.
+   No fading: he walks the whole way and lands on the desk pose, which takes
+   over (--arrive) in the same frame he disappears. */
 .hall-char {
   z-index: 3;
-  transform: translate(var(--dx, 0%), calc(var(--walk) * var(--walk-px, 0px)));
-  opacity: calc(1 - var(--walk) * var(--walk));
+  transform: translate(
+    calc(var(--dx, 0%) + var(--walk) * var(--walk-dx, 0%)),
+    calc(var(--walk) * var(--walk-px, 0px))
+  );
+  opacity: calc(1 - var(--arrive));
 }
 .hall-char.is-moving {
   transition: transform 280ms ease;
 }
 .char-frame,
-.char-walk-front {
+.char-walk-front,
+.char-walk-back {
   visibility: hidden;
 }
 .char-frame.is-current {
@@ -1804,10 +1959,17 @@ html:has(.landing) {
 @keyframes strum {
   40% { transform: translateY(-2%) rotate(-1deg); }
 }
-/* walking down: the two back-walk frames alternate (or, once drawn, the
-   front-walk frames), only while the page is actually moving */
-.landing[data-walking] .hall-char .char-frame {
+/* on the way down he faces front: standing while the page rests, stepping
+   while it moves (Stardew-style: step, stand, other step, stand). On the way
+   back up he faces away: standing as he plucks, stepping through the two
+   back-walk frames. Until the front-walk frames are drawn, the two back-walk
+   frames alternate both ways instead. */
+.landing[data-walking] .hall-char .char-frame,
+.landing[data-descending]:not([data-heading='up']) .hall-char:has(.char-walk-front) .char-frame {
   visibility: hidden;
+}
+.landing[data-descending]:not([data-heading='up']) .char-walk-front.stand {
+  visibility: visible;
 }
 .landing[data-walking] .hall-char:not(:has(.char-walk-front)) .frame-walking-back-1 {
   animation: walk-step 300ms steps(1) infinite;
@@ -1815,15 +1977,45 @@ html:has(.landing) {
 .landing[data-walking] .hall-char:not(:has(.char-walk-front)) .frame-walking-back-2 {
   animation: walk-step 300ms steps(1) -150ms infinite;
 }
-.landing[data-walking] .char-walk-front.f1 {
-  animation: walk-step 300ms steps(1) infinite;
-}
-.landing[data-walking] .char-walk-front.f2 {
-  animation: walk-step 300ms steps(1) -150ms infinite;
-}
 @keyframes walk-step {
   0% { visibility: visible; }
   50% { visibility: hidden; }
+}
+.landing[data-walking]:not([data-heading='up']) .char-walk-front.f1 {
+  animation: walk-beat-1 calc(4 * var(--walk-beat)) step-end infinite;
+}
+.landing[data-walking]:not([data-heading='up']) .char-walk-front.stand {
+  animation: walk-beat-stand calc(4 * var(--walk-beat)) step-end infinite;
+}
+.landing[data-walking]:not([data-heading='up']) .char-walk-front.f2 {
+  animation: walk-beat-2 calc(4 * var(--walk-beat)) step-end infinite;
+}
+.landing[data-walking][data-heading='up'] .char-walk-back.b1 {
+  animation: walk-beat-back-1 calc(2 * var(--walk-beat)) step-end infinite;
+}
+.landing[data-walking][data-heading='up'] .char-walk-back.b2 {
+  animation: walk-beat-back-2 calc(2 * var(--walk-beat)) step-end infinite;
+}
+/* each beat holds until the next (step-end), so exactly one frame shows */
+@keyframes walk-beat-1 {
+  0% { visibility: visible; }
+  25%, 100% { visibility: hidden; }
+}
+@keyframes walk-beat-stand {
+  0%, 50% { visibility: hidden; }
+  25%, 75%, 100% { visibility: visible; }
+}
+@keyframes walk-beat-2 {
+  0%, 75%, 100% { visibility: hidden; }
+  50% { visibility: visible; }
+}
+@keyframes walk-beat-back-1 {
+  0% { visibility: visible; }
+  50%, 100% { visibility: hidden; }
+}
+@keyframes walk-beat-back-2 {
+  0%, 100% { visibility: hidden; }
+  50% { visibility: visible; }
 }
 
 /* bridge, markers and the "where I live" bubble */

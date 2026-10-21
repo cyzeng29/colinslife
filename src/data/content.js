@@ -25,11 +25,12 @@ export const experience = [
     org: 'Dietrich Lab, Duke University',
     when: 'Jan 2026 — present',
     bullets: [
-      'Designed a PostgreSQL schema mapping 1,482 yeast strains across core genes and pangenome traits',
-      'Built a full stack frontend (React, JavaScript, HTML/CSS) with SQL backed queries loading 10,000+ genes across Saccharomyces cerevisiae and Ashbya gossypii pangenomes',
-      'Utilized AlphaFold and BLAST across 6,294 genes for protein prediction and sequence alignment in the pipeline',
+      'Designed a PostgreSQL schema mapping 1,482 S. cerevisiae strains across core genes and pangenome traits, serving queries in under 10 ms so researchers can compare gene presence across strains',
+      'Built a full stack web app (React, JavaScript, SQL) for a team of 15 lab researchers, with sitewide search and session based autocomplete caching, released to the department for usage',
+      'Developed the Ashbya gossypii Genome Database section in PHP and JavaScript, an SGD style browser with live search across 6,294 genes, presenting project direction to the head of SGD and at the Yeast Genetics Meeting',
+      'Wrote a PHP pipeline parsing ortholog and pathway spreadsheets into per gene JSON records, and integrated BLAST search and a JBrowse2 genome browser, giving Ashbya researchers sequence and genome views',
     ],
-    tools: 'React · JavaScript · PostgreSQL · AlphaFold · BLAST',
+    tools: 'React · JavaScript · PostgreSQL · PHP · BLAST · JBrowse2',
     links: [{ label: 'fungalpangenome.ccn.duke.edu', href: 'http://152.3.33.15/agd.php' }],
     context: '',
     outcomes: [],
@@ -52,9 +53,9 @@ export const experience = [
     org: 'Quantworks / SIZEO, Durham NC',
     when: 'Oct 2024 — Aug 2025',
     bullets: [
-      "Engineered a web platform using Anthropic's Claude API to optimize budget allocation, packaging, and seasonal inventory predictions for retail clients including JCPenney and Aeropostale",
-      'Built Python pipelines turning client uploaded CSVs into multi-trend sales and demand views in Streamlit and Plotly',
-      'Designed and presented 30 client dashboard screens in Figma, introducing an artifact gallery of saved LLM graphs and reports for downstream RAG analysis, and for planners to revisit and compare',
+      "Built a web platform on Anthropic's Claude API that generated budget allocation, packaging, and seasonal inventory forecasts for retail clients including JCPenney and Aeropostale, giving merchandise planners recommendations",
+      'Engineered Python data pipelines that ingest client uploaded CSVs and transform them into interactive sales and demand views using Streamlit and Plotly, processing data for client dashboards',
+      'Implemented an artifact store that persists LLM generated charts and reports for retrieval augmented analysis, letting companies revisit and compare past outputs for planned inventory decisions',
     ],
     tools: 'Python · Claude API · Streamlit · Plotly · Figma',
     links: [{ label: 'Figma Prototype', href: 'https://www.figma.com/proto/NMqokwA5WdHVUaDz6iEAyz/Bourne?node-id=62-531&p=f&t=fmjFfF0sAOy3NPVS-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=8%3A16' }],
@@ -230,8 +231,12 @@ export const landing = {
   sidebar: {
     name: 'Colin Zeng',
     tagline: 'making design interactive.',
-    // plain text for now (the hand-lettered versions are in the drawing)
-    facts: ['CS + Stat @ Duke', 'Research Intern @ Dietrich Lab'],
+    // plain text for now (the hand-lettered versions are in the drawing):
+    // where, shown as a bold label, then what
+    facts: [
+      { label: '@Duke', detail: 'CS + Stat' },
+      { label: '@Dietrich Lab', detail: 'Research Intern' },
+    ],
     recruiter: 'Recruiter Mode',
   },
   // shown on hover or from the "!" marker (placeholder until the bubble is drawn)
@@ -249,6 +254,14 @@ export const landing = {
   monitor: { label: 'monitor', screen: 'designed with procreate and figma' },
   dog: { name: 'kora', alt: 'kora, asleep on a dog bed' },
 }
+
+// Where to find Colin, listed under the sidebar facts (the resume link is
+// added after these when the PDF exists)
+export const contact = [
+  { label: 'linkedin', href: 'https://www.linkedin.com/in/colin-zeng/' },
+  { label: 'github', href: 'https://github.com/cyzeng29' },
+  { label: 'email', href: 'mailto:colin.zeng@duke.edu' },
+]
 
 // The PDF lives at public/Colin_Zeng_Resume.pdf. __RESUME_AVAILABLE__ is set by
 // vite.config.js at build time; until the file exists the link shows "soon".

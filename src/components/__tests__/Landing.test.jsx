@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import Landing from '../landing/Landing.jsx'
 import { PluckProvider } from '../PluckProvider.jsx'
-import { experience, landing } from '../../data/content.js'
+import { contact, experience, landing } from '../../data/content.js'
 
 vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn(), isMuted: () => false, setMuted: vi.fn() }))
 
@@ -87,7 +87,15 @@ describe('Landing content', () => {
     renderLanding()
     expect(screen.getByRole('heading', { level: 1, name: landing.sidebar.name })).toBeInTheDocument()
     expect(screen.getByAltText(landing.sidebar.tagline)).toBeInTheDocument()
-    for (const fact of landing.sidebar.facts) expect(screen.getByText(fact)).toBeInTheDocument()
+    for (const { label, detail } of landing.sidebar.facts) {
+      expect(screen.getByText(label)).toBeInTheDocument()
+      expect(screen.getByText(detail)).toBeInTheDocument()
+    }
+    // contact links: profiles open in a new tab, email opens the mail app
+    const links = within(screen.getByRole('list', { name: 'Contact' }))
+    for (const { label, href } of contact) expect(links.getByRole('link', { name: label })).toHaveAttribute('href', href)
+    expect(links.getByRole('link', { name: 'github' })).toHaveAttribute('target', '_blank')
+    expect(links.getByRole('link', { name: 'email' })).not.toHaveAttribute('target')
     fireEvent.click(screen.getByRole('link', { name: 'Recruiter Mode' }))
     expect(where()).toBe('/work')
   })
@@ -157,11 +165,11 @@ describe('Landing screens by arrow key', () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] })
     renderLanding()
     fireEvent.keyDown(window, { key: 'ArrowDown' })
-    await act(async () => vi.advanceTimersByTime(1500))
+    await act(async () => vi.advanceTimersByTime(2000))
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 1000, behavior: 'auto' })
     window.scrollY = 1000
     fireEvent.keyDown(window, { key: 'ArrowUp' })
-    await act(async () => vi.advanceTimersByTime(1500))
+    await act(async () => vi.advanceTimersByTime(2000))
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: 'auto' })
     vi.useRealTimers()
   })
@@ -191,11 +199,63 @@ describe('Landing screens by arrow key', () => {
     vi.useRealTimers()
   })
 
+  it('walks the whole way to the desk, handing over to the desk pose only on arrival', async () => {
+    vi.useFakeTimers()
+    const { container } = renderLanding()
+    const root = container.querySelector('.landing')
+    window.scrollY = 600
+    fireEvent.scroll(window)
+    await act(async () => vi.advanceTimersByTime(20))
+    // mid-way: still walking (facing front), not yet at the desk
+    expect(root.style.getPropertyValue('--walk')).toBe('0.600')
+    expect(root.style.getPropertyValue('--arrive')).toBe('0.000')
+    expect(root).toHaveAttribute('data-descending')
+    window.scrollY = 1000
+    fireEvent.scroll(window)
+    await act(async () => vi.advanceTimersByTime(20))
+    expect(root.style.getPropertyValue('--walk')).toBe('1.000')
+    expect(root.style.getPropertyValue('--arrive')).toBe('1.000')
+    expect(root).not.toHaveAttribute('data-descending')
+    vi.useRealTimers()
+  })
+
+  it('faces the way the page last moved: down toward the desk, up toward the strings', async () => {
+    vi.useFakeTimers()
+    const { container } = renderLanding()
+    const root = container.querySelector('.landing')
+    for (const [y, heading] of [
+      [400, 'down'],
+      [250, 'up'],
+      [250, 'up'], // no movement: keeps facing the same way
+      [500, 'down'],
+    ]) {
+      window.scrollY = y
+      fireEvent.scroll(window)
+      await act(async () => vi.advanceTimersByTime(20))
+      expect(root).toHaveAttribute('data-heading', heading)
+    }
+    vi.useRealTimers()
+  })
+
+  it('walks back up with the back-walk frames, feet on the standing pose', () => {
+    const { container } = renderLanding()
+    const frames = container.querySelectorAll('.hall-char .char-walk-back')
+    expect([...frames].map((f) => f.querySelector('img').getAttribute('src').split('/').pop())).toEqual([
+      'walking-back-1.png',
+      'walking-back-2.png',
+    ])
+    const stand = container.querySelector('.frame-char-pluck')
+    const bottom = (el) => parseFloat(el.style.top) + parseFloat(el.style.height)
+    for (const f of frames) expect(bottom(f)).toBeCloseTo(bottom(stand), 6)
+  })
+
   it('walks down with the front-walk frames, standing where he plucks', () => {
     const { container } = renderLanding()
     const frames = container.querySelectorAll('.hall-char .char-walk-front')
+    // Stardew-style cycle: step, stand, other step (then stand again)
     expect([...frames].map((f) => f.querySelector('img').getAttribute('src').split('/').pop())).toEqual([
       'walking-front-1.png',
+      'char-front.png',
       'walking-front-2.png',
     ])
     // drawn down at the desk, but shown in the hall: inside its top/bottom edges

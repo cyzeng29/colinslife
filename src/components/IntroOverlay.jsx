@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { endingFloor } from './introEnding.js'
 
 const SEEN_KEY = 'intro-seen'
+// matches the .intro.fading transitions in index.css
+const FADE_MS = 800
 
 // Swap these when you have a vertical (9:16) cut for phones.
 // Until then both point at the same file and object-fit: cover crops it.
@@ -43,8 +46,9 @@ export default function IntroOverlay() {
     } catch {
       // ignore
     }
-    // wait for the CSS fade-out, then remove the overlay entirely
-    setTimeout(() => setVisible(false), 600)
+    // wait for the CSS fades (video into the site's green, then the overlay
+    // away), then remove the overlay entirely
+    setTimeout(() => setVisible(false), FADE_MS)
   }
 
   // Try to autoplay; if the browser refuses, show a tap-to-play button
@@ -56,6 +60,26 @@ export default function IntroOverlay() {
     if (attempt && typeof attempt.catch === 'function') {
       attempt.catch(() => setBlocked(true))
     }
+  }, [visible])
+
+  // Keep the splash's ending from going darker than the site: each frame,
+  // set the colour layer's floor from where the video is
+  const floorRef = useRef(null)
+  useEffect(() => {
+    if (!visible) return
+    let frame = 0
+    const tick = () => {
+      const v = videoRef.current
+      const layer = floorRef.current
+      const c = v && endingFloor(v.currentTime)
+      if (layer) {
+        layer.style.opacity = c ? '1' : '0'
+        if (c) layer.style.backgroundColor = `rgb(${c.join(',')})`
+      }
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
   }, [visible])
 
   // Lock page scroll while the intro is up
@@ -81,6 +105,7 @@ export default function IntroOverlay() {
         onEnded={finish}
         onError={finish} // missing/broken file should never trap visitors
       />
+      <div ref={floorRef} className="intro-floor" aria-hidden="true" />
 
       {blocked && (
         <button
