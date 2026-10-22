@@ -11,6 +11,11 @@ export default function CaseCard({ study }) {
     <article className="case-card">
       <div className={`case-tile is-${tile.fit}`} style={{ '--tile-bg': tile.bg }} aria-hidden="true">
         <img src={asset(tile.src)} alt="" loading="lazy" />
+        {tile.labels?.map(({ text, right, y }) => (
+          <span key={text} className="case-tile-label" style={{ right: `${100 - right}%`, top: `${y}%` }}>
+            {text}
+          </span>
+        ))}
       </div>
       <div className="case-card-text">
         <h3 className="case-card-title">

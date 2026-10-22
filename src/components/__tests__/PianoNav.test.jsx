@@ -4,18 +4,9 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import { PluckProvider, usePluck } from '../PluckProvider.jsx'
-import { playNote, setMuted } from '../../audio/notes.js'
+import { playNote } from '../../audio/notes.js'
 
-vi.mock('../../audio/notes.js', () => {
-  let muted = false
-  return {
-    playNote: vi.fn(),
-    isMuted: () => muted,
-    setMuted: vi.fn((v) => {
-      muted = v
-    }),
-  }
-})
+vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
 
 function Where() {
   const { pathname, hash } = useLocation()
@@ -102,15 +93,9 @@ describe('PianoNav', () => {
     expect(screen.getByTestId('where')).toHaveTextContent('/')
   })
 
-  it('switches sound off and on from the White Dragon tile', () => {
+  it('has no sound toggle', () => {
     renderNav()
-    const tile = screen.getByRole('button', { name: 'piano sound' })
-    expect(tile).toHaveAttribute('aria-pressed', 'true')
-    fireEvent.click(tile)
-    expect(tile).toHaveAttribute('aria-pressed', 'false')
-    expect(setMuted).toHaveBeenLastCalledWith(true)
-    fireEvent.click(tile)
-    expect(tile).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('button', { name: 'piano sound' })).not.toBeInTheDocument()
   })
 
   it('navigates as a plain link when nothing takes over the pluck', () => {
@@ -120,9 +105,9 @@ describe('PianoNav', () => {
   })
 
   it('keeps the tiles, not the name, at the top of Home', () => {
-    renderNav()
+    const { container } = renderNav()
     expect(screen.queryByRole('link', { name: 'Colin Zeng, home' })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'piano sound' })).toHaveLength(1)
+    expect(container.querySelector('.header-tiles')).not.toHaveAttribute('aria-hidden')
   })
 
   it('shows the name in the corner on other pages, linking home', () => {
@@ -133,9 +118,8 @@ describe('PianoNav', () => {
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/$/)
   })
 
-  it('puts the tiles, sound tile included, away once condensed', () => {
+  it('puts the tiles away once condensed', () => {
     const { container } = renderNav(null, '/about')
-    expect(screen.queryByRole('button', { name: 'piano sound' })).not.toBeInTheDocument()
     expect(container.querySelector('.header-tiles')).toHaveAttribute('aria-hidden', 'true')
   })
 

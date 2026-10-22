@@ -11,9 +11,12 @@
 //   title     — card and page title; `at` is shown after it as "@ at"
 //   kind, date — the card's "Discipline | Date" line
 //   summary   — one line under the card title
-//   tile      — card image: { src, fit, bg }. fit is 'contain' (a framed
-//               screenshot), 'cover' (fills the tile) or 'phone'; bg is the
-//               tile's colour behind a contained image
+//   tile      — card image: { src, fit, bg, labels? }. fit is 'contain' (a
+//               framed screenshot), 'cover' (fills the tile) or 'phone'; bg
+//               is the tile's colour behind a contained image. labels are
+//               faint words laid over the picture: { text, right, y }, where
+//               right is the text's right edge and y its middle, both as % of
+//               the tile
 //   headline, context — the page's opening heading and paragraphs
 //   contextImage — optional { src, alt, caption } beside the context
 //   solution  — { title, image: { src, alt, caption, phone? }, challenges:
@@ -34,7 +37,7 @@ const studies = [
     kind: 'Full-Stack Engineering',
     date: '2026 to present',
     summary: 'A genome database and pangenome browser that lets the Dietrich Lab search and compare yeast strains in milliseconds.',
-    tile: { src: 'images/agd_preview.png', fit: 'contain', bg: '#e2e1d3' },
+    tile: { src: 'images/agd_cover.png', fit: 'cover', bg: '#dddddd' },
     headline: 'Building a searchable home for the lab’s yeast genomes',
     context: [
       'I joined the Dietrich Lab at Duke as an undergraduate research intern, working on the genome data tools the lab uses to study Saccharomyces cerevisiae and Ashbya gossypii.',
@@ -73,7 +76,17 @@ const studies = [
     kind: 'Software Engineering',
     date: '2024 to 2025',
     summary: 'Turns a retailer’s sales data into budget, packaging and seasonal inventory forecasts.',
-    tile: { src: 'images/figma.png', fit: 'contain', bg: '#c9d6b4' },
+    tile: {
+      src: 'images/quantworks_cover.png',
+      fit: 'cover',
+      bg: '#dddddd',
+      // on the three green boxes of the drawing
+      labels: [
+        { text: 'Multi-Trend Graphs', right: 62.5, y: 25.4 },
+        { text: 'Box Optimization', right: 62.5, y: 50.4 },
+        { text: 'Seasonal Planner', right: 62.5, y: 75.8 },
+      ],
+    },
     headline: 'Turning retail sales data into planning recommendations',
     context: [
       'At Quantworks / SIZEO in Durham, I worked as a software engineer intern on an AI planning platform for retail clients including JCPenney and Aeropostale.',

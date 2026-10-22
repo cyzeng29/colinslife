@@ -65,7 +65,7 @@ export const Spot = forwardRef(function Spot({ as: Tag = 'div', slug, box, class
 })
 
 // A layer's drawing filling its parent (inside a Spot, or in a stacked list)
-export function LayerImg({ slug, alt = '', className = '' }) {
+export function LayerImg({ slug, alt = '', className = '', style }) {
   if (!LAYERS[slug]) return null
-  return <img className={`layer-img ${className}`} src={layerSrc(slug)} alt={alt} draggable="false" />
+  return <img className={`layer-img ${className}`} src={layerSrc(slug)} alt={alt} draggable="false" style={style} />
 }

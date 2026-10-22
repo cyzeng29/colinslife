@@ -6,7 +6,7 @@ import Landing from '../landing/Landing.jsx'
 import { PluckProvider } from '../PluckProvider.jsx'
 import { contact, experience, landing } from '../../data/content.js'
 
-vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn(), isMuted: () => false, setMuted: vi.fn() }))
+vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
 
 // jsdom has no showModal/close; mirror browsers closely enough for the hook
 HTMLDialogElement.prototype.showModal = function () {
@@ -89,6 +89,14 @@ describe('Landing content', () => {
     renderLanding()
     expect(screen.getByRole('heading', { level: 1, name: landing.sidebar.name })).toBeInTheDocument()
     expect(screen.getByAltText(landing.sidebar.tagline)).toBeInTheDocument()
+    // a hidden hover lens over each letter of "interactive"
+    const art = screen.getByAltText(landing.sidebar.tagline).parentElement
+    const letters = art.querySelectorAll('[aria-hidden="true"] > span')
+    expect(letters).toHaveLength('interactive'.length)
+    // each letter hops when the cursor reaches it
+    fireEvent.pointerEnter(letters[0])
+    expect(letters[0]).toHaveClass('is-hopping')
+    expect(letters[1]).not.toHaveClass('is-hopping')
     for (const { label, detail } of landing.sidebar.facts) {
       expect(screen.getByText(label)).toBeInTheDocument()
       expect(screen.getByText(detail)).toBeInTheDocument()

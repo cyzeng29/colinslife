@@ -82,3 +82,29 @@ export const BUBBLE = { x: 1960, y: 700, w: 600, h: 170 }
 // Built once (after HALL and DESK_PANEL exist) so callers get stable objects
 const REGIONS = { wide: buildRegions(STAGE, false), phone: buildRegions(STAGE_PHONE, true) }
 export const stageRegions = (phone) => (phone ? REGIONS.phone : REGIONS.wide)
+
+// The letters of "interactive" in the sidebar tagline image (side-tagline,
+// 319x141 px): each letter's [left, right], and the line's top and bottom
+// (with a little room around the ink). Each letter is cut out of the drawing
+// so it can hop, with a glass lens on hover; the full stop (from `stop` on)
+// stays in the drawing.
+export const TAGLINE_LETTERS = {
+  w: 319,
+  h: 141,
+  top: 88,
+  bottom: 140,
+  stop: 222,
+  letters: [
+    [4, 10],
+    [15, 35],
+    [36, 54],
+    [55, 74],
+    [75, 94],
+    [95, 118],
+    [119, 137],
+    [138, 157],
+    [162, 168],
+    [175, 192],
+    [193, 215],
+  ],
+}

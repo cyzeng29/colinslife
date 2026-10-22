@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App.jsx'
 
-vi.mock('../audio/notes.js', () => ({ playNote: vi.fn(), isMuted: () => false, setMuted: vi.fn() }))
+vi.mock('../audio/notes.js', () => ({ playNote: vi.fn() }))
 
 // skip the intro video (jsdom can't play it)
 sessionStorage.setItem('intro-seen', '1')

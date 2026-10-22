@@ -18,6 +18,9 @@ export const layers = {
   'tile-zeng': { src: 'header', rect: [80, 40, 242, 380] },
   'tile-yi': { src: 'header', rect: [322, 40, 233, 380] },
   'tile-blank': { src: 'header', rect: [555, 40, 227, 380] },
+  // the third tile with a drawn frame inside (exported with the name tiles
+  // beside it)
+  'tile-framed': { src: 'tile-framed', rect: [555, 40, 227, 380] },
   piano: { src: 'header', rect: [782, 40, 1868, 372] },
   'label-home': { src: 'header', rect: [845, 412, 120, 54] },
   'label-experience': { src: 'header', rect: [1255, 412, 190, 54] },
@@ -62,11 +65,9 @@ export const layers = {
 }
 
 // Drawings Colin is adding later. Missing ones are reported but never fail
-// the run; the site falls back (CSS fog, CSS zzz, COLIN label, blank tile).
+// the run; the site falls back (CSS fog, CSS zzz, COLIN label).
 // Each is exported on the same canvas and trimmed to its full drawing.
 export const optional = [
-  'tile-dragon',
-  'tile-dragon-muted',
   'cloud-1',
   'cloud-2',
   'cloud-3',

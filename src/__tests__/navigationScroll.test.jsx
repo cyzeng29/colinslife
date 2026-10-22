@@ -4,7 +4,7 @@ import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 import Home from '../pages/Home.jsx'
 import useScrollToTopOnNavigate from '../hooks/useScrollToTopOnNavigate.js'
 
-vi.mock('../audio/notes.js', () => ({ playNote: vi.fn(), isMuted: () => false, setMuted: vi.fn() }))
+vi.mock('../audio/notes.js', () => ({ playNote: vi.fn() }))
 
 window.matchMedia = (query) => ({ matches: false, media: query, addEventListener() {}, removeEventListener() {} })
 

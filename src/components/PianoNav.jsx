@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { isMuted, playNote, setMuted } from '../audio/notes.js'
+import { playNote } from '../audio/notes.js'
 import { usePluck } from './PluckProvider.jsx'
 import CanvasRegion, { Layer, LayerImg, Spot, place, useRegion } from './landing/CanvasRegion.jsx'
 import useMediaQuery from '../hooks/useMediaQuery.js'
@@ -28,9 +28,9 @@ export const octave = [
 // name over his tagline, as drawn in the sidebar. Boxes keep each drawing's
 // own proportions.
 const CORNER = {
-  link: { x: 96, y: 34, w: 400, h: 390 },
-  name: { x: 96, y: 34, w: 400, h: 270 },
-  tagline: { x: 104, y: 318, w: 240, h: 106 },
+  link: { x: 96, y: 68, w: 300, h: 322 },
+  name: { x: 96, y: 68, w: 300, h: 202 },
+  tagline: { x: 104, y: 284, w: 240, h: 106 },
 }
 
 // The drawn underline: a little wider than a label, just under it
@@ -96,7 +96,6 @@ function Keys({ current, pressed, onNav }) {
 
 export default function PianoNav() {
   const [pressed, setPressed] = useState(null)
-  const [muted, setMutedState] = useState(isMuted)
   const pluck = usePluck()
   const phone = useMediaQuery('(max-width: 700px)')
   const bar = stageRegions(phone).bar
@@ -116,14 +115,6 @@ export default function PianoNav() {
     if (isPlainClick(e) && pluck?.pluck(k)) e.preventDefault()
   }
 
-  function toggleSound() {
-    setMuted(!muted)
-    setMutedState(!muted)
-  }
-
-  // the framed White Dragon tile once drawn; the blank tile until then
-  const soundTile = muted && hasLayer('tile-dragon-muted') ? 'tile-dragon-muted' : hasLayer('tile-dragon') ? 'tile-dragon' : 'tile-blank'
-
   return (
     <div className="piano-wrap" ref={wrapRef} data-phone={phone || undefined}>
       <CanvasRegion region={bar} className="piano-region">
@@ -132,19 +123,8 @@ export default function PianoNav() {
         <div className="header-tiles" aria-hidden={tucked || undefined}>
           <Layer slug="tile-zeng" />
           <Layer slug="tile-yi" />
-          <Spot
-            as="button"
-            type="button"
-            box={LAYERS['tile-blank']}
-            className={'tile-sound' + (muted && soundTile !== 'tile-dragon-muted' ? ' is-muted-fallback' : '')}
-            aria-pressed={!muted}
-            aria-label="piano sound"
-            title={muted ? 'sound off' : 'sound on'}
-            tabIndex={tucked ? -1 : undefined}
-            onClick={toggleSound}
-          >
-            <LayerImg slug={soundTile} />
-          </Spot>
+          {/* the framed tile once exported; the blank tile until then */}
+          <Layer slug={hasLayer('tile-framed') ? 'tile-framed' : 'tile-blank'} />
         </div>
         {!phone && (
           <div className="header-name">

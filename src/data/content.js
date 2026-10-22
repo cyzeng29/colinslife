@@ -236,6 +236,7 @@ export const landing = {
     facts: [
       { label: '@Duke', detail: 'CS + Stat' },
       { label: '@Dietrich Lab', detail: 'Research Intern' },
+      { label: '@Quantworks', detail: 'SWE Intern' },
     ],
     recruiter: 'Recruiter Mode',
   },
