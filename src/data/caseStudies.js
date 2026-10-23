@@ -157,7 +157,7 @@ const studies = [
     kind: 'Computer Vision',
     date: 'Personal project',
     summary: 'Names the ultimate play being run from a single frame of game film.',
-    tile: { src: 'images/frisbee-pipeline-thumb.png', fit: 'cover', bg: '#2f3a2c' },
+    tile: { src: 'images/frisbee_cover.png', fit: 'cover', bg: '#d8d9d7' },
     headline: 'Reading ultimate frisbee plays from game film',
     context: [
       'A personal project combining computer vision with a sport I play competitively.',
