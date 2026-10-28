@@ -17,7 +17,26 @@
 //               faint words laid over the picture: { text, right, y }, where
 //               right is the text's right edge and y its middle, both as % of
 //               the tile
-//   headline, context — the page's opening heading and paragraphs
+//   headline  — the page's opening heading
+//
+// The page itself is either written out as `sections` (see the first case
+// study), or built from the simpler fields below it.
+//
+//   sections  — [{ id, label, eyebrow?, title?, image?, body }] in page order.
+//               label names it in the sidebar; eyebrow is the small line above
+//               the heading (defaults to the label). The first section takes
+//               the headline as its heading, the role facts and an optional
+//               image beside it. body is a list of:
+//                 'text'                 a paragraph
+//                 { list: [...] }        a numbered list
+//                 { points: [[name, line]] }  numbered items with a name
+//                 { images: [{ src, alt, caption }] }  full-width pictures
+//                 { stats: [[figure, label]] }  big-number callouts
+//                 { challenges: [[name, line]], image }  picture + challenges
+//                 { links: true }        the entry's links from content.js
+//
+// Or, without sections:
+//   context   — the opening paragraphs
 //   contextImage — optional { src, alt, caption } beside the context
 //   solution  — { title, image: { src, alt, caption, phone? }, challenges:
 //               [[name, line]], text }
@@ -39,34 +58,109 @@ const studies = [
     summary: 'A genome database and pangenome browser that lets the Dietrich Lab search and compare yeast strains in milliseconds.',
     tile: { src: 'images/agd_cover.png', fit: 'cover', bg: '#dddddd' },
     headline: 'Building a searchable home for the lab’s yeast genomes',
-    context: [
-      'I joined the Dietrich Lab at Duke as an undergraduate research intern, working on the genome data tools the lab uses to study Saccharomyces cerevisiae and Ashbya gossypii.',
-      'Much of the lab’s ortholog and pathway data started out in spreadsheets. My job was to design and build the database and web tools that let a team of 15 researchers search it, compare strains and browse genes in one place.',
+    sections: [
+      {
+        id: 'context',
+        label: 'Context',
+        eyebrow: 'context & overview',
+        image: { src: 'images/labtubes.jpeg', alt: 'Labeled Falcon tubes of Candida samples in a rack', caption: 'Streaked Candida samples in the lab' },
+        body: [
+          'SGD is the comprehensive database for Saccharomyces cerevisiae research, a species of yeast. The Dietrich Lab asks a broader question: what do we know about genes found in fungi?',
+          'I joined as a research intern to add the lab’s dry lab side, using full stack development and web design to study Saccharomyces cerevisiae and Ashbya gossypii.',
+        ],
+      },
+      {
+        id: 'problem',
+        label: 'Problem',
+        title: 'New Approaches To Understanding Genes',
+        body: [
+          'Currently, genes are compared by their sequence similarity (the letters A, T, G, C), which poses issues:',
+          {
+            list: [
+              'For gene families, near-identical genes are hard to differentiate.',
+              'There is no consistent way of querying 8.7 million different genes across different strains.',
+              'When genes are rearranged, letter-by-letter sequencing doesn’t register the move.',
+              'How do we define “absent”? Letter sequencing would just define genes missing a codon or having a deletion as “absent”.',
+            ],
+          },
+          'My challenge was making this usable: storing and querying data at that scale, then giving scientists an interface they could understand and explore, as the only developer on the team.',
+        ],
+      },
+      {
+        id: 'process',
+        label: 'Process',
+        title: 'Learning from SGD',
+        body: [
+          'Both webpages started with a large .CSV file cleaned up by the team, producing a database with PostgreSQL, PHP, and React. I first conducted a walkthrough of the product flow of SGD, analyzing the different features and layout that the webpage offered. Three things stood out:',
+          {
+            list: [
+              'A single page layout with a brief introduction lets researchers reach every process from one place.',
+              'Dropdown tabs group similar features, so it’s clear where each button lives.',
+              'In a database this large, search with autocomplete is essential.',
+            ],
+          },
+          'The main adaptations were adding new tools to the Saccharomyces cerevisiae pangenome and AGD: a 3-D view of the protein/gene structure, followed by Chimera and Foldseek approaches, being able to compare similarities of 3-D structures and proteins across genes and entire species.',
+        ],
+      },
+      {
+        id: 'audience',
+        label: 'Audience',
+        title: 'Designing for the Audience',
+        body: [
+          'The people using these sites are researchers, and they usually arrive with a specific goal: find a gene, understand it, and get back to their work. So I designed around the questions they bring to the page rather than around what would look impressive. The 3D view answers “what does this gene look like?” The Chimera and Foldseek comparisons answer “what else resembles it?”, which sequence matching alone handles poorly. Familiar features stayed where researchers expected them, and each new tool went in a logical place, so the site could grow without becoming unfamiliar.',
+        ],
+      },
+      {
+        id: 'visuals',
+        label: 'Visuals',
+        body: [
+          {
+            images: [
+              { src: 'images/agd_preview.png', alt: 'AGD gene overview page with orthologs table and genome browser', caption: 'Gene overview page in the Ashbya Genome Database, with orthologs and the genome browser' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'impact',
+        label: 'Impact',
+        title: 'Results',
+        body: [
+          {
+            stats: [
+              ['1,482', 'yeast strains mapped'],
+              ['< 10 ms', 'per query'],
+              ['6,294', 'genes searchable'],
+              ['15', 'researchers using it'],
+            ],
+          },
+          { links: true },
+        ],
+      },
+      {
+        id: 'reflection',
+        label: 'Reflection',
+        title: 'Looking back',
+        body: [
+          'As the only programmer in the lab, I was responsible for the whole path from a cleaned CSV to something a scientist could actually use. That taught me that how data is stored and how it is presented can’t be separated. A database with millions of genes is only useful if people can ask it questions quickly, so decisions about structure and query speed shaped what the interface could offer.',
+          'It also showed me how much I needed to understand the science to design well. Deciding what to display meant understanding why sequence comparison fell short at ordering similarity in the first place.',
+          'Most of my effort has gone into making features work and getting the database fast enough to query. Leaning more toward engineering than design, it is a good foundation for what is coming next.',
+        ],
+      },
+      {
+        id: 'next',
+        label: 'Next steps',
+        title: 'Some next steps',
+        body: [
+          {
+            points: [
+              ['Product design', 'With the features working and queries optimized, the next phase is how the site feels to use. I want to review each tool’s flow the way I first reviewed SGD, and watch researchers use the site to see where they hesitate or miss a feature. The goal is making the 3D views and structure comparisons easy to find and understand for someone seeing them for the first time.'],
+              ['Publication', 'I am working toward publishing a paper on the pangenome and the Ashbya gossypii database, so the resources and the approach behind them can reach the wider research community.'],
+            ],
+          },
+        ],
+      },
     ],
-    contextImage: { src: 'images/labtubes.jpeg', alt: 'Labeled Falcon tubes of Candida samples in a rack', caption: 'Streaked Candida samples in the lab' },
-    solution: {
-      title: 'One database, three ways in',
-      image: { src: 'images/agd_preview.png', alt: 'AGD gene overview page with orthologs table and genome browser', caption: 'Gene overview page in the Ashbya Genome Database, with orthologs and the genome browser' },
-      challenges: [
-        ['Scale', '1,482 strains compared across core genes and pangenome traits'],
-        ['Scattered sources', 'Orthologs, pathways, sequences and genome views lived in separate files and tools'],
-        ['Speed', 'Comparisons had to come back fast enough to explore freely'],
-      ],
-      text: 'A PostgreSQL schema answers strain and gene questions in under 10 ms. On top of it sits a React web app with sitewide search, and an SGD-style Ashbya Genome Database that brings gene pages, BLAST search and a JBrowse2 genome browser together.',
-    },
-    process: [
-      ['Model the pangenome', 'Designed a PostgreSQL schema mapping 1,482 S. cerevisiae strains across core genes and pangenome traits, serving queries in under 10 ms.'],
-      ['Build it for the lab', 'A React web app for a team of 15 researchers, with sitewide search and session-based autocomplete caching, released to the department.'],
-      ['Design the Ashbya browser', 'An SGD-style genome browser with live search across 6,294 genes. Presented the direction to the head of SGD and at the Yeast Genetics Meeting.'],
-      ['Connect the data', 'A PHP pipeline turning ortholog and pathway spreadsheets into per-gene records, plus BLAST search and a JBrowse2 genome view.'],
-    ],
-    results: [
-      ['1,482', 'yeast strains mapped'],
-      ['< 10 ms', 'per query'],
-      ['6,294', 'genes searchable'],
-      ['15', 'researchers using it'],
-    ],
-    reflection: '',
   },
   {
     id: 'ai-merchandise-planner',
@@ -248,13 +342,31 @@ const studies = [
   },
 ]
 
-// Each case study with its source entry's role, organisation, dates, tools
-// and links filled in (tools also split into a list for the skill chips).
+// The sections of a case study written with the simpler fields
+const toSections = (s) => [
+  { id: 'context', label: 'Context', eyebrow: 'context & overview', image: s.contextImage, body: s.context },
+  {
+    id: 'solution',
+    label: 'Solution',
+    title: s.solution.title,
+    body: [{ challenges: s.solution.challenges, image: s.solution.image }, s.solution.text],
+  },
+  { id: 'process', label: 'Process', title: 'How it came together', body: [{ points: s.process }] },
+  ...(s.results.length
+    ? [{ id: 'results', label: 'Results', eyebrow: 'impact', title: 'Results', body: [{ stats: s.results }, { links: true }] }]
+    : []),
+  ...(s.reflection ? [{ id: 'reflection', label: 'Reflection', title: 'Looking back', body: [s.reflection] }] : []),
+]
+
+// Each case study with its sections, and its source entry's role,
+// organisation, dates, tools and links filled in (tools also split into a
+// list for the skill chips).
 export const caseStudies = studies.map((s) => {
   const source = entries.find((e) => e.id === s.from)
   if (!source) throw new Error(`case study "${s.id}" points at missing entry "${s.from}"`)
   return {
     ...s,
+    sections: s.sections || toSections(s),
     role: source.org ? source.title : '',
     org: source.org || '',
     when: source.when || '',

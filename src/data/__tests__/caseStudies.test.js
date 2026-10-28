@@ -26,16 +26,27 @@ describe('case studies', () => {
     expect(agd.links[0].href).toMatch(/agd\.php$/)
   })
 
+  // every picture shown on a case page: beside a section, or in its body
+  const pagePictures = (c) =>
+    c.sections.flatMap((s) => [s.image, ...s.body.flatMap((b) => [b.image, ...(b.images || [])])]).filter(Boolean)
+
   it('points every picture at a file that exists', () => {
     for (const c of caseStudies) {
-      const images = [c.tile, c.contextImage, c.solution.image].filter(Boolean)
-      for (const img of images) expect(existsSync(publicFile(img.src)), `${c.id}: ${img.src}`).toBe(true)
+      for (const img of [c.tile, ...pagePictures(c)]) expect(existsSync(publicFile(img.src)), `${c.id}: ${img.src}`).toBe(true)
     }
   })
 
   it('gives every picture on a case page a description', () => {
     for (const c of caseStudies) {
-      for (const img of [c.contextImage, c.solution.image].filter(Boolean)) expect(img.alt, c.id).toBeTruthy()
+      for (const img of pagePictures(c)) expect(img.alt, c.id).toBeTruthy()
+    }
+  })
+
+  it('gives every case page unique, labelled sections', () => {
+    for (const c of caseStudies) {
+      const ids = c.sections.map((s) => s.id)
+      expect(new Set(ids).size, c.id).toBe(ids.length)
+      for (const s of c.sections) expect(s.label, `${c.id}: ${s.id}`).toBeTruthy()
     }
   })
 

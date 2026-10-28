@@ -34,6 +34,8 @@
      everything else */
   --font-display: 'tomarik-poster', 'tomarik-introvert', system-ui, sans-serif;
   --font-body: 'tomarik-introvert', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* case study pages: one family, bold headings over regular text */
+  --font-case: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   /* round cursor in the page green with a see-through grey ring, so it shows
      on the green page too (url() can't read vars, so colours are inlined).
      Clickable things keep the same size, with a stronger ring in place of
@@ -2701,6 +2703,10 @@ h2.section-label {
   width: min(1240px, calc(100% - 2 * var(--gutter)));
   padding: clamp(28px, 4.5vw, 64px) clamp(18px, 4vw, 56px);
 }
+.case-study,
+.case-study :is(h1, h2, h3, h4) {
+  font-family: var(--font-case);
+}
 .cs-nav {
   position: sticky;
   top: var(--cs-clear);
@@ -2756,7 +2762,7 @@ h2.section-label {
 .cs-section h2 {
   margin: 0;
   font-size: clamp(28px, 2.8vw, 38px);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.15;
   letter-spacing: 0.01em;
   color: var(--ink);
@@ -2840,6 +2846,10 @@ h2.section-label {
   font-size: 15px;
   color: var(--ink-soft);
 }
+.cs-gallery {
+  display: grid;
+  gap: clamp(28px, 4vw, 44px);
+}
 .cs-solution {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(200px, 1fr);
@@ -2849,7 +2859,7 @@ h2.section-label {
 .cs-challenges h3 {
   margin: 0 0 18px;
   font-size: 22px;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--ink);
 }
 .cs-challenges ol,
@@ -2907,7 +2917,7 @@ h2.section-label {
 .cs-steps h3 {
   margin: 0;
   font-size: 21px;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--ink);
 }
 .cs-steps p {
@@ -2932,9 +2942,9 @@ h2.section-label {
   background: var(--bg-tint);
 }
 .cs-results strong {
-  font-family: var(--font-display);
+  font-family: var(--font-case);
   font-size: clamp(28px, 2.8vw, 36px);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;

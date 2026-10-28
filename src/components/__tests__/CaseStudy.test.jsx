@@ -50,11 +50,31 @@ describe('case study page', () => {
     renderAt('/work/ashbya-genome-database')
     expect(screen.getByRole('heading', { level: 1, name: 'Building a searchable home for the lab’s yeast genomes' })).toBeInTheDocument()
     const nav = within(screen.getByRole('navigation', { name: /sections/ }))
-    expect(nav.getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Context', 'Solution', 'Process', 'Results'])
+    expect(nav.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'Context',
+      'Problem',
+      'Process',
+      'Audience',
+      'Visuals',
+      'Impact',
+      'Reflection',
+      'Next steps',
+    ])
     expect(nav.getByRole('link', { name: 'Context' })).toHaveAttribute('aria-current', 'true')
-    expect(screen.getByRole('heading', { name: 'Key challenges' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'New Approaches To Understanding Genes' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Publication' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Visuals' })).toContainElement(screen.getByRole('img', { name: /AGD gene overview/ }))
     expect(screen.getByText('1,482')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /fungalpangenome/ })).toHaveLength(1)
     expect(screen.getByRole('link', { name: /fungalpangenome/ })).toHaveAttribute('target', '_blank')
+  })
+
+  it('builds the usual sections for a case study written without them', () => {
+    renderAt('/work/ai-merchandise-planner')
+    const nav = within(screen.getByRole('navigation', { name: /sections/ }))
+    expect(nav.getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Context', 'Solution', 'Process', 'Results'])
+    expect(screen.getByRole('heading', { name: 'Key challenges' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'How it came together' })).toBeInTheDocument()
   })
 
   it('jumps to a section from the list', () => {

@@ -45,9 +45,90 @@ const ExternalLinks = ({ links }) =>
     </ul>
   )
 
+// Consecutive paragraphs share one block of prose
+const groupProse = (body) =>
+  body.reduce((out, b) => {
+    if (typeof b !== 'string') out.push(b)
+    else if (Array.isArray(out.at(-1))) out.at(-1).push(b)
+    else out.push([b])
+    return out
+  }, [])
+
+// One piece of a section's body (the kinds are listed in caseStudies.js)
+function Block({ block, links }) {
+  if (Array.isArray(block))
+    return (
+      <div className="cs-prose">
+        {block.map((p) => (
+          <p key={p}>{p}</p>
+        ))}
+      </div>
+    )
+  if (block.list)
+    return (
+      <ol className="cs-steps">
+        {block.list.map((item) => (
+          <li key={item}>
+            <p>{item}</p>
+          </li>
+        ))}
+      </ol>
+    )
+  if (block.points)
+    return (
+      <ol className="cs-steps">
+        {block.points.map(([name, line]) => (
+          <li key={name}>
+            <h3>{name}</h3>
+            <p>{line}</p>
+          </li>
+        ))}
+      </ol>
+    )
+  if (block.images)
+    return (
+      <div className="cs-gallery">
+        {block.images.map((image) => (
+          <Photo key={image.src} image={image} />
+        ))}
+      </div>
+    )
+  if (block.stats)
+    return (
+      <ul className="cs-results">
+        {block.stats.map(([figure, label]) => (
+          <li key={label}>
+            <strong>{figure}</strong>
+            <span>{label}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  if (block.challenges)
+    return (
+      <div className="cs-solution">
+        <Photo image={block.image} />
+        <div className="cs-challenges">
+          <h3>Key challenges</h3>
+          <ol>
+            {block.challenges.map(([name, line]) => (
+              <li key={name}>
+                <em>{name}</em>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    )
+  if (block.links) return <ExternalLinks links={links} />
+  return null
+}
+
+const Blocks = ({ body, links }) => groupProse(body).map((block, i) => <Block key={i} block={block} links={links} />)
+
 // One case study, opened from its card: a sticky list of sections beside the
-// story (context, solution, process, results, and a reflection once one is
-// written in caseStudies.js).
+// story, each section as written (or built) in caseStudies.js.
 export default function CaseStudy() {
   const { id } = useParams()
   const study = findCaseStudy(id)
@@ -56,18 +137,14 @@ export default function CaseStudy() {
 }
 
 function CaseStudyPage({ study }) {
-  const { title, headline, context, contextImage, solution, process, results, reflection, role, org, when, tools, links } = study
+  const { title, headline, role, org, when, tools, links } = study
+  const [first, ...rest] = study.sections
   const headingRef = useRef(null)
   usePianoHeight() // --piano-h, so jumps land just under the sticky piano
 
-  const sections = [
-    ['context', 'Context'],
-    ['solution', 'Solution'],
-    ['process', 'Process'],
-    ...(results.length ? [['results', 'Results']] : []),
-    ...(reflection ? [['reflection', 'Reflection']] : []),
-  ].map(([key, label]) => ({ id: `cs-${key}`, label }))
+  const sections = study.sections.map((s) => ({ id: `cs-${s.id}`, label: s.label }))
   const active = useSectionSpy(sections.map((s) => s.id))
+  const showsLinks = study.sections.some((s) => s.body.some((b) => b.links))
 
   // focus starts on the case study's heading (the page opens at its top)
   useEffect(() => {
@@ -105,16 +182,16 @@ function CaseStudyPage({ study }) {
       </nav>
 
       <div className="cs-main">
-        <section className="cs-section" id="cs-context" aria-labelledby="cs-title">
-          <p className="cs-eyebrow mono">{title} · context &amp; overview</p>
-          <div className={`cs-split ${contextImage ? '' : 'is-solo'}`}>
+        <section className="cs-section" id={`cs-${first.id}`} aria-labelledby="cs-title">
+          <p className="cs-eyebrow mono">
+            {title} · {first.eyebrow ?? first.label.toLowerCase()}
+          </p>
+          <div className={`cs-split ${first.image ? '' : 'is-solo'}`}>
             <div className="cs-prose">
               <h1 id="cs-title" ref={headingRef} tabIndex={-1}>
                 {headline}
               </h1>
-              {context.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
+              <Blocks body={first.body} links={links} />
               <dl className="cs-facts">
                 {facts.map(([k, v]) => (
                   <div key={k}>
@@ -124,72 +201,28 @@ function CaseStudyPage({ study }) {
                 ))}
               </dl>
             </div>
-            {contextImage && <Photo image={contextImage} />}
+            {first.image && <Photo image={first.image} />}
           </div>
         </section>
 
-        <section className="cs-section" id="cs-solution" aria-labelledby="cs-solution-title">
-          <p className="cs-eyebrow mono">solution</p>
-          <h2 id="cs-solution-title">{solution.title}</h2>
-          <div className="cs-solution">
-            <Photo image={solution.image} />
-            <div className="cs-challenges">
-              <h3>Key challenges</h3>
-              <ol>
-                {solution.challenges.map(([name, line]) => (
-                  <li key={name}>
-                    <em>{name}</em>
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-          <div className="cs-prose">
-            <p>{solution.text}</p>
-          </div>
-        </section>
+        {rest.map((s) => {
+          const headingId = `cs-${s.id}-title`
+          return (
+            <section
+              key={s.id}
+              className="cs-section"
+              id={`cs-${s.id}`}
+              aria-labelledby={s.title ? headingId : undefined}
+              aria-label={s.title ? undefined : s.label}
+            >
+              <p className="cs-eyebrow mono">{s.eyebrow ?? s.label.toLowerCase()}</p>
+              {s.title && <h2 id={headingId}>{s.title}</h2>}
+              <Blocks body={s.body} links={links} />
+            </section>
+          )
+        })}
 
-        <section className="cs-section" id="cs-process" aria-labelledby="cs-process-title">
-          <p className="cs-eyebrow mono">process</p>
-          <h2 id="cs-process-title">How it came together</h2>
-          <ol className="cs-steps">
-            {process.map(([step, line]) => (
-              <li key={step}>
-                <h3>{step}</h3>
-                <p>{line}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {results.length > 0 && (
-          <section className="cs-section" id="cs-results" aria-labelledby="cs-results-title">
-            <p className="cs-eyebrow mono">impact</p>
-            <h2 id="cs-results-title">Results</h2>
-            <ul className="cs-results">
-              {results.map(([figure, label]) => (
-                <li key={label}>
-                  <strong>{figure}</strong>
-                  <span>{label}</span>
-                </li>
-              ))}
-            </ul>
-            <ExternalLinks links={links} />
-          </section>
-        )}
-
-        {reflection && (
-          <section className="cs-section" id="cs-reflection" aria-labelledby="cs-reflection-title">
-            <p className="cs-eyebrow mono">reflection</p>
-            <h2 id="cs-reflection-title">Looking back</h2>
-            <div className="cs-prose">
-              <p>{reflection}</p>
-            </div>
-          </section>
-        )}
-
-        {results.length === 0 && <ExternalLinks links={links} />}
+        {!showsLinks && <ExternalLinks links={links} />}
 
         <p className="cs-next">
           <Link to={`/work/${next.id}`}>
