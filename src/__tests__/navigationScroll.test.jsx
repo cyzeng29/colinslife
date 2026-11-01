@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 import Home from '../pages/Home.jsx'
 import useScrollToTopOnNavigate from '../hooks/useScrollToTopOnNavigate.js'
+import { landing } from '../data/content.js'
 
 vi.mock('../audio/notes.js', () => ({ playNote: vi.fn() }))
 
@@ -62,5 +63,26 @@ describe('scrolling when the page changes', () => {
     expect(document.getElementById('case-studies').scrollIntoView).toHaveBeenLastCalledWith({ behavior: 'smooth' })
     go('home')
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: 'smooth' })
+  })
+
+  it('takes a backpack skill to its first case study and rings them all', () => {
+    const scrolled = Element.prototype.scrollIntoView
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '')
+    }
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open')
+    }
+    const { container } = renderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: landing.backpack.label }))
+    scrolled.mockClear()
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'React' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    const first = container.querySelector('#case-ashbya-genome-database')
+    expect(scrolled.mock.contexts).toEqual([first])
+    expect(within(first).getByRole('link')).toHaveFocus()
+    const ringed = [...container.querySelectorAll('.case-card-ring')].map((ring) => ring.parentElement.id)
+    expect(ringed).toEqual(['case-ashbya-genome-database', 'case-insight'])
   })
 })

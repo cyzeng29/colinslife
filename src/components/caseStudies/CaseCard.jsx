@@ -4,11 +4,12 @@ import { asset } from '../Frame.jsx'
 // One case study in the grid: its picture on a coloured tile, then the title
 // ("Title @ where"), a "Discipline | Date" line, one line of summary and the
 // skills. The title links to the case study's page and the link covers the
-// whole card.
-export default function CaseCard({ study }) {
+// whole card. `ringKey` shows a brief ring around it, played anew for each key.
+export default function CaseCard({ study, ringKey }) {
   const { id, title, at, kind, date, summary, tile, tools } = study
   return (
-    <article className="case-card">
+    <article className="case-card" id={`case-${id}`}>
+      {ringKey && <span key={ringKey} className="case-card-ring" aria-hidden="true" />}
       <div className={`case-tile is-${tile.fit}`} style={{ '--tile-bg': tile.bg }} aria-hidden="true">
         <img src={asset(tile.src)} alt="" loading="lazy" />
         {tile.labels?.map(({ text, right, y }) => (

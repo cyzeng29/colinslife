@@ -50,7 +50,7 @@ export default function Landing() {
   const phone = useMediaQuery('(max-width: 700px)')
   usePianoHeight() // sets --piano-h, used for scroll offsets
   useScrollProgress(rootRef, screenTwoRef)
-  useArrowScreens(screenTwoRef)
+  const walkToDesk = useArrowScreens(screenTwoRef)
   const regions = stageRegions(phone)
 
   // How far the walk down has to go: from where Colin stands under the
@@ -157,7 +157,7 @@ export default function Landing() {
             className="seam-region"
             style={{ transform: `translateY(${(-(SEAM_Y - regions.seam.y) / regions.seam.h) * 100}%)` }}
           >
-            <Bridge text={landing.bridge.text} />
+            <Bridge text={landing.bridge.text} arrowLabel={landing.bridge.arrow} onArrow={walkToDesk} />
           </CanvasRegion>
         </div>
         <CanvasRegion region={regions.desk} className="desk-region" ref={deskRef}>

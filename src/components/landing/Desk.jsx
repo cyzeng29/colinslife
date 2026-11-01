@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Layer, LayerImg, Spot, useRegion } from './CanvasRegion.jsx'
 import BackpackDialog from './BackpackDialog.jsx'
 import { DESK_FRAME, DESK_SHIFT, hasLayer } from '../../data/landingGeometry.js'
-import { experience, projects } from '../../data/content.js'
+import { skills } from '../../data/content.js'
 
 // Screen 2: Colin's desk, "who I am outside the resume", all drawn layers.
-// The backpack unrolls the "what I have done…" scroll; the monitor switches
+// The backpack opens up to show the skills packed inside; the monitor switches
 // its "designed with" screen on and off. The other objects' pop-ups are
 // still being drawn, so a click only nudges them. Kora sleeps.
 export default function Desk({ content }) {
@@ -80,8 +80,7 @@ export default function Desk({ content }) {
       {backpackFrom && (
         <BackpackDialog
           title={backpack.title}
-          experience={experience}
-          projects={projects}
+          skills={skills}
           opener={backpackFrom}
           onClose={() => setBackpackFrom(null)}
         />

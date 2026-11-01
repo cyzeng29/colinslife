@@ -55,8 +55,10 @@ npm test
   case studies fill a good part of the window. Other pages stay condensed.
 - `src/components/landing/` — the Home landing, built from Colin's drawing:
   sidebar, strings (a key click makes the character walk over and pluck its
-  string, then navigates), the bridge in the fog, and the desk (the backpack
-  unrolls a "what I have done" scroll; the monitor switches its screen on).
+  string, then navigates), the bridge in the fog with an arrow above it that
+  walks down to the desk, and the desk (the backpack
+  opens onto a cloud of skills that link to their case studies; the monitor
+  switches its screen on).
   Scrolling walks the character down to the desk (`src/hooks/useScrollProgress.js`).
 
 ## Updating the drawing

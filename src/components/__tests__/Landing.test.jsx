@@ -4,7 +4,8 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import Landing from '../landing/Landing.jsx'
 import { PluckProvider } from '../PluckProvider.jsx'
-import { contact, experience, landing } from '../../data/content.js'
+import { contact, landing, skills } from '../../data/content.js'
+import { findCaseStudy } from '../../data/caseStudies.js'
 
 vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
 
@@ -142,13 +143,27 @@ describe('Landing content', () => {
     expect(screenLayer).toHaveClass('is-on')
   })
 
-  it('unrolls the backpack scroll with the experience list, and closes back to the backpack', () => {
+  it('opens the backpack onto the skills, and closes back to the backpack', () => {
     renderLanding()
     const backpack = screen.getByRole('button', { name: landing.backpack.label })
     fireEvent.click(backpack)
     const dialog = screen.getByRole('dialog', { name: landing.backpack.title })
-    for (const e of experience) expect(within(dialog).getByText(e.title)).toBeInTheDocument()
-    expect(within(dialog).getByText('PostgreSQL')).toBeInTheDocument()
+    for (const g of skills) {
+      const section = within(dialog).getByRole('region', { name: g.group })
+      expect(within(section).getByRole('heading', { name: g.group })).toBeInTheDocument()
+      for (const word of g.words) expect(within(section).getByText(word.name)).toBeInTheDocument()
+    }
+    // A word with a case study links to it and says where it leads; one
+    // without is only text
+    const python = within(dialog).getByRole('link', { name: 'Python' })
+    expect(python).toHaveAttribute('href', '/#case-ai-merchandise-planner')
+    fireEvent.focus(python)
+    expect(within(dialog).getByText(/^Python: /)).toHaveTextContent(findCaseStudy('speech-dysfluency-removal').title.toLowerCase())
+    fireEvent.blur(python)
+    expect(within(dialog).queryByRole('link', { name: 'Docker' })).not.toBeInTheDocument()
+    // Clicking a plain word leaves it open; clicking the empty backdrop closes it
+    fireEvent.click(within(dialog).getByText('Docker'))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
     fireEvent(dialog, new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(backpack).toHaveFocus()
@@ -169,6 +184,15 @@ describe('Landing screens by arrow key', () => {
   afterEach(() => {
     Element.prototype.getBoundingClientRect = realRect
     window.scrollY = 0
+  })
+
+  it('walks down to the desk from the drawn arrow', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] })
+    renderLanding()
+    fireEvent.click(screen.getByRole('button', { name: landing.bridge.arrow }))
+    await act(async () => vi.advanceTimersByTime(2000))
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 1000, behavior: 'auto' })
+    vi.useRealTimers()
   })
 
   it('walks down to the desk on ↓ and back up on ↑', async () => {

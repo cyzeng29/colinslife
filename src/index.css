@@ -2413,6 +2413,50 @@ html:has(.landing) {
 @keyframes bob {
   50% { transform: translateY(-8%); }
 }
+/* the arrow above the bridge: see-through until hovered or focused, when it
+   firms up, glows like the bridge and nudges the way it points */
+.screen-arrow {
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: var(--cursor-pointer);
+  opacity: 0.5;
+  transition: opacity 160ms ease;
+}
+.screen-arrow:hover,
+.screen-arrow:focus-visible {
+  opacity: 1;
+}
+.screen-arrow:hover .layer-img,
+.screen-arrow:focus-visible .layer-img {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
+  animation: arrow-nudge 700ms ease-in-out infinite;
+}
+@keyframes arrow-nudge {
+  50% { translate: 0 14%; }
+}
+/* the drawing scales down with phones; keep it visible and easy to tap */
+@media (max-width: 700px) {
+  .screen-arrow {
+    scale: 1.8;
+  }
+  .screen-arrow::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 26px;
+    height: 26px;
+    translate: -50% -50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen-arrow:hover .layer-img,
+  .screen-arrow:focus-visible .layer-img {
+    animation: none;
+  }
+}
 /* Stardew-style text box (placeholder until the drawn bubble arrives) */
 .bubble {
   z-index: 5;
@@ -2597,97 +2641,217 @@ html:has(.landing) {
   opacity: 0.8;
 }
 
-/* the backpack's "what I have done…" scroll */
+/* the backpack, filled in, with bordered words popped out on all four sides.
+   On phones the words stack under the bag */
 .bp-dialog {
-  width: min(94vw, 1100px);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
   max-width: none;
   max-height: none;
+  margin: 0;
   padding: 0;
-  overflow: visible;
+  overflow: auto;
   border: 0;
   background: transparent;
 }
+/* darker than --scrim: the page shouldn't compete with this many words */
 .bp-dialog::backdrop {
-  background: var(--scrim);
+  background: rgba(28, 34, 27, 0.88);
 }
-.bp-scroll {
+.bp-stage {
+  display: grid;
+  /* only as wide as the words need, so the close button stays near them */
+  grid-template-columns: minmax(0, 320px) auto minmax(0, 320px);
+  justify-content: center;
+  grid-template-areas:
+    'top top top'
+    'left bag right'
+    'bottom bottom bottom'
+    'caption caption caption';
+  align-content: center;
+  align-items: center;
+  gap: clamp(12px, 2.4vh, 24px) clamp(16px, 2.4vw, 36px);
+  min-height: 100%;
+  padding: 44px clamp(16px, 3vw, 48px) 16px;
+}
+.bp-bag {
+  grid-area: bag;
   position: relative;
-  aspect-ratio: 1504 / 840;
-  animation: unroll 480ms ease both;
+  height: min(50dvh, 460px);
+  aspect-ratio: 272 / 362;
+  container-type: inline-size;
+  animation: bag-settle 280ms ease backwards;
 }
-@keyframes unroll {
-  from { clip-path: inset(0 46% 0 46%); }
-  to { clip-path: inset(0 0 0 0); }
+@keyframes bag-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
 }
-.bp-art {
-  position: absolute;
-  inset: 0;
+.bp-bag img {
+  display: block;
   width: 100%;
   height: 100%;
 }
-/* the empty writing area of the drawn scroll, left of the portrait */
-.bp-body {
+.bp-title {
   position: absolute;
-  left: 8.5%;
-  top: 22%;
-  width: 57%;
-  height: 60%;
-  overflow: auto;
-  font-size: clamp(10px, 1.2vw, 15px);
-  line-height: 1.35;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-size: 7cqw;
+  font-weight: 400;
+  white-space: nowrap;
   color: var(--ink);
 }
-.bp-list,
-.bp-skills {
+.bp-side {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bp-group-title {
+  margin: 0 0 7px;
+  font-size: 15px;
+  font-weight: 400;
+  text-align: center;
+  color: var(--on-green);
+  animation: bag-settle 280ms ease 120ms backwards;
+}
+.bp-side.is-left .bp-group-title { text-align: end; }
+.bp-side.is-right .bp-group-title { text-align: start; }
+.bp-side.is-top { grid-area: top; --from: 0 48px; }
+/* narrow, so the side words stack down the bag's flanks */
+.bp-side.is-left { grid-area: left; --from: 48px 0; justify-self: end; max-width: 320px; }
+.bp-side.is-right { grid-area: right; --from: -48px 0; justify-self: start; max-width: 320px; }
+.bp-side.is-bottom { grid-area: bottom; --from: 0 -48px; }
+.bp-words {
   list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: 0;
   padding: 0;
 }
-.bp-list {
-  display: grid;
-  gap: 0.7em;
+.bp-side.is-left .bp-words { justify-content: flex-end; }
+.bp-side.is-right .bp-words { justify-content: flex-start; }
+.bp-word {
+  transition: opacity 140ms ease;
+  animation: chip-pop 340ms cubic-bezier(0.2, 1.3, 0.4, 1) calc(120ms + var(--i) * 12ms) backwards;
 }
-.bp-list li {
-  display: grid;
+@keyframes chip-pop {
+  from {
+    opacity: 0;
+    translate: var(--from);
+    scale: 0.7;
+  }
 }
-.bp-role {
-  font-weight: 600;
+/* a slightly uneven border, like the drawing's lines */
+.bp-chip {
+  display: block;
+  padding: 0.28em 0.7em 0.32em;
+  font-family: var(--font-display);
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--on-green);
+  border: 1.5px solid var(--on-green-soft);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  transition: transform 140ms ease;
 }
-.bp-org,
-.bp-when {
-  color: var(--ink-soft);
+.bp-word.is-tier-1 { font-size: 14px; }
+.bp-word.is-tier-2 { font-size: 17px; }
+.bp-word.is-tier-3 { font-size: 21px; }
+/* words that lead to a case study are the solid ones */
+a.bp-chip {
+  color: var(--ink);
+  background: var(--key-white);
+  border-color: var(--key-white);
+  text-decoration: none;
+  cursor: var(--cursor-pointer);
 }
-.bp-when {
-  font-size: 0.8em;
+a.bp-chip:hover {
+  transform: translateY(-2px);
 }
-.bp-skills-title {
-  margin: 1em 0 0.4em;
-  font-size: 0.8em;
-  font-weight: 500;
-  color: var(--ink-soft);
+a.bp-chip:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: 2px;
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
 }
-.bp-skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35em;
+.has-active .bp-word:not(.is-active) {
+  opacity: 0.35;
 }
-.bp-skills li {
-  padding: 0.15em 0.5em;
-  font-size: 0.75em;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
+.bp-caption {
+  grid-area: caption;
+  min-height: 2.6em;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--on-green);
 }
 .bp-close {
-  position: absolute;
-  right: 4%;
-  top: 0;
-  padding: 6px 12px;
-  font-size: 12px;
+  /* at the upper right of the bag and its words, level with the top row */
+  grid-area: top;
+  justify-self: end;
+  align-self: start;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
   color: var(--ink);
   background: var(--key-white);
   border: 1px solid var(--ink-soft);
-  border-radius: 999px;
+  border-radius: 50%;
   cursor: var(--cursor-pointer);
+}
+@media (max-width: 760px) {
+  .bp-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'bag' 'top' 'left' 'right' 'bottom' 'caption';
+    align-content: start;
+    justify-items: center;
+  }
+  .bp-bag {
+    height: 30dvh;
+  }
+  /* beside the bag, and staying in view as the words scroll */
+  .bp-close {
+    grid-area: bag;
+    position: sticky;
+    top: 12px;
+  }
+  .bp-side.is-left,
+  .bp-side.is-right {
+    justify-self: center;
+    max-width: none;
+  }
+  .bp-side.is-left .bp-group-title,
+  .bp-side.is-right .bp-group-title {
+    text-align: center;
+  }
+  .bp-side .bp-words,
+  .bp-side.is-left .bp-words,
+  .bp-side.is-right .bp-words {
+    justify-content: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-bag,
+  .bp-group-title,
+  .bp-word {
+    animation: none;
+  }
+  .bp-word,
+  .bp-chip {
+    transition: none;
+  }
 }
 
 /* below the landing: case studies on their own panel; create is its own page */
@@ -2719,6 +2883,27 @@ h2.section-label {
   gap: 16px;
   align-content: start;
   min-width: 0;
+  /* same clearance as .case-studies, for a backpack skill's link */
+  scroll-margin-top: calc(64px + 0.6 * var(--gutter) + 28px);
+}
+/* the cards a backpack skill led to: a ring that fades away */
+.case-card-ring {
+  position: absolute;
+  inset: -8px;
+  border: 3px solid var(--on-green);
+  border-radius: 14px;
+  pointer-events: none;
+  animation: case-ring 2400ms ease-out 300ms both;
+}
+@keyframes case-ring {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-card-ring {
+    animation: none;
+  }
 }
 .case-tile {
   position: relative;
@@ -3248,9 +3433,6 @@ h2.section-label {
   }
   .desk-char {
     opacity: 1;
-  }
-  .bp-scroll {
-    animation: fade-in 200ms ease both;
   }
   .fog-blob,
   .fog-cloud,

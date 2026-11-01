@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { secondScreenTop } from './useScrollProgress.js'
 
 // slow enough to watch him walk between the screens, at a steady pace (a
@@ -10,8 +10,11 @@ const ease = (t) => (1 - Math.cos(Math.PI * t)) / 2
 // up to the desk walks him back to the strings. Further down the page the
 // arrows scroll normally. Ignored while typing, with modifier keys, or while
 // a dialog is open. The visitor scrolling or pressing another key mid-way
-// takes over immediately.
+// takes over immediately. Returns walkToDesk, the same walk for the drawn
+// arrow.
 export default function useArrowScreens(screenRef) {
+  const walkRef = useRef(null)
+
   useEffect(() => {
     // scroll snapping would yank each animation step to a snap point
     const html = document.documentElement
@@ -44,6 +47,7 @@ export default function useArrowScreens(screenRef) {
       }
       frame = requestAnimationFrame(step)
     }
+    walkRef.current = walkTo
 
     function onKey(e) {
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return stop()
@@ -69,4 +73,6 @@ export default function useArrowScreens(screenRef) {
       window.removeEventListener('touchstart', stop)
     }
   }, [screenRef])
+
+  return useCallback(() => walkRef.current?.(secondScreenTop(screenRef.current)), [screenRef])
 }

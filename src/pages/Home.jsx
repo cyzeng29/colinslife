@@ -6,7 +6,8 @@ import CaseGrid from '../components/caseStudies/CaseGrid.jsx'
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 export default function Home() {
-  const { hash, key } = useLocation()
+  const { hash, key, state } = useLocation()
+  const matched = state?.matched
   const arrived = useRef(false)
 
   // /#case-studies (the EXPERIENCE key, "← Case studies") goes to the case
@@ -22,6 +23,8 @@ export default function Home() {
     const behavior = reducedMotion() ? 'auto' : 'smooth'
     if (target) target.scrollIntoView?.({ behavior })
     else window.scrollTo?.({ top: 0, behavior })
+    // from a backpack skill: keyboard users carry on from the card it led to
+    if (matched) target?.querySelector('.case-card-link')?.focus({ preventScroll: true })
   }, [hash, key])
 
   return (
@@ -34,7 +37,7 @@ export default function Home() {
         <h2 className="sr-only" id="case-studies-title">
           Case studies
         </h2>
-        <CaseGrid />
+        <CaseGrid matched={matched} matchKey={key} />
       </section>
     </>
   )

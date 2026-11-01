@@ -243,6 +243,7 @@ export const landing = {
   // shown on hover or from the "!" marker (placeholder until the bubble is drawn)
   bridge: {
     text: 'home base: durham, nc. this bridge is drawn after the japanese bridge in duke gardens.',
+    arrow: 'down to the desk',
   },
   // Clickable desk objects whose pop-ups are still being drawn
   desk: [
@@ -251,10 +252,90 @@ export const landing = {
     { slug: 'camera', label: 'camera: photos taken' },
     { slug: 'sketchbook', label: 'sketchbook: drawings' },
   ],
-  backpack: { label: 'backpack: what i have done', title: 'what i have done…' },
+  backpack: { label: 'backpack: what i carry', title: 'what i carry' },
   monitor: { label: 'monitor', screen: 'designed with procreate and figma' },
   dog: { name: 'kora', alt: 'kora, asleep on a dog bed' },
 }
+
+// The words around the backpack on the desk, under the resume's section
+// headings (plus Other Tools for what's only on this site), a group to a `side`. `tier` (1 to
+// 3) sets the size: what Colin reaches for most, not a self-rating. `studies` lists the case
+// studies (ids in caseStudies.js) that really use the skill; the word links to
+// the first and highlights them all, and a word with none stays plain text.
+const skill = (name, tier, ...studies) => ({ name, tier, studies })
+
+export const skills = [
+  {
+    group: 'Languages',
+    side: 'top',
+    words: [
+      skill('Python', 3, 'ai-merchandise-planner', 'speech-dysfluency-removal'),
+      skill('JavaScript', 2, 'ashbya-genome-database'),
+      skill('SQL', 2, 'ashbya-genome-database'),
+      skill('Java', 1),
+      skill('TypeScript', 1),
+      skill('PHP', 1, 'ashbya-genome-database'),
+      skill('C++', 2, 'event-horizon'),
+      skill('R', 1),
+      skill('HTML/CSS', 1),
+    ],
+  },
+  {
+    group: 'Frameworks & Libraries',
+    side: 'left',
+    words: [
+      skill('React', 3, 'ashbya-genome-database', 'insight'),
+      skill('PyTorch', 3, 'frisbee-play-classifier'),
+      skill('scikit-learn', 2, 'speech-dysfluency-removal'),
+      skill('YOLOv8', 2, 'frisbee-play-classifier'),
+      skill('Computer vision', 1, 'frisbee-play-classifier'),
+      skill('Streamlit', 1, 'ai-merchandise-planner'),
+      skill('Plotly', 1, 'ai-merchandise-planner'),
+      skill('pandas', 1),
+      skill('NumPy', 1),
+      skill('Vite', 1),
+    ],
+  },
+  {
+    group: 'Databases & Infrastructure',
+    side: 'right',
+    words: [
+      skill('PostgreSQL', 3, 'ashbya-genome-database'),
+      skill('MySQL/MariaDB', 1),
+      skill('Linux server admin', 1),
+      skill('Git', 1),
+      skill('Docker', 1),
+      skill('Vercel', 1),
+    ],
+  },
+  {
+    group: 'AI & Bioinformatics',
+    side: 'right',
+    words: [
+      skill('Claude API', 2, 'ai-merchandise-planner'),
+      skill('Groq API', 1, 'insight'),
+      skill('LLM integration', 1, 'insight'),
+      skill('Whisper', 1, 'speech-dysfluency-removal'),
+      skill('BLAST+', 1, 'ashbya-genome-database'),
+      skill('JBrowse2', 1, 'ashbya-genome-database'),
+      skill('AlphaFold', 1, 'ashbya-genome-database'),
+    ],
+  },
+  {
+    group: 'Other Tools',
+    side: 'bottom',
+    words: [
+      skill('Unreal Engine 5', 2, 'event-horizon'),
+      skill('Blueprints', 1, 'event-horizon'),
+      skill('Figma', 1, 'ai-merchandise-planner'),
+      skill('Mathematica', 1),
+      skill('STELLA', 1),
+      skill('Gaussian', 1),
+      skill('NetLogo', 1),
+      skill('Maple', 1),
+    ],
+  },
+]
 
 // Where to find Colin, listed under the sidebar facts (the resume link is
 // added after these when the PDF exists)

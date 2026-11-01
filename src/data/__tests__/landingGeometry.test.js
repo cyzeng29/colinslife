@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DESK_FRAME, DESK_PANEL, DESK_SHIFT, HALL_REACH_Y, LAYERS, SCREEN_TWO_Y } from '../landingGeometry.js'
+import { DESK_FRAME, DESK_PANEL, DESK_SHIFT, HALL_REACH_Y, LAYERS, SCREEN_TWO_Y, SCREEN_ARROW } from '../landingGeometry.js'
 
 const bottom = (box) => box.y + box.h
 const GLOW = 22 // panel glow, canvas px
@@ -29,5 +29,11 @@ describe('desk frame', () => {
     for (const slug of ['frisbee', 'globe']) {
       expect(LAYERS[slug].y + DESK_SHIFT).toBeGreaterThan(SCREEN_TWO_Y)
     }
+  })
+})
+
+describe('screen arrow', () => {
+  it('is centred on the bridge', () => {
+    expect(SCREEN_ARROW.x + SCREEN_ARROW.w / 2).toBeCloseTo(LAYERS.bridge.x + LAYERS.bridge.w / 2)
   })
 })
