@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { asset } from '../components/Frame.jsx'
 import { useLightbox } from '../components/Lightbox.jsx'
@@ -27,7 +27,36 @@ function Photo({ image, className = '' }) {
       ) : (
         img
       )}
-      {image.caption && <figcaption>{image.caption}</figcaption>}
+      {(image.title || image.caption) && (
+        <figcaption>
+          {image.title && <h3>{image.title}</h3>}
+          {image.caption}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
+
+// A silent screen recording: loops on its own unless motion is reduced, and
+// leaves just its caption if the file can't be played
+function Clip({ clip }) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <figure className="cs-photo">
+      {!failed && (
+        <video
+          src={asset(clip.src)}
+          aria-label={clip.alt}
+          autoPlay={!reducedMotion()}
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+          onError={() => setFailed(true)}
+        />
+      )}
+      {clip.caption && <figcaption>{clip.caption}</figcaption>}
     </figure>
   )
 }
@@ -87,12 +116,13 @@ function Block({ block, links }) {
     )
   if (block.images)
     return (
-      <div className="cs-gallery">
+      <div className={`cs-gallery ${block.beside ? 'is-beside' : ''}`}>
         {block.images.map((image) => (
           <Photo key={image.src} image={image} />
         ))}
       </div>
     )
+  if (block.video) return <Clip clip={block.video} />
   if (block.stats)
     return (
       <ul className="cs-results">
@@ -127,8 +157,9 @@ function Block({ block, links }) {
 
 const Blocks = ({ body, links }) => groupProse(body).map((block, i) => <Block key={i} block={block} links={links} />)
 
-// One case study, opened from its card: a sticky list of sections beside the
-// story, each section as written (or built) in caseStudies.js.
+// One case study, opened from its card: its title and details line, then a
+// sticky list of sections beside the story, each section as written (or
+// built) in caseStudies.js.
 export default function CaseStudy() {
   const { id } = useParams()
   const study = findCaseStudy(id)
@@ -137,7 +168,7 @@ export default function CaseStudy() {
 }
 
 function CaseStudyPage({ study }) {
-  const { title, headline, role, org, when, tools, links } = study
+  const { title, at, headline, role, when, tools, links } = study
   const [first, ...rest] = study.sections
   const headingRef = useRef(null)
   usePianoHeight() // --piano-h, so jumps land just under the sticky piano
@@ -157,15 +188,24 @@ function CaseStudyPage({ study }) {
   }
 
   const next = caseStudies[(caseStudies.indexOf(study) + 1) % caseStudies.length]
-  const facts = [
-    ['Role', role],
-    ['Where', org],
-    ['When', when],
-    ['Tools', tools.join(' · ')],
-  ].filter(([, v]) => v)
+  const details = [role, when, tools.join(', ')].filter(Boolean)
 
   return (
     <article className="page-content case-study" aria-labelledby="cs-title">
+      <header className="cs-head">
+        <h1 id="cs-title" ref={headingRef} tabIndex={-1}>
+          {title}
+          {at && ` @ ${at}`}
+        </h1>
+        {details.length > 0 && (
+          <p className="cs-details">
+            {details.map((d) => (
+              <span key={d}>{d}</span>
+            ))}
+          </p>
+        )}
+      </header>
+
       <nav className="cs-nav" aria-label={`${title}: sections`}>
         <Link to="/#case-studies" className="cs-back">
           <span aria-hidden="true">←</span> Case studies
@@ -182,24 +222,12 @@ function CaseStudyPage({ study }) {
       </nav>
 
       <div className="cs-main">
-        <section className="cs-section" id={`cs-${first.id}`} aria-labelledby="cs-title">
-          <p className="cs-eyebrow mono">
-            {title} · {first.eyebrow ?? first.label.toLowerCase()}
-          </p>
+        <section className="cs-section" id={`cs-${first.id}`} aria-labelledby="cs-headline">
+          <p className="cs-eyebrow mono">{first.eyebrow ?? first.label.toLowerCase()}</p>
           <div className={`cs-split ${first.image ? '' : 'is-solo'}`}>
             <div className="cs-prose">
-              <h1 id="cs-title" ref={headingRef} tabIndex={-1}>
-                {headline}
-              </h1>
+              <h2 id="cs-headline">{headline}</h2>
               <Blocks body={first.body} links={links} />
-              <dl className="cs-facts">
-                {facts.map(([k, v]) => (
-                  <div key={k}>
-                    <dt className="mono">{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
             </div>
             {first.image && <Photo image={first.image} />}
           </div>

@@ -34,8 +34,9 @@
      everything else */
   --font-display: 'tomarik-poster', 'tomarik-introvert', system-ui, sans-serif;
   --font-body: 'tomarik-introvert', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  /* case study pages: one family, bold headings over regular text */
-  --font-case: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* case study pages: serif headings over sans text */
+  --font-case: 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-case-head: 'Newsreader', Georgia, serif;
   /* round cursor in the page green with a see-through grey ring, so it shows
      on the green page too (url() can't read vars, so colours are inlined).
      Clickable things keep the same size, with a stronger ring in place of
@@ -199,6 +200,12 @@ footer {
 /* condensing (--condense 0 → 1, set by useHeaderCondense): on Home as the
    case studies arrive, always on other pages. A green band fades in behind
    the bar so the keys and labels read over the cards scrolling beneath. */
+.piano-wrap {
+  --slim-h: 64px;
+}
+.piano-wrap[data-phone] {
+  --slim-h: 52px;
+}
 .piano-wrap::before {
   content: '';
   position: absolute;
@@ -208,45 +215,216 @@ footer {
   opacity: var(--condense, 0);
   pointer-events: none;
 }
-/* the tiles lift away and fade (phones keep them: no room for the name) */
+/* Home: as the header condenses, the piano and the slim string header below
+   it move up as one strip, through a window that shrinks from the piano's
+   height to the slim height (the band behind it), so the string header
+   pushes the piano out of the top; scrolling back reverses it. The wrap
+   keeps its full height, which the landing measures. */
+.piano-wrap[data-home] {
+  pointer-events: none;
+}
+.piano-wrap[data-home]::before {
+  bottom: calc(var(--condense, 0) * (100% - var(--slim-h)) - 0.6 * var(--gutter));
+}
+.piano-wrap[data-home] .piano-region:not(.is-away),
+.string-nav:not([aria-hidden]) {
+  pointer-events: auto;
+}
+.piano-drawing {
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(-100% * var(--condense, 0)));
+}
 .header-tiles {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: calc(1 - var(--condense, 0));
-  transform: translateY(calc(-14% * var(--condense, 0)));
 }
-.piano-wrap[data-phone] .header-tiles {
-  opacity: 1;
-  transform: none;
+
+/* ---------- slim string header: name, then a note per page on a string ---------- */
+.string-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 64px);
+  width: min(1500px, calc(100% - 2 * var(--gutter)));
+  height: var(--slim-h);
+  margin-inline: auto;
+  /* centred in the green band, which hangs 0.6 * gutter below the bar;
+     a shift, not a margin, so the header keeps its measured height */
+  translate: 0 calc(0.3 * var(--gutter));
 }
-/* Colin's name and tagline in the tiles' corner. On Home each drawing flies
-   up from the sidebar (an inline transform, eased to rest as the header
-   condenses); hidden until it takes off. */
-.header-name {
+.piano-wrap[data-home] .string-nav {
+  position: absolute;
+  top: calc((1 - var(--condense, 0)) * 100%);
+  left: 50%;
+  translate: -50% calc(0.3 * var(--gutter));
+}
+/* only what has come up into the window shows (a little slack around the
+   sides and top for the notes' ink and focus rings) */
+.piano-wrap[data-home] .string-nav-window {
+  clip-path: inset(-8px -24px calc((1 - var(--condense, 0)) * (var(--slim-h) + 24px) - 24px) -24px);
+}
+.string-nav[aria-hidden] {
   visibility: hidden;
 }
-.piano-wrap[data-name] .header-name {
+.piano-wrap[data-home] .string-nav[aria-hidden] {
   visibility: visible;
 }
-.header-home {
+/* the name shows once it takes off from the sidebar (data-name) */
+.string-nav-name {
+  flex: none;
   display: block;
-  color: inherit;
-}
-.header-home:focus-visible {
-  outline: 3px solid var(--on-green);
-  outline-offset: 4px;
+  height: 54px;
+  visibility: hidden;
   border-radius: 4px;
 }
-.fly-slot {
-  position: absolute;
+.piano-wrap[data-name] .string-nav-name {
+  visibility: visible;
+}
+.string-nav-name:focus-visible {
+  outline: 3px solid var(--on-green);
+  outline-offset: 4px;
+}
+.string-nav-name-img {
+  display: block;
+  height: 100%;
 }
 .fly {
   display: block;
-  width: 100%;
   height: 100%;
   transform-origin: 0 0;
 }
+.string-nav-window {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+.string-nav-line {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.string-nav-line ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+.string-nav-line li {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+/* the string runs from the first note to the last, through the note heads */
+.string-nav-wire {
+  position: absolute;
+  top: 19px;
+  left: 12.5%;
+  width: 75%;
+  height: 6px;
+  overflow: visible;
+  fill: none;
+  stroke: #acb1ab;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  filter: url(#ink-wobble);
+}
+.string-nav-wire path {
+  vector-effect: non-scaling-stroke;
+}
+.string-note {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: var(--cursor-pointer);
+  /* grey ink, darkening as the note turns current */
+  color: color-mix(in srgb, var(--ink) calc(var(--on, 0) * 100%), #acb1ab);
+  transition: color 300ms ease;
+}
+.string-note:focus-visible {
+  outline: 3px solid var(--on-green);
+  outline-offset: 2px;
+}
+.string-note-mark {
+  display: block;
+  width: 22px;
+  height: 29px;
+  overflow: visible;
+  filter: url(#ink-wobble);
+}
+.string-note-mark .stem {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.string-note-mark .head {
+  fill: currentColor;
+  fill-opacity: var(--on, 0);
+  stroke: currentColor;
+  stroke-width: 2.2;
+  transition: fill-opacity 300ms ease;
+}
+.string-note:hover .string-note-mark,
+.string-note.pressed .string-note-mark {
+  animation: string-hum 320ms linear;
+}
+.string-note-label {
+  display: block;
+  height: 15px;
+  opacity: calc(0.7 + 0.3 * var(--on, 0));
+}
+/* the drawn underline under the current label: in its slot (--i of --n)
+   and as wide as its drawing (--r × the label height), gliding between
+   pages like the piano's */
+.string-nav-underline {
+  --label-h: 15px;
+  position: absolute;
+  top: 50px;
+  left: calc((var(--i) + 0.5) / var(--n) * 100%);
+  width: calc(var(--r) * var(--label-h) + 10px);
+  height: 7px;
+  translate: -50% 0;
+  color: #acb1ab;
+  pointer-events: none;
+  transition:
+    left 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.string-nav-underline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  filter: url(#ink-wobble);
+}
+.piano-wrap[data-phone] .string-nav-underline {
+  --label-h: 12px;
+  top: 42px;
+  height: 6px;
+}
+.piano-wrap[data-phone] .string-nav-line li {
+  flex: 1;
+}
+.piano-wrap[data-phone] .string-note-mark {
+  width: 18px;
+  height: 24px;
+}
+.piano-wrap[data-phone] .string-nav-wire {
+  top: 16px;
+}
+.piano-wrap[data-phone] .string-note-label {
+  height: 12px;
+}
+
 /* labels: the current page's at full strength, the rest a step back once the
    band is behind them */
 .key-label {
@@ -276,18 +454,23 @@ footer {
   fill: currentColor;
   filter: url(#ink-wobble);
 }
-/* the sidebar's own name and tagline hide while the header's copy flies */
-html[data-flying] .landing-side .side-name,
-html[data-flying] .landing-side .side-tagline {
+/* the sidebar's own name hides while the header's copy flies */
+html[data-flying] .landing-side .side-name {
   visibility: hidden;
 }
 @media (prefers-reduced-motion: reduce) {
   .key-label,
-  .nav-underline {
+  .nav-underline,
+  .string-nav-underline,
+  .string-note,
+  .string-note-mark .head {
     transition: none;
   }
   .header-tiles {
     transform: none;
+  }
+  .string-note .string-note-mark {
+    animation: none !important;
   }
 }
 
@@ -1806,35 +1989,34 @@ footer img {
 }
 /* "interactive": each letter is cut out of the drawing (the base image is
    clipped around them) so it can hop when the cursor reaches it; a quick
-   swipe sends an arc across the word. A glass lens rides on the hovered
-   letter: it snaps on and fades slowly, leaving a short glassy trail. */
+   swipe sends an arc across the word. */
 .tagline-art {
   position: relative;
   display: block;
 }
-.tagline-glass {
+.tagline-letters {
   position: absolute;
   inset: 0;
 }
-.glass-letter {
+.tagline-letter {
   position: absolute;
 }
-.glass-hop,
-.glass-ink {
+.tagline-hop,
+.tagline-ink {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-.glass-ink {
+.tagline-ink {
   overflow: hidden;
 }
-.side-tagline .tagline-glass .glass-ink-art {
+.side-tagline .tagline-letters .tagline-ink-art {
   position: absolute;
   max-width: none;
   width: auto;
   height: auto;
 }
-.glass-letter.is-hopping .glass-hop {
+.tagline-letter.is-hopping .tagline-hop {
   animation: letter-hop 520ms cubic-bezier(0.3, 0.7, 0.4, 1);
 }
 @keyframes letter-hop {
@@ -1854,39 +2036,9 @@ footer img {
     transform: translateY(0) scale(1, 1);
   }
 }
-.glass-hop::after {
-  content: '';
-  position: absolute;
-  inset: -8% -4px;
-  border-radius: 999px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.12) 55%, rgba(255, 255, 255, 0.28));
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow:
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.9),
-    inset 0 -3px 6px rgba(46, 51, 32, 0.25),
-    0 10px 22px rgba(28, 34, 27, 0.45),
-    0 2px 5px rgba(28, 34, 27, 0.3);
-  backdrop-filter: blur(1.2px) saturate(180%) brightness(1.2);
-  -webkit-backdrop-filter: blur(1.2px) saturate(180%) brightness(1.2);
-  opacity: 0;
-  transform: scale(0.7) translateY(8%);
-  transition:
-    opacity 600ms ease,
-    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.glass-letter:hover .glass-hop::after {
-  opacity: 1;
-  transform: scale(1.2) translateY(-6%);
-  transition-duration: 140ms, 260ms;
-}
 @media (prefers-reduced-motion: reduce) {
-  .glass-letter.is-hopping .glass-hop {
+  .tagline-letter.is-hopping .tagline-hop {
     animation: none;
-  }
-  .glass-hop::after,
-  .glass-letter:hover .glass-hop::after {
-    transform: none;
-    transition: opacity 150ms ease;
   }
 }
 /* facts: one line each, a bold uppercase label (where) then a softer,
@@ -2128,8 +2280,12 @@ html:has(.landing) {
 .desk-region {
   margin-top: calc(27.5 / var(--stage-fr) * 100cqw);
 }
-.desk-panel {
+/* only the landing's drawn panel ignores the pointer: About's interest desk
+   reuses .desk-panel around the clickable sketchbook */
+.desk-region .desk-panel {
   pointer-events: none;
+}
+.desk-panel {
   background: var(--panel);
   border-radius: calc(16 / var(--stage-fr) * 100cqw);
   box-shadow: 0 0 calc(22 / var(--stage-fr) * 100cqw) var(--panel-glow);
@@ -2541,8 +2697,9 @@ h2.section-label {
 .case-studies {
   width: min(1240px, calc(100% - 2 * var(--gutter)));
   margin: 40px auto 0;
-  /* clear of the sticky piano and the green band that hangs below it */
-  scroll-margin-top: calc(var(--piano-h, 0px) + 0.6 * var(--gutter) + 20px);
+  /* clear of the condensed header (--slim-h on .piano-wrap) and the green
+     band that hangs below it, so the cards fill the window */
+  scroll-margin-top: calc(64px + 0.6 * var(--gutter) + 28px);
 }
 /* the next resting point after the desk screen (see html:has(.landing)) */
 .case-studies {
@@ -2693,45 +2850,87 @@ h2.section-label {
   color: var(--on-green-soft);
 }
 
-/* ---------- case study page: sticky section list beside the story ---------- */
+/* ---------- case study page: title, then a sticky section list beside the story ---------- */
 .case-study {
-  /* clear of the sticky piano and the green band that hangs below it */
+  --panel: #f7f7f4;
+  /* clear of the sticky header and the green band that hangs below it */
   --cs-clear: calc(var(--piano-h, 0px) + 0.6 * var(--gutter) + 24px);
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
-  gap: clamp(24px, 5vw, 72px);
-  width: min(1240px, calc(100% - 2 * var(--gutter)));
-  padding: clamp(28px, 4.5vw, 64px) clamp(18px, 4vw, 56px);
-}
-.case-study,
-.case-study :is(h1, h2, h3, h4) {
+  grid-template-columns: 150px minmax(0, 800px);
+  justify-content: center;
+  column-gap: 36px;
+  /* the panel runs edge to edge; the content keeps its margins inside it */
+  width: 100%;
+  border-radius: 0;
+  padding: clamp(28px, 4.5vw, 64px) calc(var(--gutter) + clamp(18px, 4vw, 56px));
   font-family: var(--font-case);
 }
+.case-study :is(h1, h2, h3, h4) {
+  font-family: var(--font-case-head);
+  font-weight: 400;
+}
+/* the title and its details line, over the story's column */
+.cs-head {
+  grid-column: 2;
+  display: grid;
+  gap: 10px;
+  margin-bottom: clamp(36px, 5vw, 56px);
+}
+.case-study h1 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 43px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.cs-details {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.cs-details span + span::before {
+  content: '|';
+  margin: 0 14px;
+  font-style: normal;
+  opacity: 0.45;
+}
 .cs-nav {
+  grid-column: 1;
   position: sticky;
   top: var(--cs-clear);
   align-self: start;
   display: grid;
-  gap: 32px;
+  gap: 15px;
 }
 .cs-nav ol {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 .cs-back,
 .cs-nav a {
-  font-size: 17px;
+  font-size: 14px;
+  line-height: 22.4px;
   text-decoration: none;
   transition: color 200ms ease;
 }
 .cs-back {
+  position: relative;
   color: var(--ink-soft);
 }
+/* the arrow hangs into the margin, so the words line up with the list */
+.cs-back span {
+  position: absolute;
+  right: 100%;
+  padding-right: 6px;
+}
 .cs-nav ol a {
-  color: rgba(46, 51, 32, 0.42);
+  color: #9ea294;
 }
 .cs-back:hover,
 .cs-nav ol a:hover {
@@ -2741,30 +2940,28 @@ h2.section-label {
   color: var(--olive);
 }
 .cs-main {
+  grid-column: 2;
   display: grid;
-  gap: clamp(64px, 8vw, 104px);
+  gap: clamp(48px, 6vw, 72px);
   min-width: 0;
 }
 .cs-section {
   display: grid;
-  gap: 20px;
+  gap: 14px;
   min-width: 0;
   scroll-margin-top: var(--cs-clear);
 }
 .cs-eyebrow {
   margin: 0;
   font-size: 14px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--olive);
 }
-.case-study h1,
 .cs-section h2 {
   margin: 0;
-  font-size: clamp(28px, 2.8vw, 38px);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
+  font-size: 24px;
+  line-height: 32px;
   color: var(--ink);
   text-wrap: balance;
 }
@@ -2778,10 +2975,10 @@ h2.section-label {
 }
 .cs-prose p {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 22.5px;
+  letter-spacing: -0.3px;
   color: var(--ink-soft);
-  max-width: 62ch;
 }
 .cs-split {
   display: grid;
@@ -2791,23 +2988,6 @@ h2.section-label {
 }
 .cs-split.is-solo {
   grid-template-columns: minmax(0, 1fr);
-}
-.cs-facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 32px;
-  margin: 8px 0 0;
-}
-.cs-facts dt {
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-.cs-facts dd {
-  margin: 3px 0 0;
-  font-size: 16px;
-  color: var(--ink);
 }
 .cs-photo {
   margin: 0;
@@ -2827,12 +3007,20 @@ h2.section-label {
   outline: 3px solid var(--ink);
   outline-offset: 3px;
 }
-.cs-photo img {
+.cs-photo img,
+.cs-photo video {
   display: block;
   width: 100%;
   border-radius: 8px;
   background: var(--key-white);
   box-shadow: 0 12px 26px -18px rgba(20, 28, 19, 0.55);
+}
+/* short enough to leave room for the page around them; fullscreen shows more */
+.cs-photo video {
+  justify-self: start;
+  width: auto;
+  max-width: 100%;
+  max-height: min(60vh, 420px);
 }
 .cs-photo.is-phone {
   justify-self: center;
@@ -2843,12 +3031,31 @@ h2.section-label {
   border-radius: 26px;
 }
 .cs-photo figcaption {
-  font-size: 15px;
+  font-size: 14px;
+  font-style: italic;
   color: var(--ink-soft);
 }
 .cs-gallery {
   display: grid;
   gap: clamp(28px, 4vw, 44px);
+}
+/* smaller pictures, each with its caption to its side */
+.cs-gallery.is-beside .cs-photo {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 32px);
+  align-items: center;
+}
+.cs-gallery.is-beside figcaption {
+  font-size: 15px;
+  line-height: 22.5px;
+  font-style: normal;
+}
+.cs-photo figcaption h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 24px;
+  font-style: normal;
+  color: var(--ink);
 }
 .cs-solution {
   display: grid;
@@ -2858,8 +3065,7 @@ h2.section-label {
 }
 .cs-challenges h3 {
   margin: 0 0 18px;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 17px;
   color: var(--ink);
 }
 .cs-challenges ol,
@@ -2891,18 +3097,17 @@ h2.section-label {
   color: var(--ink-soft);
 }
 .cs-challenges em {
-  font-size: 17px;
+  font-size: 14px;
   color: var(--ink-soft);
 }
 .cs-challenges span {
-  font-size: 17px;
+  font-size: 14px;
   line-height: 1.45;
   color: var(--ink);
 }
 .cs-steps {
   gap: 26px;
   counter-reset: step;
-  max-width: 70ch;
 }
 .cs-steps li {
   display: grid;
@@ -2916,14 +3121,13 @@ h2.section-label {
 }
 .cs-steps h3 {
   margin: 0;
-  font-size: 21px;
-  font-weight: 600;
+  font-size: 16px;
   color: var(--ink);
 }
 .cs-steps p {
   margin: 0;
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 22px;
   color: var(--ink-soft);
 }
 .cs-results {
@@ -2931,7 +3135,7 @@ h2.section-label {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 14px;
 }
 .cs-results li {
@@ -2942,15 +3146,15 @@ h2.section-label {
   background: var(--bg-tint);
 }
 .cs-results strong {
-  font-family: var(--font-case);
-  font-size: clamp(28px, 2.8vw, 36px);
-  font-weight: 600;
+  font-family: var(--font-case-head);
+  font-size: 28px;
+  font-weight: 400;
   line-height: 1.1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 .cs-results span {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--ink-soft);
 }
 .cs-links {
@@ -2960,7 +3164,7 @@ h2.section-label {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 24px;
-  font-size: 14px;
+  font-size: 12px;
 }
 .cs-links a {
   color: var(--ink);
@@ -2973,7 +3177,7 @@ h2.section-label {
   padding-top: 24px;
   border-top: 1px solid var(--rule);
   text-align: right;
-  font-size: 18px;
+  font-size: 14px;
 }
 .cs-next a {
   color: var(--ink);
@@ -2988,9 +3192,22 @@ h2.section-label {
   .case-study {
     grid-template-columns: minmax(0, 1fr);
   }
+  .cs-head,
+  .cs-nav,
+  .cs-main {
+    grid-column: 1;
+  }
+  .cs-head h1 {
+    font-size: 28px;
+    line-height: 34px;
+  }
   .cs-nav {
     position: static;
-    gap: 18px;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .cs-back span {
+    position: static;
   }
   .cs-nav ol {
     display: flex;
@@ -2998,7 +3215,8 @@ h2.section-label {
     gap: 8px 20px;
   }
   .cs-split,
-  .cs-solution {
+  .cs-solution,
+  .cs-gallery.is-beside .cs-photo {
     grid-template-columns: minmax(0, 1fr);
   }
 }

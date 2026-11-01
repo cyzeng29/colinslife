@@ -26,27 +26,27 @@ function hop(e) {
 }
 
 // "interactive" cut out of the drawing letter by letter, laid over it where
-// it was drawn: each letter hops when the cursor reaches it and shows a glass
-// lens while hovered. Decorative (the image's alt has the words).
-function TaglineGlass() {
+// it was drawn: each letter hops when the cursor reaches it. Decorative (the
+// image's alt has the words).
+function TaglineLetters() {
   const { w, h, top, bottom, letters } = TAGLINE_LETTERS
   const sliceH = bottom - top + 1
   return (
-    <span className="tagline-glass" aria-hidden="true">
+    <span className="tagline-letters" aria-hidden="true">
       {letters.map(([left, right], i) => {
         const sliceW = right - left + 1
         return (
           <span
             key={i}
-            className="glass-letter"
+            className="tagline-letter"
             style={{ left: pct(left / w), width: pct(sliceW / w), top: pct(top / h), height: pct(sliceH / h) }}
             onPointerEnter={hop}
           >
-            <span className="glass-hop">
-              <span className="glass-ink">
+            <span className="tagline-hop">
+              <span className="tagline-ink">
                 <LayerImg
                   slug="side-tagline"
-                  className="glass-ink-art"
+                  className="tagline-ink-art"
                   style={{
                     left: pct(-left / sliceW),
                     top: pct(-top / sliceH),
@@ -78,7 +78,7 @@ export default function LandingSidebar({ content }) {
       <p className="side-tagline">
         <span className="tagline-art">
           <LayerImg slug="side-tagline" alt={tagline} style={{ clipPath: TAGLINE_BASE_CLIP }} />
-          {hasLayer('side-tagline') && <TaglineGlass />}
+          {hasLayer('side-tagline') && <TaglineLetters />}
         </span>
       </p>
       <ul className="side-facts">

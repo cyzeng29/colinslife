@@ -30,7 +30,12 @@
 //                 'text'                 a paragraph
 //                 { list: [...] }        a numbered list
 //                 { points: [[name, line]] }  numbered items with a name
-//                 { images: [{ src, alt, caption }] }  full-width pictures
+//                 { images: [{ src, alt, title?, caption }] }  full-width pictures;
+//                                        add beside: true for smaller ones with
+//                                        their captions to the side. title is a
+//                                        heading over the caption
+//                 { video: { src, alt, caption } }  a silent full-width clip that
+//                                        loops (from public/videos/)
 //                 { stats: [[figure, label]] }  big-number callouts
 //                 { challenges: [[name, line]], image }  picture + challenges
 //                 { links: true }        the entry's links from content.js
@@ -51,7 +56,7 @@ const studies = [
   {
     id: 'ashbya-genome-database',
     from: 'dietrich-lab',
-    title: 'Ashbya Genome Database',
+    title: 'Genome Database',
     at: 'Dietrich Lab',
     kind: 'Full-Stack Engineering',
     date: '2026 to present',
@@ -115,8 +120,11 @@ const studies = [
         label: 'Visuals',
         body: [
           {
+            beside: true,
             images: [
-              { src: 'images/agd_preview.png', alt: 'AGD gene overview page with orthologs table and genome browser', caption: 'Gene overview page in the Ashbya Genome Database, with orthologs and the genome browser' },
+              { src: 'images/agd_3d.png', alt: 'Pangenome gene page for YAL001C with biological function, locus details and a 3-D protein structure view', title: 'Pangenome Gene Page', caption: 'Shown for YAL001C (TFC3) in the S. cerevisiae pangenome browser. The page presents biological function, Gene Ontology terms, locus details and phenotype data alongside a 3-D model of the protein structure.' },
+              { src: 'images/agd_foldseek.png', alt: 'Foldseek structure search form comparing an A. gossypii gene against S. cerevisiae AlphaFold structures, with a results table', title: 'Foldseek Structure Search', caption: 'Compares the A. gossypii gene AGR387C against 5,708 S. cerevisiae S288C AlphaFold structures. Each hit is listed with its percent identity, E-value, TM-score and LDDT, revealing structural matches that sequence comparison alone may miss.' },
+              { src: 'images/agd_overview.png', alt: 'AGD overview page for AAL004W with locus details, S. cerevisiae orthologs and their 3-D structures', title: 'AGD Gene Overview', caption: 'Shown for AAL004W in the Ashbya Genome Database. The page lists the gene’s identifiers and annotations, its syntenic S. cerevisiae ortholog (YCL005W, LDB16) and the 3-D structures for comparison.' },
             ],
           },
         ],
@@ -165,7 +173,7 @@ const studies = [
   {
     id: 'ai-merchandise-planner',
     from: 'quantworks',
-    title: 'AI Merchandise Planner',
+    title: 'AI Merchandise Planning',
     at: 'Quantworks',
     kind: 'Software Engineering',
     date: '2024 to 2025',
@@ -181,32 +189,111 @@ const studies = [
         { text: 'Seasonal Planner', right: 62.5, y: 75.8 },
       ],
     },
-    headline: 'Turning retail sales data into planning recommendations',
-    context: [
-      'At Quantworks / SIZEO in Durham, I worked as a software engineer intern on an AI planning platform for retail clients including JCPenney and Aeropostale.',
-      'Merchandise planners upload their sales data and get budget allocation, packaging and seasonal inventory forecasts back, generated with Anthropic’s Claude API.',
+    headline: 'Envisioning SIZEO Dashboard',
+    sections: [
+      {
+        id: 'context',
+        label: 'Context',
+        eyebrow: 'context & overview',
+        image: { src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office' },
+        body: [
+          'I worked as a software engineer intern in Quantworks and SIZEO, startups focused on using machine learning and cutting-edge analytics, where I was tasked with designing the interface and features.',
+          'The companies’ purpose was to help global fashion brands such as JCPenney and Aeropostale reduce inventory cost and increase margins using AI. Along with the backend engineers that were beta testing features the product could perform, I was the sole UX designer of the team.',
+        ],
+      },
+      {
+        id: 'goal',
+        label: 'Goal',
+        title: 'Specific Towards Fashion Brands',
+        body: [
+          'Making the interface clean for retail clients that are not as tech-oriented, and making analytics and metrics available to inform users of inventory decisions.',
+        ],
+      },
+      {
+        id: 'research',
+        label: 'Research',
+        title: 'Understanding the Agentic Tools',
+        body: [
+          'To build a strong foundation of the tools performed by different agents, I began by having discussions with my manager and senior engineers to review each agent’s role and what each person of the team was currently programming.',
+        ],
+      },
+      {
+        id: 'process',
+        label: 'Process',
+        title: 'Categorizing Visualizations',
+        body: [
+          'Starting with wireframes, my goal was to turn it into graphs that users could find without help, so I gave each screen a single job. For example, the Trend Almanac defines the six trend types with standardized definitions. Trend Identification then takes one trend and lays out the evidence: a list of trends to choose from, a chart that splits historical data from the predicted trend at today’s date, and a table of the products behind it with sales, dollar sales, sell through and inventory. Map Store View answers the last question, where the trend is happening, with filters for trend classification and distance, bubbles for store clusters, and a store list with each location’s forecasted trend. Because each screen answers one question, users can move from what a trend is, to whether the numbers support it, to where it matters.',
+          {
+            video: {
+              src: 'videos/quantworks_trends.mp4',
+              alt: 'Walkthrough of the SIZEO Trend Almanac, Trend Identification and Map Store View screens',
+              caption: 'Trend Almanac, Trend Identification and Map Store View',
+            },
+          },
+        ],
+      },
+      {
+        id: 'artifacts',
+        label: 'Multi-Trend Tool',
+        eyebrow: 'process',
+        title: 'Multi-Trend Tool Development and Artifact Gallery',
+        body: [
+          'Beyond designing this screen, I built in the trend/multi-trend tool. When a size agent finishes a job, the results panel shows the downloadable size curve for products across stores and a table of the underlying numbers. Every chart and report the agents create is also saved to the Artifact Gallery, so users can reopen, filter, and download past results.',
+          {
+            images: [
+              { src: 'images/figma.png', alt: 'Figma prototype of the artifact gallery for LLM output analysis', caption: 'Figma prototype of the job selection window and artifact gallery' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'agents',
+        label: 'Agents & Chatbot',
+        eyebrow: 'process',
+        title: 'Intuitive Management of Agents and Chatbot',
+        body: [
+          {
+            video: {
+              src: 'videos/quantworks_agents.mp4',
+              alt: 'Walkthrough of the SIZEO chatbot, an agent overview page, an agent’s work summary with results, and the Artifact Gallery',
+              caption: 'The chatbot, agent overview, agent work summary and Artifact Gallery',
+            },
+          },
+        ],
+      },
+      {
+        id: 'scope',
+        label: 'Scope',
+        eyebrow: 'impact',
+        title: 'Scope',
+        body: [
+          {
+            stats: [
+              ['30+', 'dashboards'],
+              ['6', 'agents'],
+              ['Millions', 'of SKUs processed weekly'],
+              ['~10', 'enterprise clients'],
+              ['100s', 'of users on the platform'],
+            ],
+          },
+          { links: true },
+        ],
+      },
+      {
+        id: 'reflection',
+        label: 'Reflection',
+        title: 'Looking back',
+        body: [
+          {
+            points: [
+              ['Tools in Process with Developers', 'I created several screen recordings to explain the thinking behind the dashboard to our developers. The tools are still being refined: as we talk with customers, we keep updating the purpose of each agent and how each tool works.'],
+              ['Understanding Trends with New Factors', 'Working with GLP-1 trend data showed me that trends are shaped by more than fashion cycles and past sales. As more people use these medications, body sizes are changing, and so is the demand for each size. I learned that a forecasting tool has to account for outside factors, otherwise it can recommend inventory that no longer matches what customers need.'],
+              ['Designing Customer Interface', 'The dashboard served planners, buyers and managers, and each group came with its own goals, which often conflicted. Designing for all of them taught me to organize information in layers. A clear, high level overview lets anyone grasp the key metrics at a glance, and more detailed views give each user the depth their role requires.'],
+            ],
+          },
+        ],
+      },
     ],
-    contextImage: { src: 'images/Quantworks.jpeg', alt: 'Colin at his desk in the Quantworks office', caption: 'At the Quantworks office in Durham' },
-    solution: {
-      title: 'From upload to recommendation',
-      image: { src: 'images/figma.png', alt: 'Figma prototype of the artifact gallery for LLM output analysis', caption: 'Figma prototype of the job selection window and artifact gallery' },
-      challenges: [
-        ['Varied inputs', 'Client CSVs had to be turned into clean, comparable sales and demand data'],
-        ['Answers that last', 'Generated charts and reports needed to be saved and compared over time'],
-      ],
-      text: 'Python pipelines turn uploaded CSVs into interactive Streamlit and Plotly dashboards, Claude generates the forecasts, and an artifact store keeps every chart and report so teams can revisit past decisions. I prototyped the job selection window and artifact gallery in Figma before building them.',
-    },
-    process: [
-      ['Prototype the flow', 'Designed the job selection window and artifact gallery in Figma before building.'],
-      ['Generate the forecasts', 'A web platform on Anthropic’s Claude API giving merchandise planners at JCPenney and Aeropostale budget, packaging and inventory recommendations.'],
-      ['Turn uploads into dashboards', 'Python pipelines that take client CSVs and build interactive sales and demand views in Streamlit and Plotly.'],
-      ['Keep past answers', 'An artifact store that saves generated charts and reports so teams can revisit and compare earlier forecasts.'],
-    ],
-    results: [
-      ['2', 'national retail clients'],
-      ['3', 'forecast types'],
-    ],
-    reflection: '',
   },
   {
     id: 'insight',

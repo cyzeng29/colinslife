@@ -72,16 +72,48 @@ describe('PianoNav', () => {
     expect(labels).toEqual(['label-home.png', 'label-experience.png', 'label-about.png', 'label-create.png'])
   })
 
-  it('marks the create key active on its own page', () => {
-    renderNav(null, '/create')
-    expect(screen.getByRole('link', { name: 'create' })).toHaveClass('active')
-    expect(screen.getByRole('link', { name: 'home' })).not.toHaveClass('active')
+  it('marks the home key current at the top of Home', () => {
+    renderNav()
+    expect(screen.getByRole('link', { name: 'home' })).toHaveClass('active')
+    expect(screen.getByRole('link', { name: 'home' })).toHaveAttribute('aria-current', 'page')
   })
 
-  it('keeps the experience key current on the case study pages', () => {
+  it('swaps the piano for the slim string header on other pages', () => {
+    const { container } = renderNav(null, '/about')
+    expect(container.querySelector('.key')).not.toBeInTheDocument()
+    expect(container.querySelector('img[src$="piano.png"]')).not.toBeInTheDocument()
+    const links = screen.getAllByRole('link', { name: /^(home|experience|about|create)$/ })
+    expect(links.map((l) => l.textContent)).toEqual(['home', 'experience', 'about', 'create'])
+    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/', '/#case-studies', '/about', '/create'])
+    const labels = [...container.querySelectorAll('.string-note img')].map((img) => img.getAttribute('src').split('/').pop())
+    expect(labels).toEqual(['label-home.png', 'label-experience.png', 'label-about.png', 'label-create.png'])
+  })
+
+  it('marks the create note current on its own page', () => {
+    renderNav(null, '/create')
+    expect(screen.getByRole('link', { name: 'create' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'home' })).not.toHaveAttribute('aria-current')
+  })
+
+  it('keeps the experience note current on the case study pages', () => {
     renderNav(null, '/work/insight')
-    expect(screen.getByRole('link', { name: 'experience' })).toHaveClass('active')
-    expect(screen.getByRole('link', { name: 'home' })).not.toHaveClass('active')
+    expect(screen.getByRole('link', { name: 'experience' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'home' })).not.toHaveAttribute('aria-current')
+  })
+
+  it('plays the note when pressed and navigates from the string header', () => {
+    renderNav(null, '/about')
+    const about = screen.getByRole('link', { name: 'about' })
+    fireEvent.pointerDown(about)
+    expect(playNote).toHaveBeenCalledWith(440)
+    fireEvent.click(screen.getByRole('link', { name: 'create' }))
+    expect(screen.getByTestId('where')).toHaveTextContent('/create')
+  })
+
+  it('keeps the string header out of reach while the piano shows', () => {
+    const { container } = renderNav()
+    expect(container.querySelector('.string-nav')).toHaveAttribute('aria-hidden', 'true')
+    for (const link of container.querySelectorAll('.string-nav a')) expect(link).toHaveAttribute('tabindex', '-1')
   })
 
   it('plays a note from an unlabeled key without navigating', () => {
@@ -118,12 +150,8 @@ describe('PianoNav', () => {
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/$/)
   })
 
-  it('puts the tiles away once condensed', () => {
-    const { container } = renderNav(null, '/about')
-    expect(container.querySelector('.header-tiles')).toHaveAttribute('aria-hidden', 'true')
-  })
 
-  it('underlines the current page and slides from home toward experience on Home', () => {
+  it('underlines HOME and slides toward EXPERIENCE on Home', () => {
     const left = (container) => {
       const u = container.querySelector('.nav-underline').style
       return [u.getPropertyValue('--x0'), u.getPropertyValue('--x1')]
@@ -134,13 +162,20 @@ describe('PianoNav', () => {
     expect(parseFloat(homeFrom)).toBeLessThan(parseFloat(labelLeft(home.container, 'home')))
     expect(parseFloat(homeTo)).toBeLessThan(parseFloat(labelLeft(home.container, 'experience')))
     expect(parseFloat(homeTo)).toBeGreaterThan(parseFloat(labelLeft(home.container, 'home')))
-    home.unmount()
+  })
 
-    const work = renderNav(null, '/work')
-    const [from, to] = left(work.container)
-    expect(from).toBe(to)
-    expect(from).toBe(homeTo)
-    expect(work.container.querySelector('.key-label.is-current')).toHaveAttribute('src', expect.stringMatching(/label-experience\.png$/))
+  it("underlines the current page's note in the string header", () => {
+    const slot = (path) => {
+      const { container, unmount } = renderNav(null, path)
+      const value = container.querySelector('.string-nav-underline').style.getPropertyValue('--i')
+      unmount()
+      return value
+    }
+    expect(slot('/about')).toBe('2')
+    expect(slot('/create')).toBe('3')
+    expect(slot('/work/insight')).toBe('1')
+    // on Home it follows the scroll from HOME (0) to EXPERIENCE (1)
+    expect(slot('/')).toContain('var(--nav-u')
   })
 
   it('leaves navigation to a registered pluck handler', () => {

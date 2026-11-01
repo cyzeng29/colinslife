@@ -33,6 +33,8 @@ npm test
   `reflection` is filled in.
 - Images: put files in `public/images/` and set `src: 'images/name.jpg'` on any
   slot in `content.js`. Empty slots show a sketch-style placeholder.
+- Videos: put silent screen recordings in `public/videos/` and add a
+  `{ video: { src, alt, caption } }` block to a case study's section.
 - About desk drawings: originals live in `drawings/`; web copies (transparent,
   1400px wide) live in `public/images/desk/`. The table and penguins must share
   one canvas size and crop so each penguin lands on the tabletop.

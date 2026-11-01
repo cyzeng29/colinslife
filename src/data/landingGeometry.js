@@ -86,7 +86,7 @@ export const stageRegions = (phone) => (phone ? REGIONS.phone : REGIONS.wide)
 // The letters of "interactive" in the sidebar tagline image (side-tagline,
 // 319x141 px): each letter's [left, right], and the line's top and bottom
 // (with a little room around the ink). Each letter is cut out of the drawing
-// so it can hop, with a glass lens on hover; the full stop (from `stop` on)
+// so it can hop on hover; the full stop (from `stop` on)
 // stays in the drawing.
 export const TAGLINE_LETTERS = {
   w: 319,

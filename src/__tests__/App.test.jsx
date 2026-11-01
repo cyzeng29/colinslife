@@ -19,7 +19,7 @@ describe('App routes', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('heading', { name: 'create' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'create' })).toHaveClass('active')
+    expect(screen.getByRole('link', { name: 'create' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('sends the old /work link to the case studies on Home, and keeps the full list at /work/list', () => {
@@ -30,7 +30,7 @@ describe('App routes', () => {
     )
     expect(screen.getByRole('heading', { level: 2, name: 'Case studies' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'experience' })).toHaveAttribute('href', '/#case-studies')
-    expect(screen.getByRole('link', { name: /Ashbya Genome Database/ })).toHaveAttribute('href', '/work/ashbya-genome-database')
+    expect(screen.getByRole('link', { name: /Genome Database/ })).toHaveAttribute('href', '/work/ashbya-genome-database')
     unmount()
 
     render(
@@ -39,6 +39,6 @@ describe('App routes', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('heading', { name: 'Undergraduate Research Intern' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'experience' })).toHaveClass('active')
+    expect(screen.getByRole('link', { name: 'experience' })).toHaveAttribute('aria-current', 'page')
   })
 })

@@ -5,20 +5,21 @@ import { condenseProgress, flight, homeUnderlineStop } from '../components/heade
 // the name flies up and the header condenses
 const RANGE = 0.45
 
-// Condenses the piano header (wrapRef) as Home moves on from the landing into
-// the case studies; every other page keeps it condensed. Mirrors into CSS on
+// Condenses the header (wrapRef) as Home moves on from the landing into the
+// case studies; every other page keeps it condensed. Mirrors into CSS on
 // wrapRef:
-//   --condense  0 → 1: tiles fade away, the green band fades in behind
-//   --nav-u     0 or 1: the underline under HOME or EXPERIENCE (Home)
+//   --condense  0 → 1: the piano fades away and the slim string header
+//               (StringNav) fades in, with the green band behind it
+//   --nav-u     0 or 1: HOME or EXPERIENCE as the current page (Home)
 //   data-name   while the header's copy of the name shows
-// and each [data-fly] element inside it (the header's name and tagline) is
-// moved onto the matching drawing in the sidebar, easing back to rest in the
-// corner as --condense grows: it takes off from exactly where the sidebar's
-// own copy is (measured live, at any window size), which hides meanwhile
-// (data-flying on <html>). Phones have no room for the name, and reduced
-// motion swaps it in place without the flight.
+// and each [data-fly] element inside it (the header's name) is moved onto the
+// matching drawing in the sidebar, easing back to rest in the header as
+// --condense grows: it takes off from exactly where the sidebar's own copy is
+// (measured live, at any window size), which hides meanwhile (data-flying on
+// <html>). Phones have no room for the name, and reduced motion swaps it in
+// place without the flight.
 // Returns whether the header counts as condensed, for focus and screen
-// readers (only one set of tiles / name is exposed at a time).
+// readers (only one set of links / name is exposed at a time).
 export default function useHeaderCondense(wrapRef, { home, phone }) {
   const [condensed, setCondensed] = useState(!home)
 

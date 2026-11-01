@@ -2,7 +2,8 @@ import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { playNote } from '../audio/notes.js'
 import { usePluck } from './PluckProvider.jsx'
-import CanvasRegion, { Layer, LayerImg, Spot, place, useRegion } from './landing/CanvasRegion.jsx'
+import CanvasRegion, { Layer, place, useRegion } from './landing/CanvasRegion.jsx'
+import StringNav, { UnderlineStroke } from './StringNav.jsx'
 import useMediaQuery from '../hooks/useMediaQuery.js'
 import useHeaderCondense from '../hooks/useHeaderCondense.js'
 import { underlineSpan } from './headerMotion.js'
@@ -23,15 +24,6 @@ export const octave = [
   { note: 'C', freq: 523.25, to: '/create', label: 'create' },
 ]
 
-
-// The condensed header's corner (canvas px, where the tiles were): Colin's
-// name over his tagline, as drawn in the sidebar. Boxes keep each drawing's
-// own proportions.
-const CORNER = {
-  link: { x: 96, y: 68, w: 300, h: 322 },
-  name: { x: 96, y: 68, w: 300, h: 202 },
-  tagline: { x: 104, y: 284, w: 240, h: 106 },
-}
 
 // The drawn underline: a little wider than a label, just under it
 function underlineBox(label) {
@@ -60,7 +52,7 @@ function keyShape(i) {
   }
 }
 
-function Keys({ current, pressed, onNav }) {
+function Keys({ current, pressed, hidden, onNav }) {
   const region = useRegion()
   return octave.map((k, i) => {
     const { box, clipPath } = keyShape(i)
@@ -70,6 +62,7 @@ function Keys({ current, pressed, onNav }) {
         key={k.to}
         to={k.to}
         data-string={k.to}
+        tabIndex={hidden ? -1 : undefined}
         style={style}
         onClick={(e) => onNav(e, k)}
         onPointerEnter={(e) => e.pointerType === 'mouse' && playNote(k.freq)}
@@ -94,16 +87,18 @@ function Keys({ current, pressed, onNav }) {
   })
 }
 
+// The sticky header. At the top of Home it's the drawn piano, whose keys hang
+// the landing's strings; once it condenses (scrolled on into the case
+// studies, and on every other page) the slim StringNav takes over.
 export default function PianoNav() {
   const [pressed, setPressed] = useState(null)
   const pluck = usePluck()
   const phone = useMediaQuery('(max-width: 700px)')
   const bar = stageRegions(phone).bar
   const { pathname } = useLocation()
+  const home = pathname === '/'
   const wrapRef = useRef(null)
-  const condensed = useHeaderCondense(wrapRef, { home: pathname === '/', phone })
-  // phones keep the tiles (there's no room for the name in the bar)
-  const tucked = condensed && !phone
+  const condensed = useHeaderCondense(wrapRef, { home, phone })
   const navKeys = octave.filter((k) => k.to)
   const span = underlineSpan(pathname, navKeys)
   const from = place(underlineBox(span.from), bar)
@@ -116,53 +111,38 @@ export default function PianoNav() {
   }
 
   return (
-    <div className="piano-wrap" ref={wrapRef} data-phone={phone || undefined}>
-      <CanvasRegion region={bar} className="piano-region">
-        {/* just the drawn header (tiles, keys, labels): no backdrop until it
-            condenses, so the landing shows through around it */}
-        <div className="header-tiles" aria-hidden={tucked || undefined}>
-          <Layer slug="tile-zeng" />
-          <Layer slug="tile-yi" />
-          {/* the framed tile once exported; the blank tile until then */}
-          <Layer slug={hasLayer('tile-framed') ? 'tile-framed' : 'tile-blank'} />
-        </div>
-        {!phone && (
-          <div className="header-name">
-            <Spot as={Link} to="/" box={CORNER.link} className="header-home" aria-label="Colin Zeng, home" aria-hidden={!tucked || undefined} tabIndex={tucked ? undefined : -1}>
-              {/* each drawing flies from its spot in the sidebar (data-fly
-                  names the sidebar element); the slot around it stays put
-                  so the landing spot can be measured */}
-              <span className="fly-slot" style={place(CORNER.name, CORNER.link)}>
-                <span className="fly" data-fly="side-name">
-                  <LayerImg slug="side-name" />
-                </span>
-              </span>
-              <span className="fly-slot" style={place(CORNER.tagline, CORNER.link)}>
-                <span className="fly" data-fly="side-tagline">
-                  <LayerImg slug="side-tagline" />
-                </span>
-              </span>
-            </Spot>
+    <div className="piano-wrap" ref={wrapRef} data-phone={phone || undefined} data-home={home || undefined}>
+      {home && (
+        <CanvasRegion region={bar} className={'piano-region' + (condensed ? ' is-away' : '')}>
+          {/* just the drawn header (tiles, keys, labels): no backdrop, so the
+              landing shows through around it; it all fades as the header
+              condenses */}
+          <div className="piano-drawing" aria-hidden={condensed || undefined}>
+            <div className="header-tiles">
+              <Layer slug="tile-zeng" />
+              <Layer slug="tile-yi" />
+              {/* the framed tile once exported; the blank tile until then */}
+              <Layer slug={hasLayer('tile-framed') ? 'tile-framed' : 'tile-blank'} />
+            </div>
+            <Layer slug="piano" />
+            <Keys current={span.from} pressed={pressed} hidden={condensed} onNav={handleNav} />
+            {navKeys.map((k) => (
+              <Layer key={k.to} slug={`label-${k.label}`} className={'key-label' + (k.label === span.from ? ' is-current' : '')} />
+            ))}
+            {/* one drawn stroke under the current label: HOME over the
+                landing, EXPERIENCE once the case studies come into view
+                (--nav-u) */}
+            <span
+              className="nav-underline"
+              aria-hidden="true"
+              style={{ top: from.top, height: from.height, '--x0': from.left, '--w0': from.width, '--x1': to.left, '--w1': to.width }}
+            >
+              <UnderlineStroke />
+            </span>
           </div>
-        )}
-        <Layer slug="piano" />
-        <Keys current={span.from} pressed={pressed} onNav={handleNav} />
-        {navKeys.map((k) => (
-          <Layer key={k.to} slug={`label-${k.label}`} className={'key-label' + (k.label === span.from ? ' is-current' : '')} />
-        ))}
-        {/* one drawn stroke under the current page's label; on Home it sits
-            under HOME over the landing and moves to EXPERIENCE once the case
-            studies come into view (--nav-u) */}
-        <span
-          className="nav-underline"
-          aria-hidden="true"
-          style={{ top: from.top, height: from.height, '--x0': from.left, '--w0': from.width, '--x1': to.left, '--w1': to.width }}
-        >
-          <svg viewBox="0 0 200 16" preserveAspectRatio="none" focusable="false">
-            <path d="M4 10 C36 6 80 5 122 5.5 C152 6 178 6.5 197 4.5 C189 9.5 160 11 130 11 C92 11.5 50 11.5 8 13.5 C3 13.5 1 11 4 10 Z" />
-          </svg>
-        </span>
-      </CanvasRegion>
+        </CanvasRegion>
+      )}
+      <StringNav keys={navKeys} current={span.from} home={home} phone={phone} hidden={!condensed} pressed={pressed} onNav={handleNav} />
     </div>
   )
 }

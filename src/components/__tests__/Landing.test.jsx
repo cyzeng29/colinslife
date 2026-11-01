@@ -89,7 +89,7 @@ describe('Landing content', () => {
     renderLanding()
     expect(screen.getByRole('heading', { level: 1, name: landing.sidebar.name })).toBeInTheDocument()
     expect(screen.getByAltText(landing.sidebar.tagline)).toBeInTheDocument()
-    // a hidden hover lens over each letter of "interactive"
+    // each letter of "interactive" is cut out over the drawing
     const art = screen.getByAltText(landing.sidebar.tagline).parentElement
     const letters = art.querySelectorAll('[aria-hidden="true"] > span')
     expect(letters).toHaveLength('interactive'.length)
