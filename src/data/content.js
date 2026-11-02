@@ -247,15 +247,53 @@ export const landing = {
   },
   // Clickable desk objects whose pop-ups are still being drawn
   desk: [
-    { slug: 'frisbee', label: 'frisbee world championships medal' },
-    { slug: 'globe', label: 'globe of places explored' },
-    { slug: 'camera', label: 'camera: photos taken' },
-    { slug: 'sketchbook', label: 'sketchbook: drawings' },
+    { slug: 'frisbee', name: 'frisbee', label: 'frisbee world championships medal' },
+    { slug: 'camera', name: 'camera', label: 'camera: photos taken' },
+    { slug: 'sketchbook', name: 'sketchbook', label: 'sketchbook: drawings' },
   ],
+  globe: { label: 'globe of places explored', title: "what i've explored" },
   backpack: { label: 'backpack: what i carry', title: 'what i carry' },
-  monitor: { label: 'monitor', screen: 'designed with procreate and figma' },
+  monitor: { label: 'monitor', screen: 'designed with procreate and figma', hintOn: 'switch it on', hintOff: 'switch it off' },
   dog: { name: 'kora', alt: 'kora, asleep on a dog bed' },
 }
+
+// The markers on the desk globe's map. Add a line for each place Colin has
+// been; `note` is optional.
+export const places = [
+  { name: 'chapel hill, nc', lat: 35.91, lon: -79.06, note: 'my hometown growing up' },
+  { name: 'durham, nc', lat: 36.0, lon: -78.94, note: 'where i am now, at duke' },
+  { name: 'ann arbor, mi', lat: 42.28, lon: -83.74, note: 'where my house is now' },
+  { name: 'virginia', lat: 37.5, lon: -78.8 },
+  { name: 'maine', lat: 45.3, lon: -69.2 },
+  { name: 'louisiana', lat: 30.9, lon: -92.0, note: 'on a cruise' },
+  { name: 'florida', lat: 28.1, lon: -81.6 },
+  { name: 'cancún, mexico', lat: 21.16, lon: -86.85 },
+  { name: 'california', lat: 36.8, lon: -119.4 },
+  { name: 'victoria island', lat: 48.43, lon: -123.37 },
+  { name: 'banff', lat: 51.18, lon: -115.57 },
+  { name: 'colorado', lat: 39.0, lon: -105.5, note: 'frisbee' },
+  { name: 'new jersey', lat: 40.1, lon: -74.7 },
+  { name: 'washington, dc', lat: 38.91, lon: -77.04 },
+  { name: 'london, uk', lat: 51.51, lon: -0.13, note: "kensington gardens, king's cross" },
+  { name: 'windsor castle, uk', lat: 51.48, lon: -0.6 },
+  { name: 'stonehenge, uk', lat: 51.18, lon: -1.83 },
+  { name: 'roman baths, uk', lat: 51.38, lon: -2.36 },
+  { name: 'birmingham, uk', lat: 52.49, lon: -1.89 },
+  { name: 'brussels', lat: 50.85, lon: 4.35 },
+  { name: 'amsterdam', lat: 52.37, lon: 4.9 },
+  { name: 'zaandam north', lat: 52.46, lon: 4.82 },
+  { name: 'spain', lat: 40.2, lon: -3.7, note: 'world champions, ultimate frisbee' },
+  { name: 'hawaii', lat: 20.8, lon: -156.3 },
+  { name: 'turkey', lat: 39.0, lon: 35.2 },
+  { name: 'florence, italy', lat: 43.77, lon: 11.26 },
+  { name: 'rome, italy', lat: 41.9, lon: 12.5 },
+  { name: 'sorrento, italy', lat: 40.63, lon: 14.38 },
+  { name: 'beijing, china', lat: 39.9, lon: 116.41 },
+  { name: 'shanghai, china', lat: 31.23, lon: 121.47 },
+  { name: 'hefei, china', lat: 31.82, lon: 117.23 },
+  { name: 'nanfeng, china', lat: 27.22, lon: 116.53 },
+  { name: 'huangshan, china', lat: 30.13, lon: 118.17 },
+]
 
 // The words around the backpack on the desk, under the resume's section
 // headings (plus Other Tools for what's only on this site), a group to a `side`. `tier` (1 to

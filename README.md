@@ -57,9 +57,19 @@ npm test
   sidebar, strings (a key click makes the character walk over and pluck its
   string, then navigates), the bridge in the fog with an arrow above it that
   walks down to the desk, and the desk (the backpack
-  opens onto a cloud of skills that link to their case studies; the monitor
+  opens onto a cloud of skills that link to their case studies; the globe opens
+  onto a dotted map of places explored that curls between 2d and 3d; the monitor
   switches its screen on).
   Scrolling walks the character down to the desk (`src/hooks/useScrollProgress.js`).
+
+## Adding a place to the globe
+
+Add a line to `places` in `src/data/content.js` with its `name`, `lat`, `lon` and
+an optional `note`. It gets a marker on the map.
+
+The map's dots live in `src/data/landDots.json`, generated from Natural Earth by
+`npm run land`. It only needs running again to change the dot grid
+(`LAND_GRID` in `src/components/landing/globeProjection.js`).
 
 ## Updating the drawing
 

@@ -2582,6 +2582,43 @@ html:has(.landing) {
   25% { transform: rotate(-3deg); }
   60% { transform: rotate(2.5deg); }
 }
+/* what an object does, just above it (below it on the top shelf, which is up
+   against the piano). It stays still while the drawing floats */
+.desk-obj > .desk-label {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: calc(100% + 0.5cqw);
+  translate: -50% 0;
+  padding: 0.25em 0.6em 0.28em;
+  font-family: var(--font-display);
+  font-size: max(12px, 1.25cqw);
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--key-white);
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  pointer-events: none;
+  opacity: 0;
+  animation: none;
+  transition: opacity 140ms ease;
+}
+.desk-obj > .desk-label.is-below {
+  top: calc(100% + 0.5cqw);
+  bottom: auto;
+}
+.desk-obj:hover > .desk-label,
+.desk-obj:focus-visible > .desk-label,
+.desk-obj.is-told > .desk-label {
+  translate: -50% 0;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .desk-obj > .desk-label {
+    transition: none;
+  }
+}
 .monitor-screen {
   opacity: 0.15;
   transition: opacity 300ms ease;
@@ -2850,6 +2887,114 @@ a.bp-chip:focus-visible {
   }
   .bp-word,
   .bp-chip {
+    transition: none;
+  }
+}
+
+/* the globe's pop-up: a dotted map of places explored, on the backpack's
+   backdrop (.bp-dialog) */
+.gl-stage {
+  --map-w: min(860px, calc((100dvh - 170px) * 1.6));
+  display: grid;
+  grid-template-columns: minmax(0, var(--map-w));
+  grid-template-areas: 'head' 'map' 'caption';
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: clamp(12px, 2.4vh, 24px) clamp(16px, 2.4vw, 36px);
+  min-height: 100%;
+  padding: 24px clamp(16px, 3vw, 48px) 16px;
+}
+.gl-head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: bag-settle 280ms ease backwards;
+}
+.gl-title {
+  margin: 0 auto 0 0;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 400;
+  color: var(--on-green);
+}
+.gl-views {
+  display: flex;
+  border: 1.5px solid var(--on-green-soft);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  overflow: hidden;
+}
+.gl-view {
+  padding: 0.28em 0.8em 0.32em;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--on-green);
+  background: transparent;
+  border: 0;
+  cursor: var(--cursor-pointer);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.gl-view[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--key-white);
+}
+.gl-view:focus-visible,
+.gl-canvas:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: 2px;
+}
+.gl-view:focus-visible {
+  outline-offset: -4px;
+  outline-color: currentColor;
+}
+.gl-close {
+  grid-area: auto;
+  align-self: center;
+  flex: none;
+}
+.gl-map {
+  grid-area: map;
+  width: var(--map-w);
+  max-width: 100%;
+  animation: bag-settle 280ms ease backwards;
+}
+.gl-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.6;
+  /* flat, the map lets a phone scroll the pop-up; the globe takes the drag */
+  touch-action: pan-y;
+}
+.gl-canvas.is-globe {
+  touch-action: none;
+  cursor: grab;
+}
+.gl-canvas.is-globe:active {
+  cursor: grabbing;
+}
+.gl-caption {
+  grid-area: caption;
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--on-green);
+}
+@media (max-width: 760px) {
+  .gl-stage {
+    --map-w: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-head,
+  .gl-map {
+    animation: none;
+  }
+  .gl-view {
     transition: none;
   }
 }

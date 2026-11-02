@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import Landing from '../landing/Landing.jsx'
 import { PluckProvider } from '../PluckProvider.jsx'
-import { contact, landing, skills } from '../../data/content.js'
+import { contact, landing, places, skills } from '../../data/content.js'
 import { findCaseStudy } from '../../data/caseStudies.js'
 
 vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
@@ -125,11 +125,42 @@ describe('Landing content', () => {
   it('makes every desk object a button and keeps Kora decorative', () => {
     const { container } = renderLanding()
     const desk = within(container.querySelector('.desk-group'))
-    for (const obj of landing.desk) {
+    for (const obj of [...landing.desk, landing.globe, landing.backpack]) {
       expect(desk.getByRole('button', { name: new RegExp(obj.label) })).toBeInTheDocument()
     }
     expect(desk.getByRole('img', { name: landing.dog.alt })).toBeInTheDocument()
     expect(desk.queryByRole('button', { name: /kora/ })).not.toBeInTheDocument()
+  })
+
+  it('says what every object does', () => {
+    const { container } = renderLanding()
+    const desk = within(container.querySelector('.desk-group'))
+    for (const obj of landing.desk) {
+      expect(desk.getByRole('button', { name: new RegExp(obj.label) })).toHaveTextContent(`${obj.name}: soon`)
+    }
+    expect(desk.getByRole('button', { name: landing.globe.label })).toHaveTextContent(landing.globe.title)
+    expect(desk.getByRole('button', { name: landing.backpack.label })).toHaveTextContent(landing.backpack.title)
+  })
+
+  it('has an unfinished object say "soon" for a moment when clicked, and open nothing', async () => {
+    vi.useFakeTimers()
+    renderLanding()
+    const camera = screen.getByRole('button', { name: /^camera/ })
+    expect(camera).not.toHaveClass('is-told')
+    fireEvent.click(camera)
+    expect(camera).toHaveClass('is-told')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await act(async () => vi.advanceTimersByTime(2000))
+    expect(camera).not.toHaveClass('is-told')
+    vi.useRealTimers()
+  })
+
+  it('tells the monitor to switch on or off, whichever it is not', () => {
+    renderLanding()
+    const monitor = screen.getByRole('button', { name: /^monitor/ })
+    expect(monitor).toHaveTextContent(landing.monitor.hintOn)
+    fireEvent.click(monitor)
+    expect(monitor).toHaveTextContent(landing.monitor.hintOff)
   })
 
   it('switches the monitor screen on and off', () => {
@@ -167,6 +198,80 @@ describe('Landing content', () => {
     fireEvent(dialog, new Event('cancel', { cancelable: true }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(backpack).toHaveFocus()
+  })
+
+  describe('the globe', () => {
+    const realGetContext = HTMLCanvasElement.prototype.getContext
+    // jsdom has no canvas: the map should cope, and the list carries the content
+    beforeEach(() => {
+      HTMLCanvasElement.prototype.getContext = () => null
+    })
+    afterEach(() => {
+      HTMLCanvasElement.prototype.getContext = realGetContext
+    })
+
+    it('opens onto the places, and closes back to the globe', () => {
+      renderLanding()
+      const globe = screen.getByRole('button', { name: landing.globe.label })
+      fireEvent.click(globe)
+      const dialog = screen.getByRole('dialog', { name: landing.globe.title })
+      for (const place of places) {
+        expect(within(dialog).getByRole('button', { name: place.name })).toBeInTheDocument()
+      }
+      fireEvent(dialog, new Event('cancel', { cancelable: true }))
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(globe).toHaveFocus()
+    })
+
+    it('switches between the flat map and the globe, starting flat', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      const flat = within(dialog).getByRole('button', { name: '2d' })
+      const round = within(dialog).getByRole('button', { name: '3d' })
+      const map = within(dialog).getByRole('img', { name: /map of places/ })
+      expect(flat).toHaveAttribute('aria-pressed', 'true')
+      expect(round).toHaveAttribute('aria-pressed', 'false')
+      expect(map).not.toHaveAttribute('tabindex')
+      fireEvent.click(round)
+      expect(flat).toHaveAttribute('aria-pressed', 'false')
+      expect(round).toHaveAttribute('aria-pressed', 'true')
+      // only the globe has anything for the arrow keys to do
+      expect(map).toHaveAttribute('tabindex', '0')
+      expect(map).toHaveAccessibleName(/globe/)
+    })
+
+    it('says more about a place when it is picked', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      const place = places[0]
+      const button = within(dialog).getByRole('button', { name: place.name })
+      expect(button).toHaveAttribute('aria-pressed', 'false')
+      fireEvent.click(button)
+      expect(button).toHaveAttribute('aria-pressed', 'true')
+      expect(within(dialog).getByText(`${place.name}: ${place.note}`)).toBeInTheDocument()
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    it('picks a place as the keyboard reaches it', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      const place = places[1]
+      fireEvent.focus(within(dialog).getByRole('button', { name: place.name }))
+      expect(within(dialog).getByText(`${place.name}: ${place.note}`)).toBeInTheDocument()
+    })
+
+    it('closes on a click on the backdrop but not on the map', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      fireEvent.click(within(dialog).getByRole('img', { name: /map of places/ }))
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      fireEvent.click(dialog)
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
   })
 })
 

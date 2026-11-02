@@ -1,9 +1,10 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { about, experience, landing, projects, skills } from '../content.js'
+import { about, experience, landing, places, projects, skills } from '../content.js'
 import { caseStudies, findCaseStudy } from '../caseStudies.js'
 import { LAYERS } from '../landingGeometry.js'
+import landDots from '../landDots.json'
 
 const base = import.meta.env.BASE_URL
 const local = (href) => href.startsWith(base) && !/^(https?:)?\/\//.test(href)
@@ -40,6 +41,21 @@ describe('content assets', () => {
       expect(LAYERS[slug], slug).toBeDefined()
       expect(existsSync(resolve('public/images/landing', `${slug}.png`)), slug).toBe(true)
     }
+  })
+})
+
+describe('places explored', () => {
+  it('gives each place a unique name and a real position', () => {
+    expect(new Set(places.map((p) => p.name)).size).toBe(places.length)
+    for (const place of places) {
+      expect(place.name).toBeTruthy()
+      expect(Math.abs(place.lat)).toBeLessThanOrEqual(90)
+      expect(Math.abs(place.lon)).toBeLessThanOrEqual(180)
+    }
+  })
+
+  it('has land to draw them on', () => {
+    expect(landDots.rows.join('')).toContain('1')
   })
 })
 
