@@ -116,7 +116,10 @@ function Block({ block, links }) {
     )
   if (block.images)
     return (
-      <div className={`cs-gallery ${block.beside ? 'is-beside' : ''}`}>
+      <div
+        className={`cs-gallery ${block.beside ? 'is-beside' : ''} ${block.columns ? 'is-columns' : ''}`}
+        style={{ '--cs-columns': block.columns }}
+      >
         {block.images.map((image) => (
           <Photo key={image.src} image={image} />
         ))}

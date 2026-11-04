@@ -2219,6 +2219,19 @@ footer img {
    Sizes use canvas units: 1 canvas px = 100cqw / --stage-fr. */
 .stage {
   container-type: inline-size;
+  /* the hold: pins once the desk panel's top edge is just under the piano
+     (--hold-top, measured by Landing) and stays for the length of the spacer
+     below, so Colin stops at the desk whichever way the visitor is headed */
+  position: sticky;
+  top: var(--hold-top);
+}
+.stage-hold {
+  min-width: 0;
+}
+.stage-hold::after {
+  content: '';
+  display: block;
+  height: 40svh;
 }
 /* fills the window below the piano, leaving the top half of the bridge
    peeking up from the bottom edge */
@@ -2248,23 +2261,11 @@ footer img {
   height: 0;
   margin-top: calc(27.5 / var(--stage-fr) * 100cqw);
 }
-/* home only: scrolling settles on screen 1 or on the desk screen (its panel
-   just under the piano) when it comes to rest near either; free elsewhere */
-html:has(.landing) {
-  scroll-snap-type: y proximity;
-}
-/* screen 1 (the hall fits the window, so it's a clean snap target) */
-.hall {
-  scroll-snap-align: start;
-  scroll-margin-top: var(--piano-h, 0px);
-}
 .screen-two {
   position: absolute;
   top: calc(var(--screen-two-lead) / var(--stage-fr) * -100cqw);
   width: 1px;
   height: 1px;
-  scroll-snap-align: start;
-  scroll-margin-top: var(--piano-h, 0px);
   pointer-events: none;
 }
 .seam-region {
@@ -2395,7 +2396,9 @@ html:has(.landing) {
 }
 
 /* bridge, markers and the "where I live" bubble */
-.bridge,
+.bridge {
+  z-index: 2;
+}
 .marker-alert {
   z-index: 2;
   padding: 0;
@@ -2403,8 +2406,8 @@ html:has(.landing) {
   background: none;
   cursor: var(--cursor-pointer);
 }
-.bridge:hover .layer-img,
-.bridge[aria-expanded='true'] .layer-img {
+.marker-alert:hover .layer-img,
+.marker-alert[aria-expanded='true'] .layer-img {
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95));
 }
 .marker-alert .layer-img {
@@ -2413,48 +2416,16 @@ html:has(.landing) {
 @keyframes bob {
   50% { transform: translateY(-8%); }
 }
-/* the arrow above the bridge: see-through until hovered or focused, when it
-   firms up, glows like the bridge and nudges the way it points */
-.screen-arrow {
-  z-index: 2;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: var(--cursor-pointer);
-  opacity: 0.5;
-  transition: opacity 160ms ease;
-}
-.screen-arrow:hover,
-.screen-arrow:focus-visible {
-  opacity: 1;
-}
-.screen-arrow:hover .layer-img,
-.screen-arrow:focus-visible .layer-img {
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
-  animation: arrow-nudge 700ms ease-in-out infinite;
-}
-@keyframes arrow-nudge {
-  50% { translate: 0 14%; }
-}
-/* the drawing scales down with phones; keep it visible and easy to tap */
+/* the drawing scales down with phones; keep it easy to tap */
 @media (max-width: 700px) {
-  .screen-arrow {
-    scale: 1.8;
-  }
-  .screen-arrow::after {
+  .marker-alert::after {
     content: '';
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 26px;
-    height: 26px;
+    width: 44px;
+    height: 44px;
     translate: -50% -50%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .screen-arrow:hover .layer-img,
-  .screen-arrow:focus-visible .layer-img {
-    animation: none;
   }
 }
 /* Stardew-style text box (placeholder until the drawn bubble arrives) */
@@ -3010,10 +2981,6 @@ h2.section-label {
      band that hangs below it, so the cards fill the window */
   scroll-margin-top: calc(64px + 0.6 * var(--gutter) + 28px);
 }
-/* the next resting point after the desk screen (see html:has(.landing)) */
-.case-studies {
-  scroll-snap-align: start;
-}
 
 /* ---------- case study grid: picture first, then a quiet caption ---------- */
 .case-grid {
@@ -3089,6 +3056,16 @@ h2.section-label {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+}
+/* the whole picture, edge to edge, on a tile of the same colour */
+.case-tile.is-whole {
+  padding: 0;
+}
+.case-tile.is-whole img {
+  width: 100%;
+  height: 100%;
   border-radius: 0;
   box-shadow: none;
 }
@@ -3369,6 +3346,12 @@ h2.section-label {
   display: grid;
   gap: clamp(28px, 4vw, 44px);
 }
+/* tall pictures to compare, side by side, stacking on a phone */
+.cs-gallery.is-columns {
+  grid-template-columns: var(--cs-columns);
+  gap: clamp(14px, 2vw, 24px);
+  align-items: start;
+}
 /* smaller pictures, each with its caption to its side */
 .cs-gallery.is-beside .cs-photo {
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -3546,8 +3529,14 @@ h2.section-label {
   }
   .cs-split,
   .cs-solution,
+  .cs-gallery.is-columns,
   .cs-gallery.is-beside .cs-photo {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .cs-gallery.is-columns img {
+    width: auto;
+    max-width: 100%;
+    max-height: 70vh;
   }
 }
 @media (prefers-reduced-motion: reduce) {

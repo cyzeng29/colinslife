@@ -85,6 +85,15 @@ describe('case study page', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'How it came together' })).toBeInTheDocument()
   })
 
+  it('tells the Snaily story with its walkthrough and live demo', () => {
+    renderAt('/work/snaily')
+    expect(screen.getByRole('heading', { level: 2, name: 'The love of physical snail mail turned digital' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Live demo/ })).toHaveAttribute('href', 'https://snaily-seven.vercel.app/')
+    expect(screen.getByLabelText(/Walkthrough of Snaily/)).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /The Snaily logo/ })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Thanks' })).not.toBeInTheDocument()
+  })
+
   it('tells the Quantworks story with its screen recordings and scope', () => {
     renderAt('/work/ai-merchandise-planner')
     expect(screen.getByRole('heading', { level: 2, name: 'Envisioning SIZEO Dashboard' })).toBeInTheDocument()

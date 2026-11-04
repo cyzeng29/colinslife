@@ -7,12 +7,13 @@ import { caseStudies, findCaseStudy } from '../caseStudies.js'
 const publicFile = (src) => resolve('public', src)
 
 describe('case studies', () => {
-  it('lists the six chosen case studies, the lab database first', () => {
+  it('lists the seven chosen case studies, the lab database first', () => {
     expect(caseStudies.map((c) => c.id)).toEqual([
       'ashbya-genome-database',
       'ai-merchandise-planner',
-      'insight',
+      'snaily',
       'frisbee-play-classifier',
+      'insight',
       'speech-dysfluency-removal',
       'event-horizon',
     ])

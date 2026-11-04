@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Layer, LayerImg, Spot } from './CanvasRegion.jsx'
-import { BUBBLE, FOG, LAYERS, SCREEN_ARROW } from '../../data/landingGeometry.js'
+import { BUBBLE, FOG, LAYERS } from '../../data/landingGeometry.js'
 
 // The seam between the strings and the desk: the Duke Gardens bridge, the
 // fog around it (drawn clouds once added, soft CSS fog until then) and the
-// two ground markers. Hovering the bridge, or clicking it or the "!" marker,
-// shows where Colin lives (a placeholder bubble until the drawn one arrives).
-// The arrow above the bridge walks him down to the desk.
-export default function Bridge({ text, arrowLabel, onArrow }) {
+// two ground markers. Hovering or clicking the "!" marker shows where Colin
+// lives (a placeholder bubble until the drawn one arrives).
+export default function Bridge({ text }) {
   const [hovered, setHovered] = useState(false)
   const [pinned, setPinned] = useState(false)
   const open = hovered || pinned
@@ -44,24 +43,7 @@ export default function Bridge({ text, arrowLabel, onArrow }) {
         </Spot>
       )}
 
-      <Spot
-        as="button"
-        type="button"
-        slug="bridge"
-        className="bridge"
-        aria-label="the bridge: where i live"
-        aria-expanded={open}
-        aria-controls="bridge-bubble"
-        onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
-        onPointerLeave={() => setHovered(false)}
-        onClick={toggle}
-      >
-        <LayerImg slug="bridge" />
-      </Spot>
-
-      <Spot as="button" type="button" box={SCREEN_ARROW} className="screen-arrow" aria-label={arrowLabel} onClick={onArrow}>
-        <LayerImg slug="arrow" />
-      </Spot>
+      <Layer slug="bridge" className="bridge" />
 
       <Layer slug="marker-swirl" className="marker-swirl" />
       <Spot
@@ -72,6 +54,8 @@ export default function Bridge({ text, arrowLabel, onArrow }) {
         aria-label="where i live"
         aria-expanded={open}
         aria-controls="bridge-bubble"
+        onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
         onClick={toggle}
       >
         <LayerImg slug="marker-alert" />

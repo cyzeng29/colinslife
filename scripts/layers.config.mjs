@@ -50,7 +50,6 @@ export const layers = {
   'marker-swirl': { src: 'bridge', rect: [1230, 930, 130, 70] },
   bridge: { src: 'bridge', rect: [1420, 800, 600, 300] },
   'marker-alert': { src: 'bridge', rect: [2160, 850, 160, 150] },
-  arrow: { src: 'arrow', rect: [790, 630, 120, 140] },
 
   shelf: { src: 'shelf', rect: [820, 1210, 430, 50] },
   frisbee: { src: 'frisbee', rect: [820, 1060, 200, 190] },

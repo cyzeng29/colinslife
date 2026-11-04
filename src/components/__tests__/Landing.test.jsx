@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, createEvent, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import Landing from '../landing/Landing.jsx'
@@ -117,8 +117,28 @@ describe('Landing content', () => {
     expect(bubble).not.toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'where i live' }))
     expect(bubble).toBeVisible()
-    expect(screen.getByRole('button', { name: /the bridge/ })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'where i live' })).toHaveAttribute('aria-expanded', 'true')
     fireEvent.keyDown(window, { key: 'Escape' })
+    expect(bubble).not.toBeVisible()
+  })
+
+  it('shows the bridge bubble on hovering the "!" marker, not the bridge', () => {
+    const { container } = renderLanding()
+    const bubble = screen.getByText(landing.bridge.text)
+    // jsdom has no PointerEvent, so it would drop a pointerType passed as an option
+    const mouseEnter = (el) => {
+      const over = createEvent.pointerOver(el)
+      Object.defineProperty(over, 'pointerType', { value: 'mouse' })
+      fireEvent(el, over)
+    }
+    mouseEnter(container.querySelector('.bridge'))
+    expect(bubble).not.toBeVisible()
+    expect(screen.queryByRole('button', { name: /the bridge/ })).not.toBeInTheDocument()
+
+    const marker = screen.getByRole('button', { name: 'where i live' })
+    mouseEnter(marker)
+    expect(bubble).toBeVisible()
+    fireEvent.pointerLeave(marker)
     expect(bubble).not.toBeVisible()
   })
 
@@ -275,6 +295,24 @@ describe('Landing content', () => {
   })
 })
 
+describe('Landing hold at the desk', () => {
+  const realRect = Element.prototype.getBoundingClientRect
+  afterEach(() => {
+    Element.prototype.getBoundingClientRect = realRect
+  })
+
+  it('pins the stage with the desk panel just under the piano', () => {
+    mockReducedMotion(false)
+    Element.prototype.getBoundingClientRect = function () {
+      const top = this.classList.contains('screen-two') ? 1000 : this.classList.contains('stage') ? 300 : 0
+      return { top, left: 0, width: 0, height: 0, right: 0, bottom: top }
+    }
+    const { container } = renderLanding()
+    expect(container.querySelector('.landing').style.getPropertyValue('--hold-top')).toBe('calc(var(--piano-h, 0px) - 700px)')
+    expect(container.querySelector('.stage-hold > .stage')).toBeInTheDocument()
+  })
+})
+
 describe('Landing screens by arrow key', () => {
   const realRect = Element.prototype.getBoundingClientRect
   beforeEach(() => {
@@ -289,15 +327,6 @@ describe('Landing screens by arrow key', () => {
   afterEach(() => {
     Element.prototype.getBoundingClientRect = realRect
     window.scrollY = 0
-  })
-
-  it('walks down to the desk from the drawn arrow', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] })
-    renderLanding()
-    fireEvent.click(screen.getByRole('button', { name: landing.bridge.arrow }))
-    await act(async () => vi.advanceTimersByTime(2000))
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 1000, behavior: 'auto' })
-    vi.useRealTimers()
   })
 
   it('walks down to the desk on ↓ and back up on ↑', async () => {

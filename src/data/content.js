@@ -113,6 +113,33 @@ export const experience = [
 
 export const projects = [
   {
+    id: 'snaily',
+    short: 'Snaily',
+    title: 'Snaily — Digital Postcards',
+    bullets: [
+      'Co-designed and built a digital postcard app for families and loved ones who live far apart, in a week for the Silicon Valley School of Design\'s national storytelling competition',
+      'Designed photo customization that shows one thing at a time: tapping a photo centers it with options to draw, replace or caption',
+      'Added a toggle between a paper clip of ordered photos and a free flowing canvas, serving both younger kids and older parents',
+    ],
+    details: [
+      'Co-designed and built a digital postcard app for families and loved ones who live far apart, in a week for the Silicon Valley School of Design\'s national storytelling competition',
+      'Designed photo customization that shows one thing at a time: tapping a photo centers it with options to draw, replace or caption',
+      'Added a toggle between a paper clip of ordered photos and a free flowing canvas, serving both younger kids and older parents',
+    ],
+    tools: 'JavaScript · Canvas · WebGL · Supabase',
+    links: [{ label: 'Live demo', href: 'https://snaily-seven.vercel.app/' }],
+    context: '',
+    outcomes: [],
+    thumb: { src: 'images/snaily_cover.png', alt: 'The Snaily logo: a hand-drawn green snail beside the word Snaily' },
+    media: [
+      {
+        kind: 'photo',
+        src: 'images/snaily_cover.png',
+        alt: 'The Snaily logo: a hand-drawn green snail beside the word Snaily',
+      },
+    ],
+  },
+  {
     id: 'speech-dysfluency',
     short: 'Speech dysfluency',
     title: 'Speech Dysfluency Detection and Removal',
@@ -240,10 +267,9 @@ export const landing = {
     ],
     recruiter: 'Recruiter Mode',
   },
-  // shown on hover or from the "!" marker (placeholder until the bubble is drawn)
+  // shown from the "!" marker, on hover or click (placeholder until the bubble is drawn)
   bridge: {
     text: 'home base: durham, nc. this bridge is drawn after the japanese bridge in duke gardens.',
-    arrow: 'down to the desk',
   },
   // Clickable desk objects whose pop-ups are still being drawn
   desk: [
@@ -308,7 +334,7 @@ export const skills = [
     side: 'top',
     words: [
       skill('Python', 3, 'ai-merchandise-planner', 'speech-dysfluency-removal'),
-      skill('JavaScript', 2, 'ashbya-genome-database'),
+      skill('JavaScript', 2, 'ashbya-genome-database', 'snaily'),
       skill('SQL', 2, 'ashbya-genome-database'),
       skill('Java', 1),
       skill('TypeScript', 1),

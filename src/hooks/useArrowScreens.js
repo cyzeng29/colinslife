@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { secondScreenTop } from './useScrollProgress.js'
 
 // slow enough to watch him walk between the screens, at a steady pace (a
@@ -10,23 +10,14 @@ const ease = (t) => (1 - Math.cos(Math.PI * t)) / 2
 // up to the desk walks him back to the strings. Further down the page the
 // arrows scroll normally. Ignored while typing, with modifier keys, or while
 // a dialog is open. The visitor scrolling or pressing another key mid-way
-// takes over immediately. Returns walkToDesk, the same walk for the drawn
-// arrow.
+// takes over immediately.
 export default function useArrowScreens(screenRef) {
-  const walkRef = useRef(null)
-
   useEffect(() => {
-    // scroll snapping would yank each animation step to a snap point
-    const html = document.documentElement
-    const pauseSnap = () => html.style.setProperty('scroll-snap-type', 'none')
-    const resumeSnap = () => html.style.removeProperty('scroll-snap-type')
-
     let frame = 0
     const stop = () => {
       if (!frame) return
       cancelAnimationFrame(frame)
       frame = 0
-      resumeSnap()
     }
 
     function walkTo(to) {
@@ -35,7 +26,6 @@ export default function useArrowScreens(screenRef) {
         window.scrollTo({ top: to, behavior: 'auto' })
         return
       }
-      pauseSnap()
       const from = window.scrollY
       let start = null
       const step = (now) => {
@@ -43,11 +33,9 @@ export default function useArrowScreens(screenRef) {
         const t = Math.min(1, (now - start) / WALK_MS)
         window.scrollTo({ top: from + (to - from) * ease(t), behavior: 'auto' })
         frame = t < 1 ? requestAnimationFrame(step) : 0
-        if (!frame) resumeSnap()
       }
       frame = requestAnimationFrame(step)
     }
-    walkRef.current = walkTo
 
     function onKey(e) {
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return stop()
@@ -73,6 +61,4 @@ export default function useArrowScreens(screenRef) {
       window.removeEventListener('touchstart', stop)
     }
   }, [screenRef])
-
-  return useCallback(() => walkRef.current?.(secondScreenTop(screenRef.current)), [screenRef])
 }

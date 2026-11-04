@@ -32,7 +32,7 @@ export default function Home() {
       <Landing />
 
       {/* .case-studies: where the header condenses and the underline moves
-          to EXPERIENCE (useHeaderCondense), and a scroll resting point */}
+          to EXPERIENCE (useHeaderCondense) */}
       <section className="case-studies" id="case-studies" aria-labelledby="case-studies-title">
         <h2 className="sr-only" id="case-studies-title">
           Case studies

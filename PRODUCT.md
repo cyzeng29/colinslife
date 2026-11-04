@@ -51,7 +51,7 @@ The following are binding and should be preserved by any future redesign or refi
 ## Evidence on Hand
 
 - Experience: Dietrich Lab, Duke (Jan 2026–present, pondslime.ccn.duke.edu); Quantworks / SIZEO (Oct 2024–Aug 2025); NCSSM Summer Research (2023–2024). Details are in `src/data/content.js`.
-- Projects: Speech Dysfluency Detection, Insight journal app, Ultimate Frisbee Play Classifier (85% precision / 87% recall; ResNet18 91.3%), Event Horizon UE5 game (kooling.itch.io).
+- Projects: Snaily digital postcards (SVSD competition, with Alayna), Speech Dysfluency Detection, Insight journal app, Ultimate Frisbee Play Classifier (85% precision / 87% recall; ResNet18 91.3%), Event Horizon UE5 game (kooling.itch.io).
 - Interests: drawing, guitar & piano, pickleball, ultimate frisbee, content production.
 - Media: `public/dive.mp4`. Not yet on hand: project images, portrait photos, the resume PDF, and sketchbook scans. Future work must not fabricate them or write placeholder claims such as outcomes, testimonials, or metrics that aren't in the data.
 

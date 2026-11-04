@@ -41,6 +41,7 @@ const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce
 // first, then goes there.
 export default function Landing() {
   const rootRef = useRef(null)
+  const stageRef = useRef(null)
   const hallRef = useRef(null)
   const deskRef = useRef(null)
   const screenTwoRef = useRef(null) // the second screen starts here (whole bridge in view)
@@ -50,7 +51,7 @@ export default function Landing() {
   const phone = useMediaQuery('(max-width: 700px)')
   usePianoHeight() // sets --piano-h, used for scroll offsets
   useScrollProgress(rootRef, screenTwoRef)
-  const walkToDesk = useArrowScreens(screenTwoRef)
+  useArrowScreens(screenTwoRef)
   const regions = stageRegions(phone)
 
   // How far the walk down has to go: from where Colin stands under the
@@ -60,13 +61,15 @@ export default function Landing() {
   // put the whole way down and Recruiter Mode lines up with the panel's edge;
   // and the strip of landing below that edge (--side-tail), so scrolling on
   // past the desk takes the sidebar away with the panel instead of leaving
-  // Recruiter Mode below it.
+  // Recruiter Mode below it. And where the stage pins for the hold at the desk
+  // (--hold-top). All measured within the stage, so they hold while it's pinned.
   useEffect(() => {
+    const stage = stageRef.current
     const hall = hallRef.current
     const desk = deskRef.current
     const screenTwo = screenTwoRef.current
     const root = rootRef.current
-    if (!hall || !desk || !screenTwo || !root) return
+    if (!stage || !hall || !desk || !screenTwo || !root) return
     const measure = () => {
       const scale = hall.clientWidth / regions.hallTop.w // px per canvas px
       const deskTop = desk.getBoundingClientRect().top
@@ -74,9 +77,12 @@ export default function Landing() {
       const deskFeet = deskTop + (DESK_FEET_Y - regions.desk.y) * scale
       root.style.setProperty('--walk-px', `${Math.max(0, deskFeet - feet)}px`)
       const panelBottom = deskTop + (DESK_FRAME.y + DESK_FRAME.h - regions.desk.y) * scale
-      const sideH = Math.max(0, panelBottom - screenTwo.getBoundingClientRect().top)
+      const screenTwoTop = screenTwo.getBoundingClientRect().top
+      const sideH = Math.max(0, panelBottom - screenTwoTop)
       root.style.setProperty('--side-h', `${sideH}px`)
-      root.style.setProperty('--side-tail', `${Math.max(0, root.getBoundingClientRect().bottom - panelBottom)}px`)
+      root.style.setProperty('--side-tail', `${Math.max(0, stage.getBoundingClientRect().bottom - panelBottom)}px`)
+      const stageTop = stage.getBoundingClientRect().top
+      root.style.setProperty('--hold-top', `calc(var(--piano-h, 0px) - ${screenTwoTop - stageTop}px)`)
     }
     measure()
     if (typeof ResizeObserver === 'undefined') return
@@ -140,29 +146,31 @@ export default function Landing() {
       }}
     >
       <LandingSidebar content={landing.sidebar} />
-      <div className="stage">
-        <div className="hall" ref={hallRef}>
-          <CanvasRegion region={regions.hallTop} className="hall-top">
-            <StringHall keys={navKeys} plucking={plucking} />
-            <Character keys={navKeys} plucking={plucking} />
+      <div className="stage-hold">
+        <div className="stage" ref={stageRef}>
+          <div className="hall" ref={hallRef}>
+            <CanvasRegion region={regions.hallTop} className="hall-top">
+              <StringHall keys={navKeys} plucking={plucking} />
+              <Character keys={navKeys} plucking={plucking} />
+            </CanvasRegion>
+          </div>
+          <div className="seam">
+            {/* walk target for the desk screen: the
+                desk panel's top edge lands just under the piano */}
+            <span ref={screenTwoRef} className="screen-two" aria-hidden="true" />
+            {/* centred on the gap, so half the bridge sits in each panel */}
+            <CanvasRegion
+              region={regions.seam}
+              className="seam-region"
+              style={{ transform: `translateY(${(-(SEAM_Y - regions.seam.y) / regions.seam.h) * 100}%)` }}
+            >
+              <Bridge text={landing.bridge.text} />
+            </CanvasRegion>
+          </div>
+          <CanvasRegion region={regions.desk} className="desk-region" ref={deskRef}>
+            <Desk content={landing} />
           </CanvasRegion>
         </div>
-        <div className="seam">
-          {/* scroll-snap point and walk target for the desk screen: the
-              desk panel's top edge lands just under the piano */}
-          <span ref={screenTwoRef} className="screen-two" aria-hidden="true" />
-          {/* centred on the gap, so half the bridge sits in each panel */}
-          <CanvasRegion
-            region={regions.seam}
-            className="seam-region"
-            style={{ transform: `translateY(${(-(SEAM_Y - regions.seam.y) / regions.seam.h) * 100}%)` }}
-          >
-            <Bridge text={landing.bridge.text} arrowLabel={landing.bridge.arrow} onArrow={walkToDesk} />
-          </CanvasRegion>
-        </div>
-        <CanvasRegion region={regions.desk} className="desk-region" ref={deskRef}>
-          <Desk content={landing} />
-        </CanvasRegion>
       </div>
     </div>
   )

@@ -76,16 +76,6 @@ export const FEET_Y = 905
 export const DESK_FEET_Y = LAYERS['char-front'] ? LAYERS['char-front'].y + LAYERS['char-front'].h + DESK_SHIFT : FEET_Y
 // Band of fog around the bridge, between the two panels.
 export const FOG = { x: 694, y: 800, w: 1977, h: 360 }
-// The arrow above the bridge, drawn smaller and centred on it.
-const ARROW_SCALE = 0.6
-const ARROW_W = LAYERS.arrow.w * ARROW_SCALE
-const ARROW_H = LAYERS.arrow.h * ARROW_SCALE
-export const SCREEN_ARROW = {
-  x: LAYERS.bridge.x + (LAYERS.bridge.w - ARROW_W) / 2,
-  y: 814 - ARROW_H,
-  w: ARROW_W,
-  h: ARROW_H,
-}
 // Where the "where I live" bubble sits (above the "!" marker).
 export const BUBBLE = { x: 1960, y: 700, w: 600, h: 170 }
 
