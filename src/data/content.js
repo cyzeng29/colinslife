@@ -416,6 +416,84 @@ export const resume = {
   available: __RESUME_AVAILABLE__,
 }
 
+// Recruiter Mode (/work/list): the short version. One line and the skills
+// gained for each role and project. caseStudy (optional) is the id of its
+// case study page in caseStudies.js.
+export const recruiter = {
+  summary: 'CS + Statistics @ Duke.',
+  experience: [
+    {
+      id: 'dietrich-lab',
+      org: 'Dietrich Lab, Duke University',
+      role: 'Undergraduate Research Intern',
+      when: 'Jan 2026 — present',
+      line: 'Built the lab’s genome database and pangenome browser, answering strain queries in under 10 ms for 15 researchers.',
+      skills: ['PostgreSQL schema design', 'React', 'PHP', 'BLAST + JBrowse2', 'Presenting research'],
+      caseStudy: 'ashbya-genome-database',
+    },
+    {
+      id: 'quantworks',
+      org: 'Quantworks / SIZEO',
+      role: 'Software Engineer Intern',
+      when: 'Oct 2024 — Aug 2025',
+      line: 'Built data pipelines and an artifact gallery for a Claude API inventory planner serving 10 retail clients, including JCPenney.',
+      skills: ['Claude API', 'Python data pipelines', 'Retrieval augmented analysis', 'Figma wireframing'],
+      caseStudy: 'ai-merchandise-planner',
+    },
+    {
+      id: 'daml',
+      org: 'Duke Applied Machine Learning',
+      role: 'Machine Learning Engineer',
+      when: 'Aug 2025 — May 2026',
+      line: 'Detected and removed speech dysfluencies (NeMo, 79.6% accuracy) and fine tuned BERT for fake news detection.',
+      skills: ['PyTorch', 'Whisper + NeMo', 'Hugging Face', 'Model benchmarking'],
+      caseStudy: 'speech-dysfluency-removal',
+    },
+    {
+      id: 'ncssm',
+      org: 'NCSSM Summer Research',
+      role: 'Research Intern',
+      when: 'June 2023 — July 2024',
+      line: 'Modeled neurons, cholera vaccination and real gases in 3 papers, presented at Summer Ventures and SRIP.',
+      skills: ['Mathematical modeling', 'Differential equations', 'NetLogo', 'Scientific writing'],
+    },
+  ],
+  projects: [
+    {
+      id: 'snaily',
+      org: 'Snaily',
+      role: 'Digital postcard app',
+      line: 'Postcards for families who live far apart, built in a week for SVSD’s national design competition.',
+      skills: ['three.js', 'Supabase', 'PWA', 'User centered design'],
+      caseStudy: 'snaily',
+    },
+    {
+      id: 'frisbee-classifier',
+      org: 'Frisbee Play Classifier',
+      role: 'Computer vision',
+      line: 'Names the ultimate play from a single frame of game film, at 91.3% accuracy across 7 plays.',
+      skills: ['PyTorch', 'YOLOv8', 'ResNet18'],
+      caseStudy: 'frisbee-play-classifier',
+    },
+    {
+      id: 'insight',
+      org: 'Insight',
+      role: 'Journal app',
+      line: 'Writes reflection prompts from your own past entries, with retrieval built from scratch.',
+      skills: ['React', 'RAG', 'Groq API'],
+      caseStudy: 'insight',
+    },
+    {
+      id: 'event-horizon',
+      org: 'Event Horizon',
+      role: 'Unreal Engine 5 game',
+      line: 'A 3D precision platformer with reusable C++ platform components.',
+      skills: ['C++', 'Unreal Engine 5', 'Blueprints'],
+      caseStudy: 'event-horizon',
+    },
+  ],
+}
+
 export const about = {
   bio: [
     'I study computer science and statistics at Duke, and I like trying new things and figuring out how they could connect back to technology. Right now that means building databases and web tools for yeast pangenomes in the lab, making apps that improve my daily life, and using music and art to shape the experiences around me.',

@@ -20,6 +20,8 @@
 //               right is the text's right edge and y its middle, both as % of
 //               the tile
 //   headline  — the page's opening heading
+//   other     — true to list it under "Other projects", a row of smaller
+//               cards after the main grid (keep these last)
 //
 // The page itself is either written out as `sections` (see the first case
 // study), or built from the simpler fields below it.
@@ -479,8 +481,12 @@ const studies = [
         label: 'Reflection',
         title: 'What I took away',
         body: [
-          'We learned to balance audiences and design for different kinds of relationships. We added features that serve both sides of a postcard, so people can tell a story with words and photos together.',
-          'The second lesson was about process. We ran a constant feedback loop, learning to keep critiquing our own work. Small 1% improvements every round compounded into big changes.',
+          {
+            points: [
+              ['Two perspectives', 'We learned to balance audiences and design for different kinds of relationships. We added features that serve both sides of a postcard, so people can tell a story with words and photos together.'],
+              ['Cumulative Feedback', 'We ran a constant feedback loop, learning to keep critiquing our own work. Small 1% improvements every round compounded into big changes.'],
+            ],
+          },
         ],
       },
       {
@@ -490,11 +496,11 @@ const studies = [
         body: [
           {
             points: [
-              ['Improve the craft', 'Streamline the visuals, then test the prototype with real users to find their frustrations and friction.'],
-              ['Audio options', 'Let the letter be read aloud. Alayna knows her own parents would value this, and it adds another warm touch.'],
-              ['Translation', 'Translate smoothly between languages right on the postcard.'],
-              ['Themed postcards', 'For example, a Chinese New Year card.'],
-              ['Prompts', 'Suggestions for what to write and which photos to add, tailored to someone’s background.'],
+              ['Refine the experience', 'Clean up the visuals and test the prototype with real users to understand where they get stuck and what could feel easier.'],
+              ['Add a read-aloud option', 'Let people listen to postcard messages as well as read them.'],
+              ['Make translation seamless', 'Allow people to translate messages directly on the postcard, making it easier to connect across languages.'],
+              ['Create themes that feel personal', 'Explore postcard designs inspired by local traditions and celebrations, such as Chinese New Year.'],
+              ['Help people get started', 'Offer writing prompts and photo suggestions that reflect their interests and backgrounds, so creating a postcard feels less daunting.'],
             ],
           },
         ],
@@ -540,6 +546,7 @@ const studies = [
   {
     id: 'insight',
     from: 'insight',
+    other: true,
     title: 'Insight',
     at: '',
     kind: 'App Design & Engineering',
@@ -575,6 +582,7 @@ const studies = [
   {
     id: 'speech-dysfluency-removal',
     from: 'speech-dysfluency',
+    other: true,
     title: 'Speech Dysfluency Removal',
     at: 'DAML',
     kind: 'Machine Learning',
@@ -609,6 +617,7 @@ const studies = [
   {
     id: 'event-horizon',
     from: 'event-horizon',
+    other: true,
     title: 'Event Horizon',
     at: '',
     kind: 'Game Development',
@@ -667,5 +676,9 @@ export const caseStudies = studies.map((s) => {
     links: source.links || [],
   }
 })
+
+// The big two-to-a-row grid, then the smaller "Other projects" below it
+export const featuredStudies = caseStudies.filter((c) => !c.other)
+export const otherStudies = caseStudies.filter((c) => c.other)
 
 export const findCaseStudy = (id) => caseStudies.find((c) => c.id === id)

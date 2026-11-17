@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import CaseGrid from '../caseStudies/CaseGrid.jsx'
 import CaseStudy from '../../pages/CaseStudy.jsx'
-import { caseStudies } from '../../data/caseStudies.js'
+import { caseStudies, featuredStudies, otherStudies } from '../../data/caseStudies.js'
 
 function Where() {
   const { pathname, hash } = useLocation()
@@ -35,6 +35,24 @@ describe('case study grid', () => {
     const card = screen.getByRole('heading', { name: /AI Merchandise Planning/ }).closest('article')
     expect(within(card).getByText('Software Engineering | 2024 to 2025')).toBeInTheDocument()
     expect(within(within(card).getByRole('list', { name: 'Skills' })).getByText('Claude API')).toBeInTheDocument()
+  })
+
+  it('keeps the smaller projects for "Other projects", after the main grid', () => {
+    expect(featuredStudies.map((c) => c.id)).toEqual(['ashbya-genome-database', 'ai-merchandise-planner', 'snaily', 'frisbee-play-classifier'])
+    expect(otherStudies.map((c) => c.id)).toEqual(['insight', 'speech-dysfluency-removal', 'event-horizon'])
+  })
+
+  it('shows a compact card with its summary and project link, but no skills', () => {
+    render(
+      <MemoryRouter>
+        <CaseGrid studies={otherStudies} compact />
+      </MemoryRouter>,
+    )
+    const card = screen.getByRole('heading', { name: /Event Horizon/ }).closest('article')
+    expect(within(card).getByText('A 3D precision platformer built in Unreal Engine 5.')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: /Event Horizon/ })).toHaveAttribute('href', '/work/event-horizon')
+    expect(within(card).getByRole('link', { name: /kooling\.itch\.io/ })).toHaveAttribute('href', 'https://kooling.itch.io')
+    expect(within(card).queryByRole('list', { name: 'Skills' })).not.toBeInTheDocument()
   })
 
   it('opens the case study when its card is followed', () => {

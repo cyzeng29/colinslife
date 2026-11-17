@@ -5,6 +5,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import { PluckProvider, usePluck } from '../PluckProvider.jsx'
 import { playNote } from '../../audio/notes.js'
+import { LAYERS, stageRegions } from '../../data/landingGeometry.js'
 
 vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
 
@@ -87,6 +88,15 @@ describe('PianoNav', () => {
     expect(links.map((l) => l.getAttribute('href'))).toEqual(['/', '/#case-studies', '/about', '/create'])
     const labels = [...container.querySelectorAll('.string-note img')].map((img) => img.getAttribute('src').split('/').pop())
     expect(labels).toEqual(['label-home.png', 'label-experience.png', 'label-about.png', 'label-create.png'])
+  })
+
+  it('sizes the slim labels from the same drawings as the piano labels', () => {
+    const { container } = renderNav(null, '/')
+    const slim = [...container.querySelectorAll('.string-note-label')]
+    expect(slim.map((el) => Number(el.style.getPropertyValue('--label-h')))).toEqual(
+      ['home', 'experience', 'about', 'create'].map((label) => LAYERS[`label-${label}`].h)
+    )
+    expect(Number(container.querySelector('.string-nav').style.getPropertyValue('--bar-units'))).toBe(stageRegions(false).bar.w)
   })
 
   it('marks the create note current on its own page', () => {

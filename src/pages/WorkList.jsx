@@ -1,115 +1,74 @@
-import { useEffect, useRef, useState } from 'react'
-import WorkCard from '../components/WorkCard.jsx'
-import ExperienceDialog from '../components/ExperienceDialog.jsx'
-import ExperienceTimeline from '../components/ExperienceTimeline.jsx'
-import usePianoHeight from '../hooks/usePianoHeight.js'
-import { experience, projects } from '../data/content.js'
+import { Link } from 'react-router-dom'
+import { contact, landing, recruiter, resume } from '../data/content.js'
 
-const groups = [
-  { label: 'experience', kind: 'experience', items: experience },
-  { label: 'projects', kind: 'project', items: projects },
-]
-const allIds = groups.flatMap((g) => g.items.map((i) => i.id))
+const external = (href) => /^https?:/.test(href)
 
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// One role or project: where and what, when, one line, and the skills gained
+function Entry({ entry }) {
+  const { id, org, role, when, line, skills, caseStudy } = entry
+  return (
+    <li className="rc-entry" id={id}>
+      <div className="rc-entry-head">
+        <h3 className="rc-org">{org}</h3>
+        {when && <p className="rc-when mono">{when}</p>}
+      </div>
+      <p className="rc-role">{role}</p>
+      <p className="rc-line">{line}</p>
+      <ul className="rc-skills mono" aria-label="Skills">
+        {skills.map((s) => (
+          <li key={s}>{s}</li>
+        ))}
+      </ul>
+      {caseStudy && (
+        <Link to={`/work/${caseStudy}`} className="rc-more mono">
+          case study <span aria-hidden="true">→</span>
+          <span className="sr-only">: {org}</span>
+        </Link>
+      )}
+    </li>
+  )
 }
 
-// The plain list of every experience and project, with the timeline beside
-// it: where Recruiter Mode goes (/work/list).
+// Recruiter Mode (/work/list): the brief version of everything, one line and
+// the skills gained per role and project, with the resume a click away.
 export default function WorkList() {
-  const pianoH = usePianoHeight()
-  const [activeId, setActiveId] = useState(allIds[0])
-  const [open, setOpen] = useState(null) // { id, opener }
-  const jumpLock = useRef(null) // id of the last timeline click
-
-  // Current entry = the last sheet whose top has passed a line a third of
-  // the way down the space below the piano. After a timeline click, that
-  // entry stays current until the visitor scrolls themselves (the page may
-  // not be able to scroll far enough to bring the last entries to the line).
-  useEffect(() => {
-    let frame = 0
-    function update() {
-      frame = 0
-      if (jumpLock.current) {
-        setActiveId(jumpLock.current)
-        return
-      }
-      const line = pianoH + (window.innerHeight - pianoH) * 0.33
-      let current = allIds[0]
-      for (const id of allIds) {
-        const el = document.getElementById(id)
-        if (el && el.getBoundingClientRect().top <= line) current = id
-      }
-      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
-      setActiveId(atBottom ? allIds[allIds.length - 1] : current)
-    }
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-    const release = () => {
-      jumpLock.current = null
-    }
-    const inputs = ['wheel', 'touchmove', 'keydown']
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    inputs.forEach((t) => window.addEventListener(t, release, { passive: true }))
-    return () => {
-      cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      inputs.forEach((t) => window.removeEventListener(t, release))
-    }
-  }, [pianoH])
-
-  function jumpTo(id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    jumpLock.current = id
-    setActiveId(id)
-    el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
-    // Land keyboard and screen reader users on the entry they picked
-    el.querySelector('.card-title')?.focus({ preventScroll: true })
-  }
-
-  const openGroup = open && groups.find((g) => g.items.some((i) => i.id === open.id))
-  const openIndex = openGroup ? openGroup.items.findIndex((i) => i.id === open.id) : -1
+  const links = [...(resume.available ? [{ label: 'resume', href: resume.href }] : []), ...contact]
+  const groups = [
+    { label: 'experience', items: recruiter.experience },
+    { label: 'projects', items: recruiter.projects },
+  ]
 
   return (
-    <section className="page-content work-layout">
-      <ExperienceTimeline groups={groups} activeId={activeId} onJump={jumpTo} />
+    <section className="page-content recruiter" aria-labelledby="rc-title">
+      <header className="rc-head">
+        <div className="rc-intro">
+          <p className="rc-mode mono">recruiter mode</p>
+          <h1 id="rc-title">{landing.sidebar.name}</h1>
+          <p className="rc-summary">{recruiter.summary}</p>
+        </div>
+        <ul className="rc-links mono" aria-label="Links">
+          {links.map(({ label, href }) => (
+            <li key={label}>
+              <a href={href} {...((external(href) || href.endsWith('.pdf')) && { target: '_blank', rel: 'noopener noreferrer' })}>
+                {label} <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </header>
 
-      <div className="work-main">
-        {groups.map((g) => (
-          <div key={g.label}>
-            <p className="section-label mono">{g.label}</p>
-            <div className="cards">
-              {g.items.map((item, i) => (
-                <WorkCard
-                  key={item.id}
-                  entry={item}
-                  index={i}
-                  kind={g.kind}
-                  onOpen={(id, opener) => setOpen({ id, opener })}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {openGroup && (
-        <ExperienceDialog
-          key={open.id}
-          entry={openGroup.items[openIndex]}
-          kind={openGroup.kind}
-          index={openIndex}
-          total={openGroup.items.length}
-          opener={open.opener}
-          onClose={() => setOpen(null)}
-        />
-      )}
+      {groups.map((g) => (
+        <section key={g.label} className={`rc-group is-${g.label}`} aria-labelledby={`rc-${g.label}`}>
+          <h2 className="rc-group-title mono" id={`rc-${g.label}`}>
+            {g.label}
+          </h2>
+          <ol className="rc-list">
+            {g.items.map((e) => (
+              <Entry key={e.id} entry={e} />
+            ))}
+          </ol>
+        </section>
+      ))}
     </section>
   )
 }

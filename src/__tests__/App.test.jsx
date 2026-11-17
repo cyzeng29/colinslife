@@ -38,7 +38,7 @@ describe('App routes', () => {
         <App />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('heading', { name: 'Undergraduate Research Intern' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Dietrich Lab, Duke University' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'experience' })).toHaveAttribute('aria-current', 'page')
   })
 })

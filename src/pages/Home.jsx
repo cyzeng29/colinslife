@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import Landing from '../components/landing/Landing.jsx'
 import CaseGrid from '../components/caseStudies/CaseGrid.jsx'
+import { featuredStudies, otherStudies } from '../data/caseStudies.js'
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
@@ -37,7 +38,12 @@ export default function Home() {
         <h2 className="sr-only" id="case-studies-title">
           Case studies
         </h2>
-        <CaseGrid matched={matched} matchKey={key} />
+        <CaseGrid studies={featuredStudies} matched={matched} matchKey={key} />
+
+        <h2 className="case-other-title" id="other-projects">
+          Other projects <span aria-hidden="true">↓</span>
+        </h2>
+        <CaseGrid studies={otherStudies} matched={matched} matchKey={key} compact />
       </section>
     </>
   )

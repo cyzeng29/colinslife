@@ -23,7 +23,7 @@ The site is itself evidence of the claim in the intro ("I like taking the things
 
 ## Operating Context
 
-- Four routes: `/` (Home: a landing drawn by Colin, with a sidebar, piano strings and his pixel character, a bridge into a desk of hobbies with pop-ups for the backpack's skills and the globe's places explored, then case studies), `/work` (experience and project cards, penguin timeline, detail dialogs), `/about` (bio and an interests "desk"), `/create` (a placeholder for something fun).
+- Four routes: `/` (Home: a landing drawn by Colin, with a sidebar, piano strings and his pixel character, a bridge into a desk of hobbies with pop-ups for the backpack's skills and the globe's places explored, then case studies), `/work/list` (Recruiter Mode: one line and the skills gained for each role and project, with the resume and contact links up top), `/about` (bio and an interests "desk"), `/create` (a placeholder for something fun).
 - A recruiter usually lands on `/` or is deep-linked to `/work`. The intro video plays only on `/`, once per session, and never under reduced motion.
 - All content lives in `src/data/content.js`. Colin adds entries and images there without editing JSX, and future work must keep that workflow.
 - Deployed on Vercel as a Vite static build.
@@ -31,7 +31,7 @@ The site is itself evidence of the claim in the intro ("I like taking the things
 ## Capabilities and Constraints
 
 - React 18 + Vite + react-router-dom. All styles and tokens are in `src/index.css`.
-- Work entries come from data. Adding an object creates a card, a timeline penguin, and a dialog. Empty optional fields (`context`, `outcomes`, `links`, images) must degrade gracefully.
+- Work entries come from data. Recruiter Mode reads `recruiter` in content.js; case studies read caseStudies.js. Empty optional fields (`context`, `outcomes`, `links`, images) must degrade gracefully.
 - Empty image slots show sketch-style placeholders until real images are added to `public/images/`.
 - The resume link appears only when `public/resume.pdf` exists at build time. Until then it shows "resume · soon".
 - Open: the GitHub and LinkedIn links currently point to bare `https://github.com` / `https://linkedin.com` placeholders and need the real profile URLs.

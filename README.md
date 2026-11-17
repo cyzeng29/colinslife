@@ -20,13 +20,14 @@ npm test
 
 ## Where things live
 
-- `src/data/content.js` — every work/project card, the Home intro, the About bio,
-  the desk interests, and every image slot. Add an object to either array and a
-  new card (and timeline penguin) appears on the full work list (`/work/list`,
-  where Recruiter Mode goes) automatically.
+- `src/data/content.js` — every work/project entry, the Home intro, the About bio,
+  the desk interests, and every image slot. `recruiter` holds Recruiter Mode
+  (`/work/list`): a one-line summary, then one line and the skills gained for
+  each role and project, with an optional `caseStudy` id to link its page.
 - `src/data/caseStudies.js` — the case studies: the grid under the Home landing
   (the EXPERIENCE key scrolls there, `/#case-studies`; old `/work` links
-  redirect to it), and each one's page (`/work/<id>`):
+  redirect to it), and each one's page (`/work/<id>`). Add `other: true` to list
+  one under "Other projects", the smaller cards after the main grid:
   card text, tile picture, and the story (context, solution, process,
   results). Role, dates, tools and links come from the matching entry in
   `content.js`. A case study's Reflection section appears once its

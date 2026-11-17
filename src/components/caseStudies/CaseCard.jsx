@@ -5,10 +5,12 @@ import { asset } from '../Frame.jsx'
 // ("Title @ where"), a "Discipline | Date" line, one line of summary and the
 // skills. The title links to the case study's page and the link covers the
 // whole card. `ringKey` shows a brief ring around it, played anew for each key.
-export default function CaseCard({ study, ringKey }) {
-  const { id, title, at, kind, date, summary, tile, tools } = study
+// `compact` is the smaller card under "Other projects": no skills, and the
+// project's own links (GitHub, itch) as small ↗ links beside the meta line.
+export default function CaseCard({ study, ringKey, compact = false }) {
+  const { id, title, at, kind, date, summary, tile, tools, links = [] } = study
   return (
-    <article className="case-card" id={`case-${id}`}>
+    <article className={compact ? 'case-card is-compact' : 'case-card'} id={`case-${id}`}>
       {ringKey && <span key={ringKey} className="case-card-ring" aria-hidden="true" />}
       <div className={`case-tile is-${tile.fit}`} style={{ '--tile-bg': tile.bg }} aria-hidden="true">
         <img src={asset(tile.src)} alt="" loading="lazy" />
@@ -29,7 +31,16 @@ export default function CaseCard({ study, ringKey }) {
           {kind} | {date}
         </p>
         <p className="case-card-summary">{summary}</p>
-        {tools.length > 0 && (
+        {compact && links.length > 0 && (
+          <p className="case-card-out mono">
+            {links.map((l) => (
+              <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
+                {l.label} <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </p>
+        )}
+        {!compact && tools.length > 0 && (
           <ul className="case-card-skills mono" aria-label="Skills">
             {tools.map((t) => (
               <li key={t}>{t}</li>
