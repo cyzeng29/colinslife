@@ -1,15 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Layer, LayerImg, Spot } from './CanvasRegion.jsx'
-import { BUBBLE, FOG, LAYERS } from '../../data/landingGeometry.js'
+import { asset } from '../Frame.jsx'
+import { BUBBLE, BUBBLE_BELOW, FOG, LAYERS } from '../../data/landingGeometry.js'
 
 // The seam between the strings and the desk: the Duke Gardens bridge, the
 // fog around it (drawn clouds once added, soft CSS fog until then) and the
 // two ground markers. Hovering or clicking the "!" marker shows where Colin
-// lives (a placeholder bubble until the drawn one arrives).
-export default function Bridge({ text }) {
+// lives: a photo of the real bridge, captioned (a placeholder bubble until the
+// drawn one arrives).
+export default function Bridge({ text, photo }) {
   const [hovered, setHovered] = useState(false)
   const [pinned, setPinned] = useState(false)
   const open = hovered || pinned
+  const [below, setBelow] = useState(false)
+  const bubbleRef = useRef(null)
+
+  // Opens above the marker if it fits under the piano bar, else below it.
+  // Measured before paint, so it never shows in the wrong place first.
+  useLayoutEffect(() => {
+    if (!open) return setBelow(false)
+    if (below) return
+    const top = bubbleRef.current?.getBoundingClientRect().top ?? 0
+    const bar = document.querySelector('.piano-wrap')?.getBoundingClientRect().bottom ?? 0
+    if (top < bar + 8) setBelow(true)
+  }, [open, below])
   const clouds = ['cloud-1', 'cloud-2', 'cloud-3'].filter((c) => LAYERS[c])
 
   useEffect(() => {
@@ -61,8 +75,16 @@ export default function Bridge({ text }) {
         <LayerImg slug="marker-alert" />
       </Spot>
 
-      <Spot as="p" box={BUBBLE} id="bridge-bubble" className="bubble" role="status" hidden={!open}>
-        {text}
+      <Spot
+        ref={bubbleRef}
+        box={below ? BUBBLE_BELOW : BUBBLE}
+        id="bridge-bubble"
+        className={'bubble' + (below ? ' is-below' : '')}
+        role="status"
+        hidden={!open}
+      >
+        {photo?.src && <img className="bubble-photo" src={asset(photo.src)} alt={photo.alt} draggable="false" />}
+        <p className="bubble-text">{text}</p>
       </Spot>
     </>
   )

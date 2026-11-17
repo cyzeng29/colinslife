@@ -122,11 +122,12 @@ describe('about desk content', () => {
     for (const it of about.interests) expect(it.penguin.alt).not.toBe('')
   })
 
-  it('gives every gallery interest four images for its 2x2 grid and every image a caption', () => {
+  // Grid photos stand without captions; every filled one is described for screen readers
+  it('gives every gallery interest four images for its 2x2 grid, each photo described', () => {
     for (const it of about.interests) {
       if (it.layout === 'sketchbook') expect(it.images.length, it.id).toBeGreaterThan(1)
       else expect(it.images, it.id).toHaveLength(4)
-      for (const img of it.images) expect(img.caption, it.id).toBeTruthy()
+      for (const img of it.images) if (img.src) expect(img.alt, it.id).toBeTruthy()
     }
   })
 })

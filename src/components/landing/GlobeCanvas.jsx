@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import landDots from '../../data/landDots.json'
-import { CANVAS_RATIO, GLOBE_R, faceRotation, landPoints, morphPoint } from './globeProjection.js'
+import { CANVAS_RATIO, GLOBE_R, ZOOM, clampView, faceRotation, flatPoint, landPoints, maxZoom, morphPoint, viewPoint, zoomAbout } from './globeProjection.js'
 
 const LAND = landPoints(landDots.rows)
 const MORPH_MS = 700
@@ -11,6 +11,8 @@ const MAX_TILT = 80
 const MARKER_HIT_PX = 14
 const MARKER_FULL_SIZE_PX = 860
 const CLICK_SLOP_PX = 4
+const ZOOM_MS = 140 // how quickly a zoom eases in
+const WHEEL_RATE = 0.0016 // zoom per pixel scrolled
 // Dots are drawn in one path per brightness, so a frame takes few fills
 const ALPHA_STEPS = 8
 const LAND_ALPHA = 0.62
@@ -23,7 +25,11 @@ const cssVar = (el, name) => getComputedStyle(el).getPropertyValue(name).trim()
 // The dotted world on a canvas, flat or curled into a globe. The dots and
 // markers move outside React: props say where to head, and frames run only
 // while something is moving (or the chosen marker is pulsing).
-export default function GlobeCanvas({ places, view, selected, turnKey, onSelect, onHover, reducedMotion, label }) {
+// It zooms: a click on open map zooms in there, the wheel and a pinch zoom
+// about the pointer, and zoomed in, dragging the flat map moves it. Markers
+// keep their size, so close places come apart. `zoomIn` and `zoomOut` (on
+// the ref) step it from buttons; `onZoom` hears the zoom level as it changes.
+const GlobeCanvas = forwardRef(function GlobeCanvas({ places, view, selected, turnKey, onSelect, onHover, onZoom, zoomed = false, reducedMotion, label }, ref) {
   const canvasRef = useRef(null)
   const onSelectRef = useRef(onSelect)
   onSelectRef.current = onSelect
@@ -38,7 +44,13 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
     frame: null,
     last: 0,
     drag: null,
+    zoom: { k: 1, x: 0, y: 0 },
+    zoomTo: null, // the view the zoom is easing to
+    pointers: new Map(), // touches down, for a pinch
+    pinch: null,
   })
+  const onZoomRef = useRef(onZoom)
+  onZoomRef.current = onZoom
   const propsRef = useRef()
   propsRef.current = { places, view, selected, reducedMotion }
 
@@ -50,7 +62,10 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
     const dpr = window.devicePixelRatio || 1
     const unit = scene.size / 2
     const height = scene.size / CANVAS_RATIO
-    const toPx = (p) => ({ x: scene.size / 2 + p.x * unit, y: height / 2 + p.y * unit })
+    const toPx = (p) => {
+      const v = viewPoint(p, scene.zoom, scene.t)
+      return { x: scene.size / 2 + v.x * unit, y: height / 2 + v.y * unit }
+    }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, scene.size, height)
@@ -60,20 +75,29 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
     if (scene.t > 0) {
       ctx.globalAlpha = scene.t
       ctx.beginPath()
-      ctx.arc(scene.size / 2, height / 2, GLOBE_R * unit, 0, Math.PI * 2)
+      ctx.arc(scene.size / 2, height / 2, GLOBE_R * unit * scene.zoom.k, 0, Math.PI * 2)
       ctx.fillStyle = cssVar(canvas, '--scrim')
       ctx.fill()
-      ctx.globalAlpha = scene.t * 0.3
-      ctx.strokeStyle = cssVar(canvas, '--on-green')
-      ctx.stroke()
+      // its rim, until zoomed in past where it fits (it would show as stray
+      // corners of a circle)
+      const rimFits = Math.max(0, 1 - (scene.zoom.k - 1) * 4)
+      if (rimFits > 0) {
+        ctx.globalAlpha = scene.t * 0.3 * rimFits
+        ctx.strokeStyle = cssVar(canvas, '--on-green')
+        ctx.stroke()
+      }
     }
 
-    const dot = Math.max(0.9, scene.size * 0.0016)
+    // A little bigger zoomed in, so the land still reads as land
+    const dot = Math.max(0.9, scene.size * 0.0016) * Math.min(2, Math.sqrt(scene.zoom.k))
+    const inView = (q) => q.x > -dot && q.y > -dot && q.x < scene.size + dot && q.y < height + dot
     const buckets = Array.from({ length: ALPHA_STEPS + 1 }, () => [])
     for (const { lat, lon } of LAND) {
       const p = morphPoint(lat, lon, scene.t, scene.rotation)
       const step = Math.round(p.alpha * ALPHA_STEPS)
-      if (step > 0) buckets[step].push(toPx(p))
+      if (step === 0) continue
+      const q = toPx(p)
+      if (inView(q)) buckets[step].push(q)
     }
     ctx.fillStyle = cssVar(canvas, '--on-green')
     buckets.forEach((points, step) => {
@@ -136,9 +160,20 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
         scene.rotation = { lat: scene.rotation.lat + dLat * k, lon: scene.rotation.lon + dLon * k }
       }
     }
+    if (scene.zoomTo) {
+      const k = 1 - Math.exp(-Math.min(dt, 64) / ZOOM_MS)
+      const to = scene.zoomTo
+      const from = scene.zoom
+      if (Math.abs(to.k - from.k) < 0.002 && Math.abs(to.x - from.x) < 0.0005 && Math.abs(to.y - from.y) < 0.0005) {
+        scene.zoom = to
+        scene.zoomTo = null
+      } else {
+        scene.zoom = { k: from.k + (to.k - from.k) * k, x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k }
+      }
+    }
     draw(now)
     const { selected, reducedMotion } = propsRef.current
-    if (scene.morphStart !== null || scene.heading || (selected && !reducedMotion)) schedule()
+    if (scene.morphStart !== null || scene.heading || scene.zoomTo || (selected && !reducedMotion)) schedule()
   }
   const schedule = () => {
     const scene = sceneRef.current
@@ -202,20 +237,70 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
     schedule()
   }, [selected, turnKey, reducedMotion])
 
-  const markerAt = (e) => {
-    const canvas = canvasRef.current
+  // Where a pointer is on the canvas, in canvas units from the centre
+  const canvasAt = (e) => {
+    const box = canvasRef.current.getBoundingClientRect()
+    const unit = sceneRef.current.size / 2 || 1
+    return { x: (e.clientX - box.left - box.width / 2) / unit, y: (e.clientY - box.top - box.height / 2) / unit }
+  }
+
+  // Heads for a new view: eased, or straight there under reduced motion or mid-gesture
+  const setView = (next, { now = false } = {}) => {
     const scene = sceneRef.current
-    const box = canvas.getBoundingClientRect()
+    const to = clampView(next, maxZoom(propsRef.current.view))
+    onZoomRef.current?.(to.k)
+    if (now || propsRef.current.reducedMotion) {
+      scene.zoom = to
+      scene.zoomTo = null
+      draw(performance.now())
+    } else {
+      scene.zoomTo = to
+    }
+    schedule()
+  }
+  const target = () => sceneRef.current.zoomTo || sceneRef.current.zoom
+  const zoomBy = (factor, at, opts) => setView(zoomAbout(target(), target().k * factor, at, maxZoom(propsRef.current.view)), opts)
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => zoomBy(ZOOM.step),
+    zoomOut: () => zoomBy(1 / ZOOM.step),
+  }))
+
+  // The wheel zooms about the pointer. Listened for directly, as React's wheel
+  // listener can't stop the pop-up scrolling instead.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const onWheel = (e) => {
+      e.preventDefault()
+      zoomBy(Math.exp(-e.deltaY * WHEEL_RATE), canvasAt(e), { now: true })
+    }
+    canvas.addEventListener('wheel', onWheel, { passive: false })
+    return () => canvas.removeEventListener('wheel', onWheel)
+  }, [])
+
+  // A globe zooms less far: coming round from the flat map, ease back to its limit
+  useEffect(() => {
+    if (target().k > maxZoom(view)) setView(target())
+  }, [view])
+
+  // Picked while zoomed in on the flat map: slide over to it
+  useEffect(() => {
+    if (!selected || view === 'globe' || target().k <= 1) return
+    const p = flatPoint(selected.lat, selected.lon)
+    setView({ k: target().k, x: p.x, y: p.y })
+  }, [selected, turnKey])
+
+  const markerAt = (e) => {
+    const scene = sceneRef.current
+    const at = canvasAt(e)
     const unit = scene.size / 2
     let best = null
     let bestDist = MARKER_HIT_PX
     for (const place of propsRef.current.places) {
       const p = morphPoint(place.lat, place.lon, scene.t, scene.rotation)
       if (p.alpha <= 0) continue
-      const dist = Math.hypot(
-        scene.size / 2 + p.x * unit - (e.clientX - box.left),
-        box.height / 2 + p.y * unit - (e.clientY - box.top),
-      )
+      const v = viewPoint(p, scene.zoom, scene.t)
+      const dist = Math.hypot(v.x - at.x, v.y - at.y) * unit
       if (dist < bestDist) {
         best = place
         bestDist = dist
@@ -224,43 +309,85 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
     return best
   }
 
+  const spread = (pointers) => {
+    const [a, b] = [...pointers.values()]
+    return { dist: Math.hypot(a.x - b.x, a.y - b.y), mid: { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 } }
+  }
+
   const onPointerDown = (e) => {
     const scene = sceneRef.current
-    scene.drag = { x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY }
+    scene.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
     // Captured either way, so letting go outside the canvas still ends the drag
     canvasRef.current.setPointerCapture?.(e.pointerId)
+    if (scene.pointers.size === 2) {
+      // a second finger: a pinch, not a drag or a click
+      scene.drag = null
+      const { dist } = spread(scene.pointers)
+      scene.pinch = { dist: Math.max(1, dist), k: target().k }
+      return
+    }
+    scene.drag = { x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY }
     if (view === 'globe') scene.heading = null
   }
   const onPointerMove = (e) => {
     const scene = sceneRef.current
+    if (scene.pointers.has(e.pointerId)) scene.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (scene.pinch && scene.pointers.size === 2) {
+      const { dist, mid } = spread(scene.pointers)
+      setView(zoomAbout(scene.zoom, scene.pinch.k * (dist / scene.pinch.dist), canvasAt(mid), maxZoom(view)), { now: true })
+      return
+    }
     if (!scene.drag) {
       const place = markerAt(e)
       canvasRef.current.style.cursor = place ? 'var(--cursor-pointer)' : ''
       onHover(place)
       return
     }
-    if (view !== 'globe') return
-    const degPerPx = (180 / Math.PI) / (GLOBE_R * (scene.size / 2))
-    scene.rotation = {
-      lat: clampTilt(scene.rotation.lat + (e.clientY - scene.drag.y) * degPerPx),
-      lon: scene.rotation.lon - (e.clientX - scene.drag.x) * degPerPx,
+    const unit = scene.size / 2
+    if (view !== 'globe') {
+      // zoomed in, the flat map moves with the pointer
+      if (scene.zoom.k <= 1) return
+      const { k, x, y } = scene.zoom
+      setView({ k, x: x - (e.clientX - scene.drag.x) / (unit * k), y: y - (e.clientY - scene.drag.y) / (unit * k) }, { now: true })
+    } else {
+      const degPerPx = (180 / Math.PI) / (GLOBE_R * unit * scene.zoom.k)
+      scene.rotation = {
+        lat: clampTilt(scene.rotation.lat + (e.clientY - scene.drag.y) * degPerPx),
+        lon: scene.rotation.lon - (e.clientX - scene.drag.x) * degPerPx,
+      }
+      schedule()
     }
     scene.drag.x = e.clientX
     scene.drag.y = e.clientY
-    schedule()
   }
   const onPointerUp = (e) => {
-    const { drag } = sceneRef.current
-    sceneRef.current.drag = null
+    const scene = sceneRef.current
+    scene.pointers.delete(e.pointerId)
+    if (scene.pinch) {
+      if (scene.pointers.size === 0) scene.pinch = null
+      scene.drag = null
+      return
+    }
+    const { drag } = scene
+    scene.drag = null
     if (!drag || Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > CLICK_SLOP_PX) return
     const place = markerAt(e)
     if (place) onSelectRef.current(place)
+    // a click on open map zooms in there (a globe zooms about its middle)
+    else if (target().k < maxZoom(view) - 0.01) zoomBy(ZOOM.step, view === 'globe' ? { x: 0, y: 0 } : canvasAt(e))
   }
-  const onPointerCancel = () => {
-    sceneRef.current.drag = null
+  const onPointerCancel = (e) => {
+    const scene = sceneRef.current
+    scene.pointers.delete(e.pointerId)
+    if (!scene.pointers.size) scene.pinch = null
+    scene.drag = null
   }
 
   const onKeyDown = (e) => {
+    if (e.key === '+' || e.key === '=' || e.key === '-' || e.key === '_') {
+      e.preventDefault()
+      return zoomBy(e.key === '+' || e.key === '=' ? ZOOM.step : 1 / ZOOM.step)
+    }
     const turns = { ArrowLeft: [0, -ARROW_DEG], ArrowRight: [0, ARROW_DEG], ArrowUp: [ARROW_DEG, 0], ArrowDown: [-ARROW_DEG, 0] }
     const turn = turns[e.key]
     if (!turn || view !== 'globe') return
@@ -280,7 +407,7 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
   return (
     <canvas
       ref={canvasRef}
-      className={'gl-canvas' + (view === 'globe' ? ' is-globe' : '')}
+      className={'gl-canvas' + (view === 'globe' ? ' is-globe' : '') + (zoomed ? ' is-zoomed' : '')}
       role="img"
       aria-label={label}
       tabIndex={view === 'globe' ? 0 : undefined}
@@ -292,4 +419,5 @@ export default function GlobeCanvas({ places, view, selected, turnKey, onSelect,
       onKeyDown={onKeyDown}
     />
   )
-}
+})
+export default GlobeCanvas

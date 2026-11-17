@@ -267,57 +267,201 @@ export const landing = {
     ],
     recruiter: 'Recruiter Mode',
   },
-  // shown from the "!" marker, on hover or click (placeholder until the bubble is drawn)
+  // shown from the "!" marker, on hover or click: the real bridge, with `text`
+  // under it (placeholder until the bubble is drawn)
   bridge: {
     text: 'home base: durham, nc. this bridge is drawn after the japanese bridge in duke gardens.',
+    photo: { src: 'images/duke-gardens-bridge.jpeg', alt: 'The red Japanese bridge over a pond in Duke Gardens' },
   },
   // Clickable desk objects whose pop-ups are still being drawn
   desk: [
     { slug: 'frisbee', name: 'frisbee', label: 'frisbee world championships medal' },
     { slug: 'camera', name: 'camera', label: 'camera: photos taken' },
-    { slug: 'sketchbook', name: 'sketchbook', label: 'sketchbook: drawings' },
   ],
   globe: { label: 'globe of places explored', title: "what i've explored" },
+  sketchbook: { label: 'sketchbook of drawings', title: 'sketchbook', book: 'book', grid: 'grid', gridLabel: 'every drawing' },
   backpack: { label: 'backpack: what i carry', title: 'what i carry' },
   monitor: { label: 'monitor', screen: 'designed with procreate and figma', hintOn: 'switch it on', hintOff: 'switch it off' },
-  dog: { name: 'kora', alt: 'kora, asleep on a dog bed' },
+  dog: { name: 'kora', alt: 'kora, asleep on a dog bed', wake: 'wake her up' },
 }
 
 // The markers on the desk globe's map. Add a line for each place Colin has
-// been; `note` is optional.
+// been; `note` is optional. `photos` show in a strip when the place is picked,
+// each enlarging on a click: `src` under public/, `alt` describes it, and
+// `caption` is optional.
+const photo = (file, alt, caption = '') => ({ src: `images/places/${file}.jpeg`, alt, caption })
+
 export const places = [
-  { name: 'chapel hill, nc', lat: 35.91, lon: -79.06, note: 'my hometown growing up' },
-  { name: 'durham, nc', lat: 36.0, lon: -78.94, note: 'where i am now, at duke' },
-  { name: 'ann arbor, mi', lat: 42.28, lon: -83.74, note: 'where my house is now' },
-  { name: 'virginia', lat: 37.5, lon: -78.8 },
-  { name: 'maine', lat: 45.3, lon: -69.2 },
+  {
+    name: 'chapel hill, nc',
+    lat: 35.91,
+    lon: -79.06,
+    note: 'my hometown growing up',
+    photos: [
+      photo('chapel-hill-gym', 'Colin taking a selfie with a group of friends in a gym'),
+      photo('chapel-hill-unc', 'Colin with two friends at a graduation, one wearing a stole', 'unc'),
+    ],
+  },
+  {
+    name: 'durham, nc',
+    lat: 36.0,
+    lon: -78.94,
+    note: 'where i am now, at duke',
+    photos: [
+      photo('duke-sunset', 'An orange and purple sunset over a columned building on Duke’s campus'),
+    ],
+  },
+  {
+    name: 'ann arbor, mi',
+    lat: 42.28,
+    lon: -83.74,
+    note: 'where my house is now',
+    photos: [photo('ann-arbor-home', 'Colin and family standing together at home with the family dog')],
+  },
+  { name: 'sleeping bear dunes, mi', lat: 44.88, lon: -86.04, photos: [photo('sleeping-bear-dunes', 'Two people on a sand dune high above a blue lake')] },
+  { name: 'mackinac island, mi', lat: 45.85, lon: -84.62, photos: [photo('mackinac-island', 'A wooded cliff dropping to clear blue-green water')] },
+  { name: 'chicago, il', lat: 41.88, lon: -87.62, photos: [photo('chicago-bean', 'Cloud Gate, the Bean, reflecting the Chicago skyline')] },
+  { name: 'minnesota', lat: 44.86, lon: -93.24, photos: [photo('mall-of-america', 'The Mall of America sign on a glass wall')] },
+  {
+    name: 'grandfather mountain, nc',
+    lat: 36.1,
+    lon: -81.81,
+    photos: [photo('grandfather-mountain', 'Colin standing on a rock high above layered blue mountains under clouds')],
+  },
+  {
+    name: 'virginia',
+    lat: 37.5,
+    lon: -78.8,
+    photos: [photo('blue-ridge-parkway', 'Colin looking out over autumn hills from the Blue Ridge Parkway', 'blue ridge parkway')],
+  },
+  {
+    name: 'maine',
+    lat: 45.3,
+    lon: -69.2,
+    photos: [
+      photo('maine-acadia', 'Islands in a misty bay seen from a mountain top in Acadia'),
+      photo('maine-portland-gull', 'A seagull eating a crab on a wooden dock in Portland'),
+    ],
+  },
   { name: 'louisiana', lat: 30.9, lon: -92.0, note: 'on a cruise' },
   { name: 'florida', lat: 28.1, lon: -81.6 },
   { name: 'cancún, mexico', lat: 21.16, lon: -86.85 },
-  { name: 'california', lat: 36.8, lon: -119.4 },
+  {
+    name: 'california',
+    lat: 36.8,
+    lon: -119.4,
+    photos: [
+      photo('santa-monica', 'The Santa Monica pier and Ferris wheel past palm trees'),
+      photo('hollywood-sign', 'The Hollywood sign on a dry hillside'),
+      photo('hollywood-hills', 'Colin standing on a ridge in the Hollywood hills at sunset', 'hollywood'),
+    ],
+  },
   { name: 'victoria island', lat: 48.43, lon: -123.37 },
   { name: 'banff', lat: 51.18, lon: -115.57 },
-  { name: 'colorado', lat: 39.0, lon: -105.5, note: 'frisbee' },
+  {
+    name: 'colorado',
+    lat: 39.0,
+    lon: -105.5,
+    note: 'frisbee',
+    photos: [
+      photo('colorado-rocky-mountain', 'A still mountain lake below a rocky peak and pine forest'),
+      photo('colorado-night', 'Colin and three friends leaning on a wall at night'),
+      photo('colorado-pool', 'A friend diving into a hotel pool at night while others watch'),
+    ],
+  },
   { name: 'new jersey', lat: 40.1, lon: -74.7 },
-  { name: 'washington, dc', lat: 38.91, lon: -77.04 },
-  { name: 'london, uk', lat: 51.51, lon: -0.13, note: "kensington gardens, king's cross" },
+  {
+    name: 'washington, dc',
+    lat: 38.91,
+    lon: -77.04,
+    photos: [photo('washington-capitol', 'Colin grinning on the National Mall with the Capitol behind him')],
+  },
+  {
+    name: 'london, uk',
+    lat: 51.51,
+    lon: -0.13,
+    note: "kensington gardens, king's cross",
+    photos: [
+      photo('london-tower-bridge', 'Tower Bridge against a clear blue sky'),
+      photo('london-hyde-park', 'Two riders in red uniforms on black horses in Hyde Park'),
+      photo('london-buses', 'Red double-decker buses on a London street'),
+    ],
+  },
   { name: 'windsor castle, uk', lat: 51.48, lon: -0.6 },
-  { name: 'stonehenge, uk', lat: 51.18, lon: -1.83 },
-  { name: 'roman baths, uk', lat: 51.38, lon: -2.36 },
-  { name: 'birmingham, uk', lat: 52.49, lon: -1.89 },
-  { name: 'brussels', lat: 50.85, lon: 4.35 },
-  { name: 'amsterdam', lat: 52.37, lon: 4.9 },
-  { name: 'zaandam north', lat: 52.46, lon: 4.82 },
-  { name: 'spain', lat: 40.2, lon: -3.7, note: 'world champions, ultimate frisbee' },
-  { name: 'hawaii', lat: 20.8, lon: -156.3 },
-  { name: 'turkey', lat: 39.0, lon: 35.2 },
-  { name: 'florence, italy', lat: 43.77, lon: 11.26 },
-  { name: 'rome, italy', lat: 41.9, lon: 12.5 },
+  { name: 'stonehenge, uk', lat: 51.18, lon: -1.83, photos: [photo('stonehenge', 'Colin pointing toward Stonehenge across the grass')] },
+  { name: 'roman baths, uk', lat: 51.38, lon: -2.36, photos: [photo('bath-abbey', 'An ice cream cone held up in front of Bath Abbey')] },
+  { name: 'birmingham, uk', lat: 52.49, lon: -1.89, photos: [photo('birmingham-frisbee', 'Colin and a friend at a frisbee tournament field under a blue sky')] },
+  {
+    name: 'brussels',
+    lat: 50.85,
+    lon: 4.35,
+    photos: [
+      photo('brussels-atomium', 'The Atomium under a cloudy sky'),
+      photo('brussels-grand-place', 'The Gothic town hall on the Grand Place'),
+    ],
+  },
+  {
+    name: 'amsterdam',
+    lat: 52.37,
+    lon: 4.9,
+    photos: [
+      photo('amsterdam-canal', 'The sun setting through clouds over an Amsterdam canal'),
+      photo('amsterdam-burger', 'A burger with a flag reading “thanks, you look yummy too!” and fries'),
+      photo('amsterdam-street', 'Colin and a friend walking down a sunny Amsterdam street'),
+    ],
+  },
+  { name: 'zaandam north', lat: 52.46, lon: 4.82, photos: [photo('zaanse-schans', 'Colin looking out at windmills across a grassy field')] },
+  {
+    name: 'spain',
+    lat: 40.2,
+    lon: -3.7,
+    note: 'world champions, ultimate frisbee',
+    photos: [
+      photo('wjuc-champions', 'A collage of the USA team celebrating as 2026 world junior ultimate champions'),
+      photo('logrono-wjuc', 'Colin smiling in a USA jersey with team crowds behind him in Logroño'),
+      photo('madrid-street', 'A domed corner building on a Madrid street at dusk'),
+      photo('toledo', 'A narrow street in Toledo leading to the cathedral spire'),
+      photo('madrid-flatbreads', 'Two flatbreads on wooden boards at a restaurant table'),
+    ],
+  },
+  { name: 'hawaii', lat: 20.8, lon: -156.3, photos: [
+    photo('hawaii-koko-head', 'The steep Koko Head trail stairs looking down over Oahu'),
+    photo('hawaii-horses', 'Horses grazing beside a car window among trees'),
+    photo('hawaii-malasadas', 'A box of sugared malasadas filled with custard'),
+  ] },
+  { name: 'turkey', lat: 39.0, lon: 35.2, photos: [photo('istanbul-galata', 'Galata Tower above the Istanbul skyline across the water', 'istanbul')] },
+  { name: 'florence, italy', lat: 43.77, lon: 11.26, photos: [photo('florence', 'Colin taking a selfie above the rooftops of Florence')] },
+  {
+    name: 'rome, italy',
+    lat: 41.9,
+    lon: 12.5,
+    photos: [
+      photo('rome-arch-of-constantine', 'Colin standing in front of the Arch of Constantine'),
+      photo('rome-trevi', 'The Trevi Fountain with crowds in front of it'),
+    ],
+  },
   { name: 'sorrento, italy', lat: 40.63, lon: 14.38 },
-  { name: 'beijing, china', lat: 39.9, lon: 116.41 },
+  {
+    name: 'beijing, china',
+    lat: 39.9,
+    lon: 116.41,
+    photos: [
+      photo('beijing-forbidden-city', 'Taking a photo of the Forbidden City’s red walls and golden roofs', 'the forbidden city'),
+      photo('beijing-zoo-monkeys', 'Two macaques sitting together on stone paving at the Beijing Zoo', 'beijing zoo'),
+    ],
+  },
   { name: 'shanghai, china', lat: 31.23, lon: 121.47 },
   { name: 'hefei, china', lat: 31.82, lon: 117.23 },
-  { name: 'nanfeng, china', lat: 27.22, lon: 116.53 },
+  {
+    name: 'nanfeng, china',
+    lat: 27.22,
+    lon: 116.53,
+    photos: [
+      photo('nanfeng-lanterns', 'A crowded street at night strung with red lanterns'),
+      photo('nanfeng-street', 'Colin giving a laughing friend a piggyback ride down a sunny street'),
+      photo('nanfeng-dinner', 'Colin and family around a big round table at a family dinner', 'fuzhou, nanfeng'),
+    ],
+  },
   { name: 'huangshan, china', lat: 30.13, lon: 118.17 },
 ]
 
@@ -516,17 +660,31 @@ export const about = {
         alt: 'A penguin in a cap holding a pickleball paddle, with a frisbee flying past and a bag of balls',
       },
       images: [
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'pickleball — caption coming soon' },
+        {
+          kind: 'photo',
+          ratio: '4/5',
+          src: 'images/frisbee-mark.jpeg',
+          alt: 'An ultimate frisbee player in #11 holding the disc while a defender in #13 marks him',
+          placeholder: 'photo',
+          caption: '',
+        },
         {
           kind: 'photo',
           ratio: '4/5',
         src: 'images/frisbee2.jpeg',
         alt: 'Colin in USA #26 skying two France players for a disc',
           placeholder: 'photo',
-        caption: 'ultimate frisbee — WJUC 2026 finals day',
+        caption: '',
         },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: '' },
+        {
+          kind: 'photo',
+          ratio: '4/5',
+          src: 'images/pickleball.jpeg',
+          alt: 'Colin and two friends holding pickleball paddles on a court under the lights at night',
+          placeholder: 'photo',
+          caption: '',
+        },
       ],
     },
     {
@@ -538,17 +696,17 @@ export const about = {
         alt: 'A penguin playing an acoustic guitar with a keyboard balanced on its head',
       },
       images: [
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'piano — caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: '' },
         {
           kind: 'photo',
           ratio: '4/5',
           src: 'images/guitar.jpeg',
           alt: 'Colin playing an acoustic Fender guitar, seated with his legs crossed',
           placeholder: 'photo',
-          caption: 'guitar — caption coming soon',
+          caption: '',
         },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
-        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: 'caption coming soon' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: '' },
+        { kind: 'photo', ratio: '4/5', src: '', alt: '', placeholder: 'photo', caption: '' },
       ],
     },
     {
@@ -608,6 +766,43 @@ export const about = {
     { name: 'Duke SSMU', role: '', when: '', blurb: 'The Statistical Science Majors Union, a community for undergraduate students interested in statistics and data science. I am currently working on the Lullabee project, dedicated to optimizing infant sleep based on mattress data and patterns.', href: '' },
     { name: 'DAML', role: '', when: '', blurb: 'The Duke Applied Machine Learning group, focused on research and applications of machine learning techniques. I have worked on several projects related to natural language processing and computer vision, including an audio dysfluency removal and fake news detection system.', href: '' },
     { name: 'Duke Justice Project', role: '', when: '', blurb: 'A student-run organization dedicated to promoting justice-involed individuals through education, advocacy, and innovative solutions. I am currently on the Tech team, focused on helping nonprofit organizations leverage technology for social impact and providing resources for people re-entering society after incarceration.', href: '' },
-    { name: 'Duke Pickleball', role: '', when: '', blurb: 'A competitive sports club for pickleball enthusiasts at Duke University, qualifying for the travel team and playing in intercollegiate tournaments.', href: '' },
+    {
+      name: 'Duke Pickleball',
+      role: '',
+      when: '',
+      blurb: 'A competitive sports club for pickleball enthusiasts at Duke University, qualifying for the travel team and playing in intercollegiate tournaments.',
+      href: '',
+      photo: { src: 'images/pickleball-club.jpeg', alt: 'Colin and three Duke Pickleball teammates dressed up, posing together in front of a wooden door', caption: '' },
+    },
   ],
 }
+
+// The full sketchbook, opened from the desk on Home: the About page's art,
+// with the ink drawings gathered a few to a page. A page with `items` holds
+// several pieces; the grid view lists every piece on its own.
+const ink = (file, name, alt) => ({ src: `images/drawings/${file}.jpeg`, alt, caption: `ink drawing — ${name}` })
+const art = about.interests.find((it) => it.id === 'art').images
+export const sketchbook = [
+  ...art.slice(0, 3),
+  {
+    kind: 'drawing',
+    caption: 'ink drawings — chamber, viper and jett',
+    placeholder: 'from the sketchbook',
+    items: [
+      ink('chamber', 'chamber', 'Signed ink line drawing of Chamber from Valorant, his name lettered down the side'),
+      ink('viper', 'viper', 'Signed ink line drawing of Viper from Valorant, her name lettered down the side'),
+      ink('jett', 'jett', 'Signed ink line drawing of Jett from Valorant holding a knife, her name lettered at the top'),
+    ],
+  },
+  {
+    kind: 'drawing',
+    caption: 'ink drawings — sova, omen and a mech',
+    placeholder: 'from the sketchbook',
+    items: [
+      ink('sova', 'sova', 'Signed ink line drawing of Sova from Valorant with his bow, his name lettered down the side'),
+      ink('omen', 'omen', 'Signed ink line drawing of Omen from Valorant, his name lettered at the top'),
+      ink('mech', 'mech', 'Ink line drawing of an armoured mech holding a large gun'),
+    ],
+  },
+  ...art.slice(3),
+]

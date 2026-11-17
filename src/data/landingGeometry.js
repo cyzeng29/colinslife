@@ -76,8 +76,11 @@ export const FEET_Y = 905
 export const DESK_FEET_Y = LAYERS['char-front'] ? LAYERS['char-front'].y + LAYERS['char-front'].h + DESK_SHIFT : FEET_Y
 // Band of fog around the bridge, between the two panels.
 export const FOG = { x: 694, y: 800, w: 1977, h: 360 }
-// Where the "where I live" bubble sits (above the "!" marker).
-export const BUBBLE = { x: 1960, y: 700, w: 600, h: 170 }
+// Where the "where I live" bubble sits: its bottom edge (`y`) just above the
+// "!" marker, growing upward (see .bubble), so it never covers the marker.
+// Without room above (the piano bar is over it), it hangs below the marker instead.
+export const BUBBLE = { x: 2010, y: 870, w: 500, h: 170 }
+export const BUBBLE_BELOW = { ...BUBBLE, y: 995 }
 
 // Built once (after HALL and DESK_PANEL exist) so callers get stable objects
 const REGIONS = { wide: buildRegions(STAGE, false), phone: buildRegions(STAGE_PHONE, true) }

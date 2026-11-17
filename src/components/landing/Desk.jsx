@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react'
 import { Layer, LayerImg, Spot, useRegion } from './CanvasRegion.jsx'
 import BackpackDialog from './BackpackDialog.jsx'
 import GlobeDialog from './GlobeDialog.jsx'
+import SketchbookDialog from './SketchbookDialog.jsx'
 import { DESK_FRAME, DESK_SHIFT, hasLayer } from '../../data/landingGeometry.js'
-import { places, skills } from '../../data/content.js'
+import { places, sketchbook, skills } from '../../data/content.js'
 
 // Screen 2: Colin's desk, "who I am outside the resume", all drawn layers.
 // The backpack opens up to show the skills packed inside; the globe opens onto
-// the places explored; the monitor switches its "designed with" screen on and
+// the places explored; the sketchbook opens onto the drawings; the monitor switches its "designed with" screen on and
 // off. The other objects' pop-ups are still being drawn, so a click only nudges
-// them and says "soon". Kora sleeps.
+// them and says "soon". Kora sleeps, the z's rising off her head; a click
+// startles her awake for a moment, then she settles back down.
 const TOLD_MS = 1600
+const STARTLED_MS = 1700 // how long Kora stays awake after a click
 const TOP_SHELF = ['frisbee', 'globe']
 
 // What an object does, shown on hover and focus. Its button's aria-label
@@ -24,13 +27,21 @@ function DeskLabel({ slug, children }) {
 }
 
 export default function Desk({ content }) {
-  const { desk, globe, backpack, monitor, dog } = content
+  const { desk, globe, backpack, monitor, dog, sketchbook: book } = content
   const region = useRegion()
   const [nudged, setNudged] = useState(null)
   const [told, setTold] = useState(null) // the unfinished object saying "soon"
   const [screenOn, setScreenOn] = useState(false)
+  const [startled, setStartled] = useState(0) // counts clicks, so a second one jolts her again
   const [backpackFrom, setBackpackFrom] = useState(null) // the opener while open
   const [globeFrom, setGlobeFrom] = useState(null) // the opener while open
+  const [bookFrom, setBookFrom] = useState(null) // the opener while open
+
+  useEffect(() => {
+    if (!startled) return
+    const timer = setTimeout(() => setStartled(0), STARTLED_MS)
+    return () => clearTimeout(timer)
+  }, [startled])
 
   useEffect(() => {
     if (!told) return
@@ -52,8 +63,20 @@ export default function Desk({ content }) {
       <Spot box={DESK_FRAME} className="desk-panel" aria-hidden="true" />
       <div className="desk-group" style={{ transform: `translateY(${(DESK_SHIFT / region.h) * 100}%)` }}>
         <Layer slug="shelf" />
-        <Spot role="img" slug="dog" className="desk-dog" aria-label={dog.alt}>
-          <LayerImg slug="dog" />
+        <Spot
+          as="button"
+          type="button"
+          slug="dog"
+          className={'desk-dog' + (startled ? ' is-startled' : '')}
+          aria-label={`${dog.alt}: ${dog.wake}`}
+          onClick={() => setStartled((n) => n + 1)}
+        >
+          <LayerImg slug="dog" key={startled} />
+          {startled > 0 && (
+            <span className="dog-alert" key={`alert-${startled}`} aria-hidden="true">
+              <LayerImg slug="marker-alert" />
+            </span>
+          )}
           {hasLayer('zzz') ? (
             <LayerImg slug="zzz" className="dog-zzz-drawn" />
           ) : (
@@ -87,6 +110,19 @@ export default function Desk({ content }) {
         >
           <LayerImg slug="globe" />
           <DeskLabel slug="globe">{globe.title}</DeskLabel>
+        </Spot>
+
+        <Spot
+          as="button"
+          type="button"
+          slug="sketchbook"
+          className="desk-obj"
+          aria-label={book.label}
+          aria-haspopup="dialog"
+          onClick={(e) => setBookFrom(e.currentTarget)}
+        >
+          <LayerImg slug="sketchbook" />
+          <DeskLabel slug="sketchbook">{book.title}</DeskLabel>
         </Spot>
 
         <Spot
@@ -127,6 +163,7 @@ export default function Desk({ content }) {
           onClose={() => setBackpackFrom(null)}
         />
       )}
+      {bookFrom && <SketchbookDialog copy={book} pages={sketchbook} opener={bookFrom} onClose={() => setBookFrom(null)} />}
       {globeFrom && (
         <GlobeDialog
           title={globe.title}

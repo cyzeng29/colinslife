@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Frame, { asset } from './Frame.jsx'
 import InterestPath from './InterestPath.jsx'
-import Sketchbook from './Sketchbook.jsx'
+import Sketchbook from './sketchbook/Sketchbook.jsx'
 import { Penguin } from './Doodles.jsx'
 import usePianoHeight from '../hooks/usePianoHeight.js'
 

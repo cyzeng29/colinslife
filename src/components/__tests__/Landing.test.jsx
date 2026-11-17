@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PianoNav from '../PianoNav.jsx'
 import Landing from '../landing/Landing.jsx'
 import { PluckProvider } from '../PluckProvider.jsx'
-import { contact, landing, places, skills } from '../../data/content.js'
+import { contact, landing, places, sketchbook, skills } from '../../data/content.js'
 import { findCaseStudy } from '../../data/caseStudies.js'
 
 vi.mock('../../audio/notes.js', () => ({ playNote: vi.fn() }))
@@ -117,9 +117,32 @@ describe('Landing content', () => {
     expect(bubble).not.toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'where i live' }))
     expect(bubble).toBeVisible()
+    expect(screen.getByAltText(landing.bridge.photo.alt)).toBeVisible() // the real bridge, over its caption
     expect(screen.getByRole('button', { name: 'where i live' })).toHaveAttribute('aria-expanded', 'true')
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(bubble).not.toBeVisible()
+  })
+
+  it('opens the bridge bubble above the "!" with room under the piano bar, and below it without', () => {
+    const real = Element.prototype.getBoundingClientRect
+    let bubbleTop = 400
+    Element.prototype.getBoundingClientRect = function () {
+      if (this.id === 'bridge-bubble') return { top: bubbleTop, bottom: bubbleTop + 200, left: 0, right: 0, width: 0, height: 200 }
+      if (this.classList?.contains('piano-wrap')) return { top: 0, bottom: 200, left: 0, right: 0, width: 0, height: 200 }
+      return real.call(this)
+    }
+    try {
+      renderLanding()
+      const marker = screen.getByRole('button', { name: 'where i live' })
+      fireEvent.click(marker)
+      expect(document.getElementById('bridge-bubble')).not.toHaveClass('is-below')
+      fireEvent.click(marker) // closed
+      bubbleTop = 120 // scrolled so the piano bar would cover it
+      fireEvent.click(marker)
+      expect(document.getElementById('bridge-bubble')).toHaveClass('is-below')
+    } finally {
+      Element.prototype.getBoundingClientRect = real
+    }
   })
 
   it('shows the bridge bubble on hovering the "!" marker, not the bridge', () => {
@@ -142,14 +165,30 @@ describe('Landing content', () => {
     expect(bubble).not.toBeVisible()
   })
 
-  it('makes every desk object a button and keeps Kora decorative', () => {
+  it('makes every desk object a button, Kora included', () => {
     const { container } = renderLanding()
     const desk = within(container.querySelector('.desk-group'))
-    for (const obj of [...landing.desk, landing.globe, landing.backpack]) {
+    for (const obj of [...landing.desk, landing.globe, landing.backpack, landing.sketchbook]) {
       expect(desk.getByRole('button', { name: new RegExp(obj.label) })).toBeInTheDocument()
     }
-    expect(desk.getByRole('img', { name: landing.dog.alt })).toBeInTheDocument()
-    expect(desk.queryByRole('button', { name: /kora/ })).not.toBeInTheDocument()
+    expect(desk.getByRole('button', { name: new RegExp(landing.dog.alt) })).toBeInTheDocument()
+  })
+
+  it('startles Kora awake on a click, and lets her settle back to sleep', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = renderLanding()
+      const kora = within(container.querySelector('.desk-group')).getByRole('button', { name: new RegExp(landing.dog.alt) })
+      expect(kora).not.toHaveClass('is-startled')
+      fireEvent.click(kora)
+      expect(kora).toHaveClass('is-startled')
+      expect(kora.querySelector('.dog-alert')).toBeInTheDocument()
+      act(() => vi.advanceTimersByTime(2000))
+      expect(kora).not.toHaveClass('is-startled')
+      expect(kora.querySelector('.dog-alert')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('says what every object does', () => {
@@ -220,6 +259,31 @@ describe('Landing content', () => {
     expect(backpack).toHaveFocus()
   })
 
+  describe('the sketchbook', () => {
+    it('opens as a book, switches to a grid of every drawing, and closes back to the desk', () => {
+      renderLanding()
+      const opener = screen.getByRole('button', { name: landing.sketchbook.label })
+      fireEvent.click(opener)
+      const dialog = screen.getByRole('dialog', { name: landing.sketchbook.title })
+      const book = within(dialog).getByRole('group', { name: /sketchbook, page 1 of/i })
+      expect(book).toHaveAccessibleName(new RegExp(`of ${sketchbook.length}`))
+      fireEvent.click(within(dialog).getByRole('button', { name: landing.sketchbook.grid }))
+      const grid = within(dialog).getByRole('list', { name: landing.sketchbook.gridLabel })
+      const pieces = sketchbook.flatMap((p) => p.items ?? [p])
+      expect(within(grid).getAllByRole('img')).toHaveLength(pieces.length)
+      for (const piece of pieces) expect(within(grid).getByAltText(piece.alt)).toBeInTheDocument()
+      fireEvent(dialog, new Event('cancel', { cancelable: true }))
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(opener).toHaveFocus()
+    })
+
+    it('keeps the ink drawings to two pages, a few to each', () => {
+      const shared = sketchbook.filter((p) => p.items)
+      expect(shared).toHaveLength(2)
+      for (const page of shared) expect(page.items.length).toBeGreaterThan(1)
+    })
+  })
+
   describe('the globe', () => {
     const realGetContext = HTMLCanvasElement.prototype.getContext
     // jsdom has no canvas: the map should cope, and the list carries the content
@@ -281,6 +345,41 @@ describe('Landing content', () => {
       const place = places[1]
       fireEvent.focus(within(dialog).getByRole('button', { name: place.name }))
       expect(within(dialog).getByText(`${place.name}: ${place.note}`)).toBeInTheDocument()
+    })
+
+    it('shows the photos from a picked place, and none for a place without them', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      const withPhotos = places.find((p) => p.photos?.length > 1)
+      const without = places.find((p) => !p.photos?.length)
+      fireEvent.click(within(dialog).getByRole('button', { name: withPhotos.name }))
+      const strip = within(dialog).getByRole('list', { name: `photos from ${withPhotos.name}` })
+      expect(within(strip).getAllByRole('img')).toHaveLength(withPhotos.photos.length)
+      expect(within(strip).getByAltText(withPhotos.photos[0].alt)).toBeInTheDocument()
+      fireEvent.click(within(strip).getAllByRole('img')[0]) // a click on a photo keeps the pop-up open
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      fireEvent.click(within(dialog).getByRole('button', { name: without.name }))
+      expect(within(dialog).queryByRole('list', { name: /photos from/ })).not.toBeInTheDocument()
+    })
+
+    it('zooms in and out from its buttons, and says how to look around', () => {
+      renderLanding()
+      fireEvent.click(screen.getByRole('button', { name: landing.globe.label }))
+      const dialog = screen.getByRole('dialog')
+      const zoomIn = within(dialog).getByRole('button', { name: 'zoom in' })
+      const zoomOut = within(dialog).getByRole('button', { name: 'zoom out' })
+      expect(zoomOut).toHaveAttribute('aria-disabled', 'true')
+      expect(within(dialog).getByText(/click the map to zoom in/)).toBeInTheDocument()
+      fireEvent.click(zoomIn)
+      expect(zoomOut).toHaveAttribute('aria-disabled', 'false')
+      expect(within(dialog).getByText(/drag to look around/)).toBeInTheDocument()
+      fireEvent.click(zoomIn)
+      expect(zoomIn).toHaveAttribute('aria-disabled', 'true') // as far as it goes
+      fireEvent.click(zoomOut)
+      fireEvent.click(zoomOut)
+      expect(zoomOut).toHaveAttribute('aria-disabled', 'true')
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
     })
 
     it('closes on a click on the backdrop but not on the map', () => {

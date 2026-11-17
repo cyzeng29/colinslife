@@ -1236,126 +1236,360 @@ footer img {
   gap: 32px 44px; /* room for each photo's outer ink stroke */
   align-items: start;
 }
-/* sketchbook: a spiral-bound book in the art tab; the turning leaf rotates
-   around the spine with a blank back face */
+/* sketchbook: an open book in the art tab, one spread per piece, its notes on
+   the left and the piece on the right. The pages are cream paper with a tooth
+   (--sb-grain), the book lies on a watercolour wash (--sb-wash) and casts a
+   soft pool of shadow, and the turning leaf is a chain of hinged strips that
+   curls as it goes over (sketchbook/Leaf.jsx). The textures are set from JS so
+   they follow the deploy base path. */
+.sketchbook {
+  --sb-paper: #f5f0e4;
+  --sb-paper-shade: #e7dfcc;
+  --sb-edge: #d8cfba;
+  --sb-ink-wash: rgba(60, 50, 30, 1);
+  position: relative;
+  padding: 18px 0 4px;
+  isolation: isolate;
+}
+.sketchbook::before {
+  content: '';
+  position: absolute;
+  inset: -2% -3% 12%;
+  z-index: -1;
+  background: var(--sb-wash) center / 100% 100% no-repeat;
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+/* leans toward the pointer (Sketchbook.jsx sets --sb-rx and --sb-ry) */
+.sb-tilt {
+  position: relative;
+  /* fills the column beside the penguin; the text inside is sized to the book */
+  max-width: 620px;
+  margin: 0 auto;
+  perspective: 1400px;
+  container-type: inline-size;
+  perspective-origin: 50% 40%;
+}
+.sb-tilt > .sb-book {
+  transform: rotateX(var(--sb-rx, 0deg)) rotateY(var(--sb-ry, 0deg));
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* the book rests on the desk: a soft pool of shadow, no edge of its own */
+.sb-pool {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 30%;
+  bottom: -9%;
+  background:
+    radial-gradient(48% 44% at 50% 62%, rgba(48, 40, 22, 0.32), rgba(48, 40, 22, 0.12) 52%, transparent 78%),
+    radial-gradient(42% 20% at 50% 88%, rgba(40, 32, 16, 0.3), transparent 80%);
+  filter: blur(14px);
+  pointer-events: none;
+  transition: opacity 200ms linear;
+}
 .sb-book {
   position: relative;
-  width: min(100%, 300px); /* narrow enough that the turning page clears the penguin */
-  margin: 0 auto;
-  padding-left: 16px; /* room for the spiral */
-  perspective: 1400px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  aspect-ratio: 1.44;
+  transform-style: preserve-3d;
   cursor: var(--cursor-pointer);
-  touch-action: pan-y; /* horizontal drags flip; vertical still scrolls */
+  touch-action: pan-y; /* sideways drags turn pages; up and down still scroll */
   user-select: none;
   -webkit-user-select: none;
 }
+.sb-book.is-held {
+  cursor: grabbing;
+}
 .sb-book:focus-visible {
-  outline-offset: 6px;
+  outline: 2px solid var(--ink);
+  outline-offset: 10px;
+  border-radius: 14px;
 }
-.sb-spiral {
-  position: absolute;
-  left: 4px;
-  top: 10px;
-  bottom: 10px;
-  z-index: 3;
-  width: 22px;
-  /* coil loops: an ink ring every 20px, punched through the page edge */
-  background: radial-gradient(ellipse 9px 5px at 50% 50%, transparent 55%, var(--ink-soft) 60% 78%, transparent 82%) 0 0 /
-    22px 20px repeat-y;
-  pointer-events: none;
-}
-.sb-stack {
+.sb-side {
   position: relative;
-  aspect-ratio: 4 / 5;
-  transform-style: preserve-3d;
+  min-width: 0;
 }
-/* the next pages peeking out under the current one */
-.sb-edge {
-  position: absolute;
-  inset: 4px -4px -4px 4px;
-  background: var(--key-white);
-  border: 1px solid var(--rule);
-  border-radius: 2px 8px 8px 2px;
+/* the leaves still to come, and those turned, show at the outer edges */
+.sb-side.is-left {
+  box-shadow: calc(var(--sb-before) * -1.5px) calc(var(--sb-before) * 0.7px) 0 -1px var(--sb-edge);
+  border-radius: 10px 0 0 10px;
 }
-.sb-page {
+.sb-side.is-right {
+  box-shadow: calc(var(--sb-after) * 1.5px) calc(var(--sb-after) * 0.7px) 0 -1px var(--sb-edge);
+  border-radius: 0 10px 10px 0;
+}
+.sb-paper {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  background-color: var(--sb-paper);
+  background-image: var(--sb-grain);
+  background-size: 320px 320px;
+  color: var(--ink);
+}
+.sb-paper.is-left {
+  border-radius: 10px 0 0 10px;
+  /* the page curves down into the spine and is a touch darker at its edge */
+  box-shadow:
+    inset -26px 0 30px -18px rgba(70, 56, 30, 0.34),
+    inset 18px 0 22px -20px rgba(70, 56, 30, 0.16);
+}
+.sb-paper.is-right {
+  border-radius: 0 10px 10px 0;
+  box-shadow:
+    inset 26px 0 30px -18px rgba(70, 56, 30, 0.3),
+    inset -18px 0 22px -20px rgba(70, 56, 30, 0.14);
+}
+/* the shadow a lifted leaf casts on the pages beside the spine */
+.sb-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48%;
+  pointer-events: none;
+  opacity: calc(var(--sb-lifted, 0) * 0.85);
+}
+.sb-side.is-left .sb-gutter {
+  right: 0;
+  background: linear-gradient(270deg, rgba(52, 40, 20, 0.32), transparent 85%);
+}
+.sb-side.is-right .sb-gutter {
+  left: 0;
+  background: linear-gradient(90deg, rgba(52, 40, 20, 0.28), transparent 85%);
+}
+
+/* notes for the piece opposite */
+.sb-paper.is-note {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8% 10% 9%;
+}
+.sb-no {
+  margin: 0;
+  font-size: clamp(7px, 1.9cqw, 11.5px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(46, 51, 32, 0.55);
+}
+.sb-note {
+  display: grid;
+  gap: 1.2cqw;
+}
+.sb-kind {
+  margin: 0;
+  font-size: clamp(7px, 1.8cqw, 11px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+.sb-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(11px, 4.4cqw, 28px);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+.sb-rule {
+  display: block;
+  width: 38%;
+  height: 2px;
+  margin-top: 1.2cqw;
+  border-radius: 2px;
+  background: var(--olive);
+  opacity: 0.45;
+  transform: rotate(-1.2deg);
+}
+
+/* the piece */
+.sb-paper.is-art {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 18px 22px 26px;
-  background: var(--key-white);
-  border: 1px solid var(--rule);
-  border-radius: 2px 8px 8px 2px;
-  box-shadow: 0 1px 3px var(--rule);
-  overflow: hidden;
+  padding: 9% 8% 9% 11%;
 }
-.sb-page img {
+.sb-mount {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.sb-mount img {
   display: block;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   pointer-events: none;
 }
-/* photos are taped onto the page */
-.sb-page.is-photo img {
-  border: 6px solid var(--bg);
-  box-shadow: 0 1px 4px var(--rule);
-  transform: rotate(-1.5deg);
+/* a drawing is printed on the sheet: its white takes the paper's colour */
+.sb-paper.is-drawing .sb-mount img {
+  mix-blend-mode: multiply;
+  filter: saturate(0.92) contrast(1.02);
+  box-shadow: 0 0 0 1px rgba(70, 56, 30, 0.06);
 }
-.sb-page.is-photo::before {
+/* a photo is taped in, a little crooked */
+.sb-paper.is-photo .sb-mount img {
+  border: clamp(3px, 1cqw, 7px) solid #fbfaf6;
+  box-shadow:
+    0 1px 2px rgba(50, 40, 20, 0.22),
+    0 6px 14px rgba(50, 40, 20, 0.14);
+  transform: rotate(-1.6deg);
+}
+.sb-paper.is-photo .sb-mount::before {
   content: '';
   position: absolute;
-  top: 14px;
+  top: 2%;
   left: 50%;
   z-index: 1;
-  width: 64px;
-  height: 18px;
-  margin-left: -32px;
+  width: 26%;
+  height: 7%;
+  max-height: 22px;
+  margin-left: -13%;
   background: var(--tape);
   transform: rotate(-4deg);
 }
-.sb-page .frame-empty {
+.sb-paper .frame-empty {
   position: absolute;
-  inset: 0;
+  inset: 12%;
 }
+/* a few drawings to a page: two side by side, the third under them */
+.sb-cluster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 5%;
+  width: 100%;
+  height: 100%;
+}
+.sb-cluster-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+.sb-cluster-item:nth-child(3) {
+  grid-column: 1 / -1;
+}
+.sb-cluster-item img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.sb-cluster-item:nth-child(1) img {
+  transform: rotate(-1.5deg);
+}
+.sb-cluster-item:nth-child(2) img {
+  transform: rotate(1.2deg);
+}
+
+/* the turning leaf: strips hinged one to the next, each turned a little more */
 .sb-leaf {
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  transform-origin: left center;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 4;
   transform-style: preserve-3d;
-  animation: sb-turn-next 560ms cubic-bezier(0.45, 0.05, 0.3, 1) both;
+  pointer-events: none;
+}
+.sb-leaf.is-next {
+  left: 50%;
+  transform-origin: left center;
 }
 .sb-leaf.is-prev {
-  animation-name: sb-turn-prev;
+  right: 50%;
+  transform-origin: right center;
+}
+.sb-strip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+}
+.sb-leaf > .sb-strip {
+  width: calc(100% / var(--sb-strips));
+}
+.sb-strip .sb-strip {
+  width: 100%;
+}
+.sb-leaf.is-next .sb-strip {
+  transform-origin: left center;
+}
+.sb-leaf.is-next > .sb-strip {
+  left: 0;
+}
+.sb-leaf.is-next .sb-strip .sb-strip {
+  left: 100%;
+}
+.sb-leaf.is-prev .sb-strip {
+  transform-origin: right center;
+}
+.sb-leaf.is-prev > .sb-strip {
+  right: 0;
+}
+.sb-leaf.is-prev .sb-strip .sb-strip {
+  right: 100%;
 }
 .sb-face {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: -1px; /* a hair of overlap, so no seam shows between strips */
+  overflow: hidden;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.sb-back {
-  background: var(--key-white);
-  border: 1px solid var(--rule);
-  border-radius: 8px 2px 2px 8px;
+.sb-face.is-back {
   transform: rotateY(180deg);
 }
-@keyframes sb-turn-next {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(-180deg);
-  }
+/* each face holds the whole page, slid so its own slice shows */
+.sb-slice {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--sb-strips) * 100%);
 }
-@keyframes sb-turn-prev {
-  from {
-    transform: rotateY(-180deg);
-  }
-  to {
-    transform: rotateY(0deg);
+/* light on the curl: darker as a strip turns edge-on, with a passing sheen */
+.sb-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.sb-face.is-front::after {
+  background: rgba(58, 44, 20, var(--sb-shade-front));
+  box-shadow: inset 0 0 0 200px rgba(255, 250, 238, var(--sb-glint));
+}
+.sb-face.is-back::after {
+  background: rgba(58, 44, 20, var(--sb-shade-back));
+  box-shadow: inset 0 0 0 200px rgba(255, 250, 238, var(--sb-glint));
+}
+/* the leaf keeps its rounded outer corner as it turns */
+.sb-leaf.is-next .sb-strip:not(:has(.sb-strip)) > .sb-face.is-front,
+.sb-leaf.is-prev .sb-strip:not(:has(.sb-strip)) > .sb-face.is-back {
+  border-radius: 0 10px 10px 0;
+}
+.sb-leaf.is-next .sb-strip:not(:has(.sb-strip)) > .sb-face.is-back,
+.sb-leaf.is-prev .sb-strip:not(:has(.sb-strip)) > .sb-face.is-front {
+  border-radius: 10px 0 0 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-tilt > .sb-book {
+    transform: none;
+    transition: none;
   }
 }
 .sb-controls {
@@ -1363,7 +1597,7 @@ footer img {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  margin-top: 16px;
+  margin-top: 22px;
   font-size: 11.5px;
   color: var(--ink-soft);
 }
@@ -1384,13 +1618,19 @@ footer img {
   cursor: var(--cursor-dot);
   text-decoration: none;
 }
-.sb-caption {
-  margin: 8px 0 0;
-  min-height: 1.5em;
-  font-size: 11.5px;
-  line-height: 1.5;
+.sb-hint {
+  margin: 6px 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
   text-align: center;
+  text-transform: uppercase;
   color: var(--ink-soft);
+  opacity: 0.7;
+}
+@media (hover: none) {
+  .sb-hint {
+    display: none;
+  }
 }
 /* about: "duke" clubs, a carousel with one photo and caption per club */
 .clubs {
@@ -1446,7 +1686,7 @@ footer img {
   }
   .desk {
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    gap: 88px; /* room for the sketchbook's page to swing left */
+    gap: 88px;
   }
   /* The 2x2 gallery takes no height of its own: it fills the panel, which
      stretches to the penguin column, so it ends where the caption does. */
@@ -1495,6 +1735,9 @@ footer img {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dog-alert {
+    animation-name: fade-in-out;
+  }
   .desk-stop-dot,
   .desk-path-penguin {
     transition: none;
@@ -2077,21 +2320,44 @@ footer img {
     translate: -50% -50%;
   }
 }
-/* Stardew-style text box (placeholder until the drawn bubble arrives) */
+/* Stardew-style text box (placeholder until the drawn bubble arrives). It
+   hangs above its anchor point and lets the pointer through, so moving over it
+   never takes the hover off the "!" marker. */
 .bubble {
   z-index: 5;
+  transform: translateY(-100%);
+  pointer-events: none;
   height: auto !important;
   padding: 10px 14px;
   font-size: clamp(11px, 1vw, 14px);
   line-height: 1.45;
   color: var(--ink);
-  background: var(--key-white);
-  border: 2px solid var(--ink-soft);
-  border-radius: 6px;
-  box-shadow: 4px 4px 0 var(--olive-pale);
+  /* a soft frosted block rather than an outlined box */
+  background: rgba(238, 238, 236, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(30, 36, 24, 0.18);
+}
+.bubble.is-below {
+  transform: none;
 }
 .bubble[hidden] {
   display: none;
+}
+/* the real bridge, over its caption */
+.bubble-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* a wide crop keeps the bubble short */
+  object-fit: cover;
+  object-position: 50% 60%;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+.bubble-text {
+  margin: 0;
 }
 
 /* fog between the panels: drawn clouds, or soft CSS fog until then */
@@ -2250,23 +2516,73 @@ footer img {
   opacity: var(--arrive);
 }
 
-/* Kora: asleep, with a faint name */
+/* Kora: asleep, with a faint name. The z's rise off her head; a click
+   startles her: she jolts, a "!" pops over her head and the z's stop. */
 .desk-dog {
   pointer-events: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: var(--cursor-pointer);
+}
+.desk-dog:focus-visible {
+  outline: 2px solid var(--ink-soft);
+  outline-offset: 4px;
+  border-radius: 40%;
+}
+.desk-dog.is-startled > .layer-img {
+  transform-origin: 55% 85%;
+  animation: dog-jolt 560ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+@keyframes dog-jolt {
+  16% { transform: translateY(-6%) scaleY(1.04) rotate(-1.2deg); }
+  38% { transform: translateY(0) scaleY(0.97); }
+  55% { transform: translateX(-0.8%) rotate(0.8deg); }
+  72% { transform: translateX(0.6%) rotate(-0.5deg); }
+}
+/* the "!" over her head, the same one that marks where Colin lives */
+.dog-alert {
+  position: absolute;
+  left: 47%; /* just over her head */
+  top: -13%;
+  width: 11%;
+  /* only the "!" itself: the drawing's bottom third is the splash under the
+     bridge marker, cropped off here */
+  aspect-ratio: 84 / 60;
+  overflow: hidden;
+  pointer-events: none;
+  animation: dog-alert 1.7s ease both;
+}
+.dog-alert .layer-img {
+  height: auto;
+}
+@keyframes dog-alert {
+  0% { opacity: 0; transform: translateY(30%) scale(0.4); }
+  14% { opacity: 1; transform: translateY(-8%) scale(1.15); }
+  24% { transform: translateY(0) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10%); }
+}
+.desk-dog.is-startled .dog-zzz,
+.desk-dog.is-startled .dog-zzz-drawn {
+  visibility: hidden;
 }
 .dog-zzz,
 .dog-zzz-drawn {
   position: absolute;
 }
+/* starting from her head (about 56% across the drawing, near its top) */
 .dog-zzz {
-  right: 30%;
-  top: 0;
+  left: 58%;
+  top: 6%;
   font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(9px, 1vw, 15px);
   color: var(--ink-soft);
 }
 .dog-zzz i {
   position: absolute;
+  left: 0;
+  bottom: 0;
   font-style: normal;
   opacity: 0;
   animation: zzz 3.6s ease-in infinite;
@@ -2274,8 +2590,9 @@ footer img {
 .dog-zzz i:nth-child(2) { animation-delay: 1.2s; font-size: 1.15em; }
 .dog-zzz i:nth-child(3) { animation-delay: 2.4s; font-size: 1.3em; }
 @keyframes zzz {
+  0% { transform: translate(0, 0) scale(0.7); }
   20% { opacity: 0.8; }
-  100% { opacity: 0; transform: translate(14px, -26px); }
+  100% { opacity: 0; transform: translate(2.2em, -3em) scale(1.1); }
 }
 .dog-zzz-drawn {
   inset: 0;
@@ -2517,7 +2834,7 @@ a.bp-chip:focus-visible {
   --map-w: min(860px, calc((100dvh - 170px) * 1.6));
   display: grid;
   grid-template-columns: minmax(0, var(--map-w));
-  grid-template-areas: 'head' 'map' 'caption';
+  grid-template-areas: 'head' 'map' 'caption' 'photos';
   justify-content: center;
   align-content: center;
   align-items: center;
@@ -2574,17 +2891,65 @@ a.bp-chip:focus-visible {
   flex: none;
 }
 .gl-map {
+  position: relative;
   grid-area: map;
   width: var(--map-w);
   max-width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
   animation: bag-settle 280ms ease backwards;
+}
+/* zoom in and out, tucked in the map's corner */
+.gl-zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--on-green-soft);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(28, 34, 27, 0.55);
+}
+.gl-zoom button {
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--on-green);
+  background: transparent;
+  border: 0;
+  cursor: var(--cursor-pointer);
+}
+.gl-zoom button + button {
+  border-top: 1px solid var(--on-green-soft);
+}
+.gl-zoom button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.gl-zoom button[aria-disabled='true'] {
+  opacity: 0.35;
+  cursor: var(--cursor-dot);
+  background: transparent;
+}
+.gl-zoom button:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: -4px;
 }
 .gl-canvas {
   display: block;
   width: 100%;
   aspect-ratio: 1.6;
-  /* flat, the map lets a phone scroll the pop-up; the globe takes the drag */
+  /* flat, the map lets a phone scroll the pop-up (pinching still zooms the
+     map); the globe, or the map zoomed in, takes the drag */
   touch-action: pan-y;
+  cursor: zoom-in;
+}
+.gl-canvas.is-zoomed {
+  touch-action: none;
+  cursor: grab;
 }
 .gl-canvas.is-globe {
   touch-action: none;
@@ -2602,8 +2967,69 @@ a.bp-chip:focus-visible {
   text-align: center;
   color: var(--on-green);
 }
+/* a picked place's photos: a row of small prints under the caption, which
+   scrolls sideways when there are more than fit. The map gives up height for it. */
+.gl-stage.has-photos {
+  --map-w: min(860px, calc((100dvh - 170px - var(--strip-h)) * 1.6));
+}
+.gl-stage {
+  --strip-h: clamp(96px, 17vh, 150px);
+}
+.gl-photos {
+  grid-area: photos;
+  display: flex;
+  justify-content: safe center;
+  gap: 14px;
+  margin: 0;
+  padding: 4px 6px 10px;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  animation: rise 260ms ease both;
+}
+.gl-photo {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  flex: none;
+  scroll-snap-align: center;
+}
+.gl-photo button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: var(--cursor-pointer);
+  border-radius: 6px;
+}
+.gl-photo img {
+  display: block;
+  height: calc(var(--strip-h) - 30px);
+  width: auto;
+  max-width: 60vw;
+  border: 4px solid var(--key-white);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: transform 160ms ease;
+}
+.gl-photo button:hover img {
+  transform: translateY(-3px) rotate(-1deg);
+}
+.gl-photo button:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: 3px;
+}
+.gl-photo-caption {
+  max-width: 18ch;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--on-green-soft);
+}
 @media (max-width: 760px) {
-  .gl-stage {
+  .gl-stage,
+  .gl-stage.has-photos {
     --map-w: 100%;
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
@@ -2611,10 +3037,113 @@ a.bp-chip:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   .gl-head,
-  .gl-map {
+  .gl-map,
+  .gl-photos {
     animation: none;
   }
-  .gl-view {
+  .gl-view,
+  .gl-photo img {
+    transition: none;
+  }
+}
+
+/* the desk's sketchbook, opened, on the backpack's backdrop (.bp-dialog): the
+   book as large as fits, or every drawing in a grid to scroll */
+.sk-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-content: start;
+  gap: clamp(12px, 3vh, 28px);
+  min-height: 100%;
+  padding: 24px clamp(16px, 3vw, 48px) 32px;
+  box-sizing: border-box;
+}
+.sk-head {
+  grid-area: auto; /* the globe's header has a named area; this stage has none */
+  width: min(1100px, 100%);
+}
+.sk-stage.is-book {
+  align-content: center;
+}
+.sk-stage .sketchbook {
+  width: min(1100px, 100%);
+  color: var(--on-green);
+}
+.sk-stage .sketchbook::before {
+  opacity: 0.35;
+}
+.sk-stage .sb-tilt {
+  max-width: min(1060px, (100dvh - 230px) * 1.44);
+}
+.sk-stage .sb-controls,
+.sk-stage .sb-hint {
+  color: var(--on-green);
+}
+.sk-stage .sb-controls button {
+  color: var(--on-green);
+}
+.sk-stage .sb-controls button[aria-disabled='true'] {
+  color: var(--on-green-soft);
+}
+.sk-stage .sb-book:focus-visible {
+  outline-color: var(--on-green);
+}
+.sk-grid {
+  width: min(1100px, 100%);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 3 260px;
+  column-gap: 22px;
+  animation: rise 260ms ease both;
+}
+.sk-piece {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 22px;
+  break-inside: avoid;
+}
+.sk-piece button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  cursor: var(--cursor-pointer);
+}
+.sk-piece img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #f5f0e4;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 180ms ease;
+}
+/* ink on white sits on the sketchbook's paper */
+.sk-piece.is-drawing img {
+  padding: 10px;
+  box-sizing: border-box;
+}
+.sk-piece button:hover img {
+  transform: translateY(-3px);
+}
+.sk-piece button:focus-visible {
+  outline: 2px solid var(--on-green);
+  outline-offset: 4px;
+}
+.sk-piece-caption {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--on-green-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk-grid {
+    animation: none;
+  }
+  .sk-piece img {
     transition: none;
   }
 }
@@ -3298,6 +3827,7 @@ h2.section-label {
   .marker-alert .layer-img,
   .dog-zzz i,
   .dog-zzz-drawn,
+  .desk-dog.is-startled > .layer-img,
   .string.is-plucked,
   .desk-obj > *,
   .hall-char .char-frame {
@@ -3306,6 +3836,10 @@ h2.section-label {
   .dog-zzz i:first-child {
     opacity: 0.6;
   }
+}
+@keyframes fade-in-out {
+  15%, 80% { opacity: 1; }
+  0%, 100% { opacity: 0; }
 }
 @keyframes fade-in {
   from { opacity: 0; }

@@ -10,6 +10,13 @@ const base = import.meta.env.BASE_URL
 const local = (href) => href.startsWith(base) && !/^(https?:)?\/\//.test(href)
 
 describe('content assets', () => {
+  it('describes every photo of a place, and names each place once', () => {
+    for (const place of places) {
+      for (const photo of place.photos ?? []) expect(photo.alt, place.name).toBeTruthy()
+    }
+    expect(new Set(places.map((p) => p.name)).size).toBe(places.length)
+  })
+
   it('points every filled image slot at a file in public/', () => {
     const entries = [...experience, ...projects]
     const images = [
@@ -17,6 +24,7 @@ describe('content assets', () => {
       ...entries.flatMap((e) => [e.thumb, ...e.media]),
       ...about.interests.flatMap((it) => it.images),
       ...about.clubs.map((c) => c.photo ?? {}),
+      ...places.flatMap((p) => p.photos ?? []),
     ].filter((img) => img.src)
     for (const img of images) {
       expect(existsSync(resolve('public', img.src)), img.src).toBe(true)

@@ -164,7 +164,7 @@ export default function Landing() {
               className="seam-region"
               style={{ transform: `translateY(${(-(SEAM_Y - regions.seam.y) / regions.seam.h) * 100}%)` }}
             >
-              <Bridge text={landing.bridge.text} />
+              <Bridge text={landing.bridge.text} photo={landing.bridge.photo} />
             </CanvasRegion>
           </div>
           <CanvasRegion region={regions.desk} className="desk-region" ref={deskRef}>

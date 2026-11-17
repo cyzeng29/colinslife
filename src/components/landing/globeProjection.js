@@ -67,3 +67,31 @@ export const landPoints = (rows) => {
   })
   return points
 }
+
+// Zooming. The view is a scale `k` (1 shows the whole map) and the map point
+// `x, y` at the canvas centre. Flat, the map can be panned no further than its
+// edges; as a globe it stays centred, since spinning it does the panning, and
+// zooms less far: close up, a globe is mostly its own dark body and scattered dots.
+export const ZOOM = { min: 1, max: 6, globeMax: 2, step: 2.5 }
+export const maxZoom = (view) => (view === 'globe' ? ZOOM.globeMax : ZOOM.max)
+const MAP_HALF_H = 0.49 // the flat map's dots run from about -0.49 to 0.49 down the canvas
+const CANVAS_HALF_H = 1 / CANVAS_RATIO
+
+export function clampView({ k, x, y }, max = ZOOM.max) {
+  const zoom = Math.min(max, Math.max(ZOOM.min, k))
+  const limX = Math.max(0, 1 - 1 / zoom)
+  const limY = Math.max(0, MAP_HALF_H - CANVAS_HALF_H / zoom)
+  // + 0 turns a -0 into a plain 0
+  return { k: zoom, x: Math.max(-limX, Math.min(limX, x)) + 0, y: Math.max(-limY, Math.min(limY, y)) + 0 }
+}
+
+// The view after zooming to `k`, keeping the map point under `at` (canvas
+// units from the centre) where it is
+export function zoomAbout(view, k, at = { x: 0, y: 0 }, max = ZOOM.max) {
+  const under = { x: view.x + at.x / view.k, y: view.y + at.y / view.k }
+  return clampView({ k, x: under.x - at.x / k, y: under.y - at.y / k }, max)
+}
+
+// Where a map point lands on the canvas, in canvas units from the centre. As
+// the map curls into a globe the pan eases out (`t`), keeping the globe centred.
+export const viewPoint = (p, view, t) => ({ x: (p.x - view.x * (1 - t)) * view.k, y: (p.y - view.y * (1 - t)) * view.k })

@@ -3,7 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LightboxProvider } from '../Lightbox.jsx'
 import Frame from '../Frame.jsx'
-import Sketchbook from '../Sketchbook.jsx'
+import Sketchbook from '../sketchbook/Sketchbook.jsx'
+import PlacePhotos from '../landing/PlacePhotos.jsx'
 
 // jsdom has no showModal/close; Escape fires `cancel` like browsers do.
 beforeAll(() => {
@@ -73,5 +74,14 @@ describe('Lightbox', () => {
     await user.click(screen.getByRole('button', { name: /enlarge/ }))
     const dialog = screen.getByRole('dialog', { name: 'first page' })
     expect(dialog).toHaveTextContent('page one')
+  })
+
+  it("enlarges a place's photo from the globe, with its caption", async () => {
+    const user = userEvent.setup()
+    const photos = [{ src: 'images/places/a.jpeg', alt: 'a red bridge', caption: 'duke gardens bridge' }]
+    withLightbox(<PlacePhotos place="durham, nc" photos={photos} />)
+    await user.click(screen.getByRole('button', { name: 'Enlarge photo: a red bridge' }))
+    const dialog = screen.getByRole('dialog', { name: 'a red bridge' })
+    expect(dialog).toHaveTextContent('duke gardens bridge')
   })
 })

@@ -44,6 +44,15 @@ npm test
 - `src/pages/` — one file per page: Home (with the case study grid), CaseStudy,
   WorkList (the full list), About, Create. Opening a different page starts at
   its top (`src/hooks/useScrollToTopOnNavigate.js`).
+- `src/components/sketchbook/` — the open book, on the About page's art tab
+  (the art interest's `images`) and, larger, in the desk's sketchbook pop-up
+  (`sketchbook` in `content.js`, with `SketchGrid.jsx` for its grid view): one
+  spread per entry (its caption's kind and title
+  on the left page, the piece on the right). Drag a page to turn it, throw it, or
+  click a page or use the arrow keys. `leaf.js` is the bend: the turning leaf is
+  a chain of hinged strips, each turned a little more than the last. The paper
+  and the wash behind the book are our own SVG textures in
+  `public/images/sketchbook/`.
 - `src/components/PianoNav.jsx` — the drawn piano bar (every page): 曾 毅
   tiles, the third tile as the sound on/off switch (remembered per browser),
   and one octave C–C. Invisible hit areas sit over each drawn key; C, E, A and
@@ -58,8 +67,12 @@ npm test
   sidebar, strings (a key click makes the character walk over and pluck its
   string, then navigates), the bridge in the fog, and the desk (the backpack
   opens onto a cloud of skills that link to their case studies; the globe opens
-  onto a dotted map of places explored that curls between 2d and 3d; the monitor
-  switches its screen on).
+  onto a dotted map of places explored that curls between 2d and 3d and zooms
+  (a click, the wheel, a pinch or its + and − buttons; `ZOOM` in
+  `globeProjection.js` sets how far); the sketchbook opens the full `sketchbook`
+  from `content.js` as a book or a grid (a page with `items` holds a few
+  drawings; the grid shows each on its own); the monitor switches its screen
+  on; and a click on Kora startles her awake for a moment).
   Scrolling walks the character down to the desk (`src/hooks/useScrollProgress.js`),
   where the page holds still for a stretch of scrolling (`.stage-hold` in
   `src/index.css`) before moving on.
@@ -67,11 +80,14 @@ npm test
 ## Adding a place to the globe
 
 Add a line to `places` in `src/data/content.js` with its `name`, `lat`, `lon` and
-an optional `note`. It gets a marker on the map.
+an optional `note`. It gets a marker on the map. Add `photos` (made with the
+`photo()` helper there, files in `public/images/places/`) and picking the place
+shows them in a strip under the caption, each enlarging on a click.
 
 The map's dots live in `src/data/landDots.json`, generated from Natural Earth by
 `npm run land`. It only needs running again to change the dot grid
 (`LAND_GRID` in `src/components/landing/globeProjection.js`).
+
 
 ## Updating the drawing
 
